@@ -5,19 +5,19 @@ This repository is also a [Codex plugin](https://developers.openai.com/codex/plu
 ## Install
 
 ```bash
-codex plugin marketplace add addyosmani/agent-skills
-codex plugin add agent-skills@agent-skills
+codex plugin marketplace add duchuyn04/agent-skills
+codex plugin add agent-skills@duchuyn04-agent-skills
 ```
 
 > Requires Codex CLI v0.122 or later. On older releases the command was `codex marketplace add`. See the [Codex CLI docs](https://developers.openai.com/codex/cli).
 
-The first command registers this repository as the `agent-skills` marketplace. The second command installs and enables the `agent-skills` plugin from that marketplace. Start a new Codex session after installation so the skills are discovered.
+The first command registers this repository as the `duchuyn04-agent-skills` marketplace. The second command installs and enables the `agent-skills` plugin from that marketplace. Start a new Codex session after installation so the skills are discovered.
 
 Local clones work too:
 
 ```bash
 codex plugin marketplace add /path/to/your/clone
-codex plugin add agent-skills@agent-skills
+codex plugin add agent-skills@duchuyn04-agent-skills
 ```
 
 ## Usage

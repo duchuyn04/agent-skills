@@ -1,410 +1,456 @@
-# Agent Skills
+# agent-skills (bản tùy biến)
 
-**Production-grade engineering skills for AI coding agents.**
+Bộ quy trình làm việc cho AI coding agent, tách nhánh (fork) từ [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) bản 0.6.15. Bản này thêm quy tắc riêng: trả lời tiếng Việt, comment tiếng Việt, làm frontend và backend song song, và mỗi module có thư mục kế hoạch riêng.
 
-Skills encode the workflows, quality gates, and best practices that senior engineers use when building software. These ones are packaged so AI agents follow them consistently across every phase of development.
+README gốc bằng tiếng Anh của tác giả nằm ở [README.upstream.md](README.upstream.md).
 
-<a href="https://trendshift.io/repositories/25200" target="_blank"><img src="https://trendshift.io/api/badge/repositories/25200" alt="addyosmani%2Fagent-skills | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
+## Tóm tắt
 
-![Addy's Agent Skills](https://addyosmani.com/assets/images/addys-agent-skills.jpg)
+AI coding agent là trợ lý lập trình chạy trong terminal hoặc editor, ví dụ Claude Code, Codex, Cursor, GitHub Copilot. Agent đọc code, sửa file và chạy lệnh thay bạn.
 
-```
-  DEFINE          PLAN           BUILD          VERIFY         REVIEW          SHIP
- ┌──────┐      ┌──────┐      ┌──────┐      ┌──────┐      ┌──────┐      ┌──────┐
- │ Idea │ ───▶ │ Spec │ ───▶ │ Code │ ───▶ │ Test │ ───▶ │  QA  │ ───▶ │  Go  │
- │Refine│      │  PRD │      │ Impl │      │Debug │      │ Gate │      │ Live │
- └──────┘      └──────┘      └──────┘      └──────┘      └──────┘      └──────┘
-  /spec          /plan          /build        /test         /review       /ship
-```
+Skill là một file hướng dẫn quy trình mà agent đọc trước khi làm việc. Ví dụ: skill `test-driven-development` bắt agent viết test trước rồi mới viết code. Giống một bảng quy trình dán trên tường xưởng: thợ mới hay thợ cũ đều làm theo cùng các bước.
 
----
+Bộ này có 25 skill, 4 persona và 9 lệnh tắt như `/spec`, `/plan`, `/build`. Persona là vai chuyên gia, ví dụ người review code hay người kiểm bảo mật. Bạn cài một lần, sau đó agent tự chọn skill hợp với việc đang làm.
 
-## Commands
+## Khác gì so với bản gốc
 
-9 slash commands that map to the development lifecycle. Each one activates the right skills automatically.
-
-| What you're doing | Command | Key principle |
-|-------------------|---------|---------------|
-| Define what to build | `/spec` | Spec before code |
-| Plan how to build it | `/plan` | Small, atomic tasks |
-| Build incrementally | `/build` | One slice at a time |
-| Prove it works | `/test` | Tests are proof |
-| Set the quality bar | `/constraints` | Decide it once, enforce it everywhere |
-| Review before merge | `/review` | Improve code health |
-| Audit web performance | `/webperf` | Measure before you optimize |
-| Simplify the code | `/code-simplify` | Clarity over cleverness |
-| Ship to production | `/ship` | Faster is safer |
-
-In Claude Code these install as plugin commands. Where a built-in command has the same name, as `/review` does, use the namespaced form: `/agent-skills:review`.
-
-Want fewer manual steps once the spec exists? **`/build auto`** generates the plan and implements every task in a single approved pass: you approve the plan once, then it runs autonomously. It removes the human stepping *between* tasks, not the verification: every task is still test-driven and committed individually, and it pauses on failures or risky steps.
-
-Skills also activate automatically based on what you're doing, designing an API triggers `api-and-interface-design`, building UI triggers `frontend-ui-engineering`, and so on.
-
----
-
-## Quick Start
-
-**Fastest path: any agent, one command.** The open [skills CLI](https://github.com/vercel-labs/skills) installs into 70+ agents (Claude Code, Cursor, Codex, Copilot, Cline, and more):
-
-```bash
-npx skills add addyosmani/agent-skills            # install all 25 skills
-npx skills add addyosmani/agent-skills --list     # browse before installing
-```
-
-Or grab individual skills:
-
-```bash
-npx skills add addyosmani/agent-skills --skill code-review-and-quality   # five-axis review before merge
-npx skills add addyosmani/agent-skills --skill interview-me              # requirements interrogation, one question at a time
-npx skills add addyosmani/agent-skills --skill test-driven-development   # red-green-refactor, enforced
-```
-
-> **Installing one skill?** A per-skill `npx` install copies only
-> `skills/<name>/`, not the repo-level `references/` directory. The skill still
-> works, but paths to supplementary shared checklists are unavailable. Use a
-> whole-repo integration, clone the repository, or copy the needed checklist into
-> a `references/` directory inside the installed skill. This portability gap is
-> tracked in [#361](https://github.com/addyosmani/agent-skills/issues/361).
-
-Prefer a native integration? Pick your tool below.
-
-<details>
-<summary><b>Claude Code (recommended)</b></summary>
-
-**Marketplace install:**
-
-```
-/plugin marketplace add addyosmani/agent-skills
-/plugin install agent-skills@addy-agent-skills
-```
-
-> **SSH errors?** The marketplace clones repos via SSH. If you don't have SSH keys set up on GitHub, either [add your SSH key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account) or use the full HTTPS URL to force HTTPS cloning during the marketplace-add step:
-> ```bash
-> /plugin marketplace add https://github.com/addyosmani/agent-skills.git
-> /plugin install agent-skills@addy-agent-skills
-> ```
->
-> If `/plugin install` still fails with `git@github.com: Permission denied (publickey)` on Windows or macOS, the recommended workaround is to configure Git once to rewrite GitHub SSH URLs to HTTPS for subprocess clones:
-> ```bash
-> git config --global url."https://github.com/".insteadOf git@github.com:
-> ```
-
-**Local / development:**
-
-```bash
-git clone https://github.com/addyosmani/agent-skills.git
-claude --plugin-dir /path/to/agent-skills
-```
-
-</details>
-
-<details>
-<summary><b>Cursor</b></summary>
-
-Put workflow skills under `.cursor/skills/` (sync from `agent-skills/skills/`) and short policies in `.cursor/rules/*.mdc`: do not paste full skills into rules. Both directories live in your project; this repo does not ship a `.cursor/` folder. See [docs/cursor-setup.md](docs/cursor-setup.md).
-
-</details>
-
-<details>
-<summary><b>Antigravity CLI</b></summary>
-
-Install as a native plugin for skills and subagents. In affected Antigravity CLI releases, legacy command TOMLs are reported as converted but their wrapper commands are not discoverable; invoke the underlying namespaced skills directly. See [docs/antigravity-setup.md](docs/antigravity-setup.md#lifecycle-workflows-and-command-compatibility).
-
-**Install from the repo:**
-
-```bash
-agy plugin install https://github.com/addyosmani/agent-skills.git
-```
-
-**Install from a local clone:**
-
-```bash
-git clone https://github.com/addyosmani/agent-skills.git
-agy plugin install ./agent-skills
-```
-
-</details>
-
-<details>
-<summary><b>Gemini CLI</b></summary>
-
-Install as native skills for auto-discovery, or add to `GEMINI.md` for persistent context. See [docs/gemini-cli-setup.md](docs/gemini-cli-setup.md).
-
-**Install from the repo:**
-
-```bash
-gemini skills install https://github.com/addyosmani/agent-skills.git --path skills
-```
-
-**Install from a local clone:**
-
-```bash
-gemini skills install ./agent-skills/skills/
-```
-
-</details>
-
-<details>
-<summary><b>Windsurf</b></summary>
-
-Add skill contents to your Windsurf rules configuration. See [docs/windsurf-setup.md](docs/windsurf-setup.md).
-
-</details>
-
-<details>
-<summary><b>OpenCode</b></summary>
-
-Copy skills to `.opencode/skills/` (or `~/.config/opencode/skills/`), add a project-local `AGENTS.md`, and use the built-in `skill` tool for agent-driven execution. Optional slash commands can be added under `.opencode/commands/`.
-
-See [docs/opencode-setup.md](docs/opencode-setup.md).
-
-</details>
-
-<details>
-<summary><b>GitHub Copilot</b></summary>
-
-Use agent definitions from `agents/` as Copilot personas and skill content in `.github/copilot-instructions.md`. The lifecycle slash commands (`/spec`, `/plan`, `/build`, `/test`, `/review`, `/ship`) are Claude Code commands and do not appear in Copilot; invoke the skills by name (`/spec-driven-development`, …) instead. See [docs/copilot-setup.md](docs/copilot-setup.md).
-
-Using the standalone `copilot` CLI? Install it as a plugin: see [docs/copilot-cli-setup.md](docs/copilot-cli-setup.md).
-
-</details>
-
-<details>
-  <summary><b>Kiro IDE & CLI </b></summary>
-  Skills for Kiro reside under ".kiro/skills/" and can be stored under Project or Global level. Kiro also supports Agents.md. See Kiro docs at https://kiro.dev/docs/skills/
-</details>
-
-<details>
-<summary><b>Codex</b></summary>
-
-Install as a native Codex plugin (Codex CLI v0.122+):
-
-```bash
-codex plugin marketplace add addyosmani/agent-skills
-codex plugin add agent-skills@agent-skills
-```
-
-The first command registers the marketplace; the second installs the plugin. Codex reads the root `skills/` directory directly through `.codex-plugin/plugin.json`. Once installed, invoke skills in chat using `@` (e.g., `@spec-driven-development`). See [docs/codex-setup.md](docs/codex-setup.md) for local installation and troubleshooting.
-
-</details>
-
-<details>
-<summary><b>Command Code</b></summary>
-
-Install natively with the built-in `cmd skills` command. Command Code clones the repo, discovers every `SKILL.md`, and installs into `.commandcode/skills/`:
-
-```bash
-cmd skills add addyosmani/agent-skills            # pick skills to install (project)
-cmd skills add addyosmani/agent-skills --global   # install for all projects (~/.commandcode/skills/)
-cmd skills add addyosmani/agent-skills -s spec-driven-development  # install a specific skill
-```
-
-Installed skills show up in the TUI slash menu, e.g. `/spec-driven-development`. See [docs/commandcode-setup.md](docs/commandcode-setup.md).
-
-</details>
-
-<details>
-<summary><b>Other Agents</b></summary>
-
-Skills are plain Markdown - they work with any agent that accepts system prompts or instruction files. See [docs/getting-started.md](docs/getting-started.md). Hosts that install the pack but aren't listed above are in [docs/other-hosts.md](docs/other-hosts.md).
-
-</details>
-
-
-
----
-
-## Adoption
-
-Already installed? How you roll the pack out depends on your codebase. The **[Adoption Guide](docs/adoption-guide.md)** covers two paths: the full lifecycle from day one for a greenfield project, or an incremental, verification-first rollout for an established codebase.
-
----
-
-## All 25 Skills
-
-The commands above are entry points. The pack includes 25 skills total: 24 lifecycle skills plus the `using-agent-skills` meta-skill. Each skill is a structured workflow with steps, verification gates, and anti-rationalization tables. You can also reference any skill directly.
-
-### Meta - Discover which skill applies
-
-| Skill | What It Does | Use When |
-|-------|-------------|----------|
-| [using-agent-skills](skills/using-agent-skills/SKILL.md) | Maps incoming work to the right skill workflow and defines shared operating rules | Starting a session or deciding which skill applies |
-
-### Define - Clarify what to build
-
-| Skill | What It Does | Use When |
-|-------|-------------|----------|
-| [interview-me](skills/interview-me/SKILL.md) | One-question-at-a-time interview that extracts what the user actually wants instead of what they think they should want, until ~95% confidence | The ask is underspecified, or the user invokes "interview me" / "grill me" |
-| [idea-refine](skills/idea-refine/SKILL.md) | Structured divergent/convergent thinking to turn vague ideas into concrete proposals | You have a rough concept that needs exploration |
-| [spec-driven-development](skills/spec-driven-development/SKILL.md) | Write a PRD covering objectives, commands, structure, code style, testing, and boundaries before any code | Starting a new project, feature, or significant change |
-| [constraint-driven-development](skills/constraint-driven-development/SKILL.md) | Interviews you for a quality bar with sane default thresholds, writes CONSTRAINTS.md, places each check by cost, and catches agents silencing checks or skipping tests to get green | No standards are written down, or an agent is producing more than anyone reads |
-
-### Plan - Break it down
-
-| Skill | What It Does | Use When |
-|-------|-------------|----------|
-| [planning-and-task-breakdown](skills/planning-and-task-breakdown/SKILL.md) | Decompose specs into small, verifiable tasks with acceptance criteria and dependency ordering | You have a spec and need implementable units |
-
-### Build - Write the code
-
-| Skill | What It Does | Use When |
-|-------|-------------|----------|
-| [incremental-implementation](skills/incremental-implementation/SKILL.md) | Thin vertical slices - implement, test, verify, commit. Feature flags, safe defaults, rollback-friendly changes | Any change touching more than one file |
-| [test-driven-development](skills/test-driven-development/SKILL.md) | Red-Green-Refactor, test pyramid (80/15/5), test sizes, DAMP over DRY, Beyonce Rule, browser testing | Implementing logic, fixing bugs, or changing behavior |
-| [context-engineering](skills/context-engineering/SKILL.md) | Feed agents the right information at the right time - rules files, context packing, MCP integrations | Starting a session, switching tasks, or when output quality drops |
-| [source-driven-development](skills/source-driven-development/SKILL.md) | Ground every framework decision in official documentation - verify, cite sources, flag what's unverified | You want authoritative, source-cited code for any framework or library |
-| [doubt-driven-development](skills/doubt-driven-development/SKILL.md) | Adversarial fresh-context review of every non-trivial decision in-flight - CLAIM → EXTRACT → DOUBT → RECONCILE → STOP, with optional user-authorized cross-model escalation | Stakes are high (production, security, irreversible), working in unfamiliar code, or a confident output is cheaper to verify now than to debug later |
-| [frontend-ui-engineering](skills/frontend-ui-engineering/SKILL.md) | Component architecture, design systems, state management, responsive design, WCAG 2.1 AA accessibility | Building or modifying user-facing interfaces |
-| [api-and-interface-design](skills/api-and-interface-design/SKILL.md) | Contract-first design, Hyrum's Law, One-Version Rule, error semantics, boundary validation | Designing APIs, module boundaries, or public interfaces |
-
-### Verify - Prove it works
-
-| Skill | What It Does | Use When |
-|-------|-------------|----------|
-| [browser-testing-with-devtools](skills/browser-testing-with-devtools/SKILL.md) | Chrome DevTools MCP for live runtime data - DOM inspection, console logs, network traces, performance profiling | Building or debugging anything that runs in a browser |
-| [debugging-and-error-recovery](skills/debugging-and-error-recovery/SKILL.md) | Five-step triage: reproduce, localize, reduce, fix, guard. Stop-the-line rule, safe fallbacks | Tests fail, builds break, or behavior is unexpected |
-
-### Review - Quality gates before merge
-
-| Skill | What It Does | Use When |
-|-------|-------------|----------|
-| [code-review-and-quality](skills/code-review-and-quality/SKILL.md) | Five-axis review, change sizing (~100 lines), severity labels (Nit/Optional/FYI), review speed norms, splitting strategies | Before merging any change |
-| [code-simplification](skills/code-simplification/SKILL.md) | Chesterton's Fence, Rule of 500, reduce complexity while preserving exact behavior | Code works but is harder to read or maintain than it should be |
-| [security-and-hardening](skills/security-and-hardening/SKILL.md) | OWASP Top 10 prevention, auth patterns, secrets management, dependency auditing, three-tier boundary system | Handling user input, auth, data storage, or external integrations |
-| [performance-optimization](skills/performance-optimization/SKILL.md) | Measure-first approach - Core Web Vitals targets, profiling workflows, bundle analysis, anti-pattern detection | Performance requirements exist or you suspect regressions |
-
-### Ship - Deploy with confidence
-
-| Skill | What It Does | Use When |
-|-------|-------------|----------|
-| [git-workflow-and-versioning](skills/git-workflow-and-versioning/SKILL.md) | Trunk-based development, atomic commits, change sizing (~100 lines), the commit-as-save-point pattern | Making any code change (always) |
-| [ci-cd-and-automation](skills/ci-cd-and-automation/SKILL.md) | Shift Left, Faster is Safer, feature flags, quality gate pipelines, failure feedback loops | Setting up or modifying build and deploy pipelines |
-| [deprecation-and-migration](skills/deprecation-and-migration/SKILL.md) | Code-as-liability mindset, compulsory vs advisory deprecation, migration patterns, zombie code removal | Removing old systems, migrating users, or sunsetting features |
-| [documentation-and-adrs](skills/documentation-and-adrs/SKILL.md) | Architecture Decision Records, API docs, inline documentation standards - document the *why* | Making architectural decisions, changing APIs, or shipping features |
-| [observability-and-instrumentation](skills/observability-and-instrumentation/SKILL.md) | Structured logging, RED metrics, OpenTelemetry tracing, symptom-based alerting - instrument as you build | Adding telemetry, or shipping anything that runs in production |
-| [shipping-and-launch](skills/shipping-and-launch/SKILL.md) | Pre-launch checklists, feature flag lifecycle, staged rollouts, rollback procedures, monitoring setup | Preparing to deploy to production |
-
----
-
-## Agent Personas
-
-Pre-configured specialist personas for targeted reviews:
-
-| Agent | Role | Perspective |
-|-------|------|-------------|
-| [code-reviewer](agents/code-reviewer.md) | Senior Staff Engineer | Five-axis code review with "would a staff engineer approve this?" standard |
-| [test-engineer](agents/test-engineer.md) | QA Specialist | Test strategy, coverage analysis, and the Prove-It pattern |
-| [security-auditor](agents/security-auditor.md) | Security Engineer | Vulnerability detection, threat modeling, OWASP assessment |
-| [web-performance-auditor](agents/web-performance-auditor.md) | Web Performance Engineer | Core Web Vitals audit with Quick/Deep modes and a metric-honesty rule; run it via `/webperf` |
-
-See [docs/agents.md](docs/agents.md) for the decision matrix, orchestration rules, and how personas compose with skills and slash commands.
-
----
-
-## Reference Checklists
-
-Quick-reference material that skills pull in when needed:
-
-| Reference | Covers |
-|-----------|--------|
-| [definition-of-done.md](references/definition-of-done.md) | Project-wide standing bar every change clears, contrasted with per-task acceptance criteria |
-| [testing-patterns.md](references/testing-patterns.md) | Test structure, naming, mocking, React/API/E2E examples, anti-patterns (JavaScript/TypeScript) |
-| [security-checklist.md](references/security-checklist.md) | Pre-commit checks, auth, input validation, headers, CORS, OWASP Top 10 |
-| [performance-checklist.md](references/performance-checklist.md) | Core Web Vitals targets, frontend/backend checklists, measurement commands |
-| [accessibility-checklist.md](references/accessibility-checklist.md) | Keyboard nav, screen readers, visual design, ARIA, testing tools |
-| [observability-checklist.md](references/observability-checklist.md) | On-call questions, structured logging, RED/USE metrics, tracing, symptom-based alerting, pre-launch gate |
-| [orchestration-patterns.md](references/orchestration-patterns.md) | Endorsed multi-persona orchestration patterns, anti-patterns, and the "personas don't invoke personas" rule |
-
----
-
-## How Skills Work
-
-Every skill follows a consistent anatomy:
-
-```
-┌─────────────────────────────────────────────────┐
-│  SKILL.md                                       │
-│                                                 │
-│  ┌─ Frontmatter ─────────────────────────────┐  │
-│  │ name: lowercase-hyphen-name               │  │
-│  │ description: Guides agents through [task].│  │
-│  │              Use when…                    │  │
-│  └───────────────────────────────────────────┘  │                                                                                                
-│  Overview         → What this skill does        │
-│  When to Use      → Triggering conditions       │
-│  Process          → Step-by-step workflow       │
-│  Rationalizations → Excuses + rebuttals         │
-│  Red Flags        → Signs something's wrong     │
-│  Verification     → Evidence requirements       │
-└─────────────────────────────────────────────────┘
-```
-
-**Key design choices:**
-
-- **Process, not prose.** Skills are workflows agents follow, not reference docs they read. Each has steps, checkpoints, and exit criteria.
-- **Anti-rationalization.** Every skill includes a table of common excuses agents use to skip steps (e.g., "I'll add tests later") with documented counter-arguments.
-- **Verification is non-negotiable.** Every skill ends with evidence requirements - tests passing, build output, runtime data. "Seems right" is never sufficient.
-- **Progressive disclosure.** The `SKILL.md` is the entry point. Supporting references load only when needed, keeping token usage minimal.
-
----
-
-## Project Structure
-
-The portable core stays in shared directories. Host-specific paths are native discovery conventions, not branding aliases; renaming or merging them would break the tools that scan those exact locations.
-
-| Layer / consumer | Repository paths | Purpose |
+| Thay đổi | Agent sẽ làm gì | File chính |
 |---|---|---|
-| Shared workflow core | `skills/` (25 skills) | Portable `SKILL.md` workflows used by every integration |
-| Shared review material | `agents/` (4 personas), `references/` (7 checklists) | Specialist reviewers and pack-level checklists carried by whole-repo installs |
-| Claude Code adapter | `.claude/commands/` (9 commands), `.claude-plugin/`, `hooks/` | Slash-command wrappers, marketplace metadata, and lifecycle hooks |
-| Gemini CLI adapter | `.gemini/commands/` (9 commands) | Gemini-native TOML command wrappers |
-| Antigravity CLI adapter | `commands/` (9 commands), `plugin.json` | Legacy TOML wrappers and the root plugin manifest; see the [known wrapper limitation](docs/antigravity-setup.md#lifecycle-workflows-and-command-compatibility) |
-| Codex adapter | `.codex-plugin/`, `.agents/plugins/` | Codex plugin metadata and marketplace registration; Codex consumes `skills/` directly |
-| GitHub Copilot CLI adapter | `plugin.json` | Root plugin metadata; Copilot CLI discovers `skills/` by convention and does not register the lifecycle wrappers |
-| Contributor tooling | `scripts/` (13 scripts), `evals/` (25 case files), `.github/workflows/` | Validation, routing evals, and CI |
-| Documentation | `docs/` | Universal guidance and per-tool setup guides |
+| Quy tắc chung (house rules) | Trả lời tiếng Việt. Viết comment tiếng Việt giải thích lý do của từng bước. Không dùng dấu gạch dài. Nạp skill `humanizer` trước khi viết file `.md`. Chạy đủ bộ test chậm trước khi báo xong. Không ghi công AI trong commit | `references/house-rules.md` |
+| Frontend và backend làm song song | Viết hợp đồng API và dữ liệu mẫu trước. Frontend dựng giao diện bằng dữ liệu mẫu. Backend có test so response thật với dữ liệu mẫu. Hai bên gặp nhau ở bước E2E | `references/parallel-frontend-backend.md` |
+| Mỗi module một thư mục kế hoạch | Lưu kế hoạch ở `tasks/[module]/plan.md` và `tasks/[module]/todo.md`. Giữ mục lục ở `tasks/README.md` | `skills/planning-and-task-breakdown/SKILL.md` |
+| Không còn dấu gạch dài | Văn bản của mọi skill dùng dấu phẩy, dấu hai chấm hoặc ngoặc đơn | Toàn bộ repo |
+| Tên marketplace mới | Cài song song không đụng bản gốc: `duchuyn04-agent-skills` | `.claude-plugin/marketplace.json` |
 
-Tools without a checked-in adapter directory install or copy the shared `skills/` core into their own native location. The [Quick Start](#quick-start) links the setup guide for each supported host.
+Khi repo bạn làm việc có `AGENTS.md` hoặc `CLAUDE.md` ghi luật khác, luật của repo đó được ưu tiên.
 
----
+## Trước khi cài
 
-## Why Agent Skills?
+Kiểm tra máy có đủ các công cụ sau:
 
-AI coding agents default to the shortest path - which often means skipping specs, tests, security reviews, and the practices that make software reliable. Agent Skills gives agents structured workflows that enforce the same discipline senior engineers bring to production code.
+1. Cài [Git](https://git-scm.com/downloads). Chạy `git --version` để kiểm tra.
+2. Cài [Node.js](https://nodejs.org/) bản 18 trở lên, nếu bạn dùng cách cài bằng `npx`. Chạy `node --version` để kiểm tra.
+3. Cài agent bạn muốn dùng, theo hướng dẫn của hãng.
 
-Each skill encodes hard-won engineering judgment: *when* to write a spec, *what* to test, *how* to review, and *when* to ship. These aren't generic prompts - they're the kind of opinionated, process-driven workflows that separate production-quality work from prototype-quality work.
+Kết quả mong đợi: mỗi lệnh in ra số phiên bản. Lỗi `command not found` nghĩa là công cụ chưa cài hoặc chưa có trong `PATH`.
 
-Skills bake in best practices from Google's engineering culture, including concepts from [Software Engineering at Google](https://abseil.io/resources/swe-book) and Google's [engineering practices guide](https://google.github.io/eng-practices/). You'll find Hyrum's Law in API design, the Beyonce Rule and test pyramid in testing, change sizing and review speed norms in code review, Chesterton's Fence in simplification, trunk-based development in git workflow, Shift Left and feature flags in CI/CD, and a dedicated deprecation skill treating code as a liability. These aren't abstract principles: they're embedded directly into the step-by-step workflows agents follow.
+## Chọn cách cài
 
----
+| Agent | Cách cài | Có đủ thư mục `references/` không |
+|---|---|---|
+| Claude Code | Plugin | Có |
+| Codex CLI | Plugin | Có |
+| GitHub Copilot CLI | Plugin | Có |
+| Antigravity CLI | Plugin | Có |
+| Gemini CLI | Lệnh `gemini skills install` | Không, cần chép thêm |
+| Cursor | Chép thư mục | Có, nếu chép đủ hai thư mục |
+| VS Code với GitHub Copilot | Chép thư mục | Có, nếu chép đủ hai thư mục |
+| OpenCode | `npx skills` hoặc chép thư mục | Có, nếu chép đủ hai thư mục |
+| Command Code | Lệnh `cmd skills add` | Không, cần chép thêm |
+| Windsurf | Dán vào file rules | Dán thêm luật chung |
+| Agent khác | `npx skills` | Không, cần chép thêm |
 
-## How it compares
+Thư mục `references/` chứa luật chung và tài liệu làm song song. Skill trỏ tới thư mục này bằng đường dẫn `../../references/`. Cách cài chỉ chép `skills/` sẽ làm mất các luật đó. Mục "Chép thêm thư mục references" bên dưới hướng dẫn cách bù.
 
-Wondering how this stacks up against [Superpowers](https://github.com/obra/superpowers) or [Matt Pocock's skills](https://github.com/mattpocock/skills)? See **[docs/comparison.md](docs/comparison.md)** for an honest, side-by-side look at how the three are shaped differently and when to reach for each, including a link to a controlled [head-to-head experiment](https://www.linkedin.com/pulse/superpowers-vs-agent-skills-faster-shipping-safer-reasoning-om-mishra-dzakf/).
+## Cài cho Claude Code
 
----
+Claude Code cài bộ này như một plugin, gồm skill, persona và lệnh tắt.
 
-## Contributing
+Gỡ bản gốc trước nếu máy đã cài nó. Hai bản cùng tên skill sẽ làm agent chọn nhầm.
 
-Skills should be **specific** (actionable steps, not vague advice), **verifiable** (clear exit criteria with evidence requirements), **battle-tested** (based on real workflows), and **minimal** (only what's needed to guide the agent).
+1. Kiểm tra bản gốc có đang cài không:
 
-See [docs/skill-anatomy.md](docs/skill-anatomy.md) for the format specification, [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines, and [docs/advanced-per-agent-configuration.md](docs/advanced-per-agent-configuration.md) for applying model routing, tool restrictions, and other per-agent runtime controls without breaking the portable `SKILL.md` frontmatter.
+   ```
+   /plugin
+   ```
 
----
+2. Gỡ bản gốc nếu danh sách có `agent-skills@addy-agent-skills`:
 
-## Team
+   ```
+   /plugin uninstall agent-skills@addy-agent-skills
+   /plugin marketplace remove addy-agent-skills
+   ```
 
-agent-skills is built and maintained by:
+3. Thêm marketplace của bản này:
 
-| | Name | GitHub | Role |
-|---|------|--------|------|
-| <img src="https://github.com/addyosmani.png?size=120" width="60" height="60" alt="Addy Osmani"> | **Addy Osmani** | [@addyosmani](https://github.com/addyosmani) | Creator |
-| <img src="https://github.com/federicobartoli.png?size=120" width="60" height="60" alt="Federico Bartoli"> | **Federico Bartoli** | [@federicobartoli](https://github.com/federicobartoli) | Collaborator |
-| <img src="https://github.com/nucliweb.png?size=120" width="60" height="60" alt="Joan León"> | **Joan León** | [@nucliweb](https://github.com/nucliweb) | Collaborator |
+   ```
+   /plugin marketplace add duchuyn04/agent-skills
+   ```
 
----
+4. Cài plugin:
 
-## License
+   ```
+   /plugin install agent-skills@duchuyn04-agent-skills
+   ```
 
-MIT - use these skills in your projects, teams, and tools.
+5. Thoát Claude Code rồi mở lại.
+
+Kết quả mong đợi: gõ `/` thấy các lệnh `/spec`, `/plan`, `/build`. Skill hiện với tên dạng `agent-skills:spec-driven-development`.
+
+Lỗi thường gặp:
+
+- Lỗi `Permission denied (publickey)`: máy chưa có SSH key cho GitHub. Thêm marketplace bằng URL HTTPS:
+
+  ```
+  /plugin marketplace add https://github.com/duchuyn04/agent-skills.git
+  ```
+
+  Lỗi vẫn còn thì chạy lệnh sau trong terminal, rồi cài lại:
+
+  ```bash
+  git config --global url."https://github.com/".insteadOf git@github.com:
+  ```
+
+- Lệnh `/review` chạy lệnh có sẵn của Claude Code: gõ `/agent-skills:review`.
+
+Cập nhật lên bản mới nhất:
+
+```
+/plugin marketplace update duchuyn04-agent-skills
+```
+
+Dùng bản trên máy, không qua GitHub (khi bạn đang sửa skill):
+
+```bash
+git clone https://github.com/duchuyn04/agent-skills.git
+claude --plugin-dir ./agent-skills
+```
+
+## Cài cho Codex CLI
+
+Cần Codex CLI bản 0.122 trở lên.
+
+1. Thêm marketplace:
+
+   ```bash
+   codex plugin marketplace add duchuyn04/agent-skills
+   ```
+
+2. Cài plugin:
+
+   ```bash
+   codex plugin add agent-skills@duchuyn04-agent-skills
+   ```
+
+3. Mở phiên Codex mới.
+
+Kết quả mong đợi: gõ `@spec-driven-development` trong khung chat thì Codex gợi ý skill đó.
+
+Lỗi thường gặp: lệnh `plugin marketplace` không tồn tại. Codex của bạn quá cũ. Cập nhật Codex, hoặc dùng lệnh cũ `codex marketplace add`.
+
+Không dán nội dung `using-agent-skills/SKILL.md` vào `AGENTS.md` của dự án. Codex đã tự chọn skill theo mô tả, nên dán thêm chỉ làm agent chọn skill hai lần.
+
+## Cài cho GitHub Copilot CLI
+
+1. Thêm marketplace:
+
+   ```bash
+   copilot plugin marketplace add duchuyn04/agent-skills
+   ```
+
+2. Cài plugin:
+
+   ```bash
+   copilot plugin install agent-skills@duchuyn04-agent-skills
+   ```
+
+3. Kiểm tra:
+
+   ```bash
+   copilot plugin list
+   copilot skill list
+   ```
+
+Kết quả mong đợi: `copilot plugin list` có dòng `agent-skills@duchuyn04-agent-skills`, và `copilot skill list` có các skill như `spec-driven-development`.
+
+Lỗi thường gặp:
+
+- Lệnh cài báo không tìm thấy `agent-skills@duchuyn04-agent-skills`: chạy bước 1 trước. Tên này chỉ có sau khi thêm marketplace.
+- Gõ `/spec` hay `/build` không có: Copilot CLI không nhận lệnh tắt của plugin. Gọi skill bằng tên, ví dụ "dùng skill spec-driven-development".
+
+## Cài cho Antigravity CLI
+
+1. Cài plugin từ GitHub:
+
+   ```bash
+   agy plugin install https://github.com/duchuyn04/agent-skills.git
+   ```
+
+2. Mở phiên mới.
+
+Kết quả mong đợi: agent gọi được skill theo tên có tiền tố, ví dụ `agent-skills:spec-driven-development`.
+
+Một số bản Antigravity báo đã chuyển các lệnh tắt nhưng không hiện chúng. Khi đó gọi thẳng skill theo tên, thay cho lệnh tắt.
+
+## Cài cho Gemini CLI
+
+1. Cài các skill:
+
+   ```bash
+   gemini skills install https://github.com/duchuyn04/agent-skills.git --path skills
+   ```
+
+2. Mở Gemini CLI và gõ `/skills list`.
+
+Kết quả mong đợi: danh sách có 25 skill như `spec-driven-development`, `test-driven-development`.
+
+Lệnh này chỉ chép thư mục `skills/`. Làm thêm mục "Chép thêm thư mục references" với thư mục cài mà lệnh in ra.
+
+Chỉ cài cho một dự án:
+
+```bash
+git clone https://github.com/duchuyn04/agent-skills.git
+gemini skills install ./agent-skills/skills/ --scope workspace
+```
+
+## Cài cho Cursor
+
+Cursor đọc skill trong thư mục `.cursor/skills/` của dự án.
+
+1. Tải repo về một chỗ cố định trên máy:
+
+   ```bash
+   git clone https://github.com/duchuyn04/agent-skills.git ~/agent-skills
+   ```
+
+2. Mở terminal ở thư mục gốc của dự án.
+3. Chép các skill:
+
+   ```bash
+   mkdir -p .cursor/skills
+   cp -r ~/agent-skills/skills/. .cursor/skills/
+   ```
+
+4. Chép thư mục `references/` nằm cạnh thư mục `skills/`:
+
+   ```bash
+   cp -r ~/agent-skills/references .cursor/references
+   ```
+
+5. Mở lại dự án trong Cursor.
+
+Kết quả mong đợi: dự án có `.cursor/skills/spec-driven-development/SKILL.md` và `.cursor/references/house-rules.md`. Nhờ một việc như "thêm tính năng, viết test trước" thì agent mở skill `test-driven-development`.
+
+Dùng PowerShell trên Windows thì thay bước 3 và 4 bằng:
+
+```powershell
+New-Item -ItemType Directory -Force .cursor/skills
+Copy-Item -Recurse -Force $HOME/agent-skills/skills/* .cursor/skills/
+Copy-Item -Recurse -Force $HOME/agent-skills/references .cursor/references
+```
+
+Không dán toàn bộ skill vào `.cursor/rules/`. Rules luôn được nạp, nên dán skill vào đó làm tốn ngữ cảnh ở mọi lượt chat.
+
+## Cài cho VS Code với GitHub Copilot
+
+Copilot Chat đọc skill trong `.github/skills/` của dự án.
+
+1. Tải repo về máy như bước 1 của Cursor.
+2. Mở terminal ở thư mục gốc của dự án.
+3. Chép các skill và thư mục `references/`:
+
+   ```bash
+   mkdir -p .github/skills
+   cp -r ~/agent-skills/skills/. .github/skills/
+   cp -r ~/agent-skills/references .github/references
+   ```
+
+4. Chép các persona nếu muốn dùng người review và người kiểm test:
+
+   ```bash
+   mkdir -p .github/agents
+   cp ~/agent-skills/agents/code-reviewer.md .github/agents/code-reviewer.agent.md
+   cp ~/agent-skills/agents/test-engineer.md .github/agents/test-engineer.agent.md
+   cp ~/agent-skills/agents/security-auditor.md .github/agents/security-auditor.agent.md
+   ```
+
+5. Gõ `/skills` trong Copilot Chat để mở menu Configure Skills.
+
+Kết quả mong đợi: menu liệt kê các skill vừa chép.
+
+Lỗi thường gặp: skill không hiện. Kiểm tra mỗi skill nằm ở `.github/skills/<tên-skill>/SKILL.md`, không lồng thêm một cấp thư mục.
+
+## Cài cho OpenCode
+
+Cách nhanh nhất dùng `npx skills`, công cụ cài skill cho nhiều agent:
+
+```bash
+npx skills add duchuyn04/agent-skills
+```
+
+Lệnh hỏi bạn chọn skill và chọn agent. Sau đó làm thêm mục "Chép thêm thư mục references" với thư mục mà lệnh in ra.
+
+Cách chép tay, ở thư mục gốc của dự án:
+
+```bash
+mkdir -p .opencode/skills
+cp -r ~/agent-skills/skills/. .opencode/skills/
+cp -r ~/agent-skills/references .opencode/references
+```
+
+Kết quả mong đợi: OpenCode tìm thấy skill trong `.opencode/skills/`. OpenCode cũng đọc `.claude/skills/` và `.agents/skills/`.
+
+## Cài cho Command Code
+
+1. Cài cho dự án hiện tại:
+
+   ```bash
+   cmd skills add duchuyn04/agent-skills
+   ```
+
+   Cài cho mọi dự án thì thêm `--global`.
+
+2. Làm thêm mục "Chép thêm thư mục references" với thư mục `.commandcode/skills/` (hoặc `~/.commandcode/skills/` khi cài `--global`).
+
+Kết quả mong đợi: menu lệnh trong Command Code có `/spec-driven-development`.
+
+## Cài cho Windsurf
+
+Windsurf đọc luật trong file `.windsurfrules` ở gốc dự án. File này luôn được nạp, nên chỉ dán vài skill hay dùng nhất.
+
+1. Mở terminal ở thư mục gốc của dự án.
+2. Tạo file rules từ luật chung và hai skill hay dùng:
+
+   ```bash
+   cat ~/agent-skills/references/house-rules.md > .windsurfrules
+   printf '\n---\n\n' >> .windsurfrules
+   cat ~/agent-skills/skills/test-driven-development/SKILL.md >> .windsurfrules
+   printf '\n---\n\n' >> .windsurfrules
+   cat ~/agent-skills/skills/code-review-and-quality/SKILL.md >> .windsurfrules
+   ```
+
+Kết quả mong đợi: agent của Windsurf trả lời tiếng Việt và viết test trước khi viết code.
+
+## Cài cho agent khác
+
+Công cụ `npx skills` hỗ trợ hơn 70 agent, trong đó có Cline:
+
+```bash
+npx skills add duchuyn04/agent-skills
+npx skills add duchuyn04/agent-skills --list
+npx skills add duchuyn04/agent-skills --skill spec-driven-development
+```
+
+Lệnh thứ hai liệt kê skill mà không cài. Lệnh thứ ba chỉ cài một skill.
+
+Sau khi cài, làm thêm mục "Chép thêm thư mục references".
+
+## Chép thêm thư mục references
+
+Skill tìm luật chung ở `../../references/`, tính từ file `SKILL.md`. Vì vậy thư mục `references/` phải nằm cạnh thư mục chứa các skill.
+
+Ví dụ: skill nằm ở `.claude/skills/spec-driven-development/SKILL.md`. Khi đó `references/` phải nằm ở `.claude/references/`.
+
+1. Tìm thư mục chứa các skill. Lệnh cài thường in đường dẫn này.
+2. Tải repo về máy nếu chưa có:
+
+   ```bash
+   git clone https://github.com/duchuyn04/agent-skills.git ~/agent-skills
+   ```
+
+3. Chép `references/` vào thư mục cha của thư mục skill. Thay `<thư-mục-skill>` bằng đường dẫn ở bước 1:
+
+   ```bash
+   cp -r ~/agent-skills/references "<thư-mục-skill>/../references"
+   ```
+
+Kết quả mong đợi: file `<thư-mục-skill>/../references/house-rules.md` tồn tại.
+
+## Dùng thử sau khi cài
+
+Thử với một dự án bất kỳ:
+
+1. Gõ `/spec` rồi mô tả một tính năng nhỏ. Agent hỏi lại yêu cầu và viết spec có phần tóm tắt dễ hiểu ở đầu.
+2. Duyệt spec, rồi gõ `/plan`. Agent tạo `tasks/<tên-module>/plan.md`, `tasks/<tên-module>/todo.md` và cập nhật `tasks/README.md`.
+3. Gõ `/build`. Agent làm task đầu tiên: viết test trước, rồi viết code có comment tiếng Việt.
+
+Agent không có lệnh tắt thì gõ yêu cầu bằng lời. Ví dụ: "dùng skill planning-and-task-breakdown để lập kế hoạch cho module thanh toán".
+
+## Áp dụng luật chung ở mọi lượt chat
+
+Agent chỉ nạp một skill khi việc đang làm khớp với mô tả của skill đó. Câu hỏi ngắn có thể không khớp skill nào. Khi đó agent không đọc luật chung, ví dụ luật trả lời tiếng Việt.
+
+Để luật chung luôn có hiệu lực trong một dự án:
+
+1. Chép file luật vào dự án:
+
+   ```bash
+   mkdir -p docs
+   cp ~/agent-skills/references/house-rules.md docs/agent-house-rules.md
+   ```
+
+2. Thêm dòng sau vào `AGENTS.md` hoặc `CLAUDE.md` ở gốc dự án:
+
+   ```markdown
+   Tuân theo mọi luật trong `docs/agent-house-rules.md` ở mọi task.
+   ```
+
+3. Mở phiên agent mới.
+
+Kết quả mong đợi: agent trả lời tiếng Việt ngay từ câu đầu, kể cả khi chưa dùng skill nào.
+
+Muốn áp dụng cho mọi dự án trên máy thì thêm dòng ở bước 2 vào file luật toàn cục của agent. Với Claude Code, file đó là `~/.claude/CLAUDE.md`. Ghi đường dẫn tuyệt đối tới file luật.
+
+## Lệnh tắt
+
+| Lệnh | Việc làm |
+|---|---|
+| `/spec` | Viết spec trước khi code |
+| `/plan` | Chia việc thành task nhỏ, lưu vào `tasks/[module]/` |
+| `/build` | Làm task kế tiếp. `/build auto` làm hết kế hoạch sau một lần duyệt. `/build <module>` chọn module |
+| `/test` | Viết test trước, sửa lỗi bằng test tái hiện lỗi |
+| `/review` | Review code theo 5 mặt: đúng, dễ đọc, kiến trúc, bảo mật, hiệu năng |
+| `/code-simplify` | Làm code gọn hơn mà không đổi hành vi |
+| `/ship` | Chạy checklist trước khi phát hành |
+| `/constraints` | Ghi lại ngưỡng chất lượng của dự án |
+| `/webperf` | Kiểm hiệu năng web |
+
+Danh sách đầy đủ 25 skill và mô tả từng skill nằm ở [README.upstream.md](README.upstream.md).
+
+## Lấy bản mới từ tác giả gốc
+
+Bản này không tự cập nhật theo repo gốc. Người duy trì gộp thủ công:
+
+1. Thêm repo gốc làm nguồn phụ (chỉ làm một lần):
+
+   ```bash
+   git remote add upstream https://github.com/addyosmani/agent-skills.git
+   ```
+
+2. Tải thay đổi mới:
+
+   ```bash
+   git fetch upstream
+   ```
+
+3. Gộp vào nhánh chính:
+
+   ```bash
+   git merge upstream/main
+   ```
+
+4. Sửa các chỗ xung đột. Giữ quy tắc của bản này: không dấu gạch dài, đường dẫn `tasks/[module]/`, tên marketplace `duchuyn04-agent-skills`.
+5. Chạy bộ kiểm ở mục dưới.
+
+Xung đột sẽ nhiều ở lần gộp đầu. Bản này đã đổi dấu câu ở gần 100 file.
+
+## Kiểm tra trước khi đẩy thay đổi
+
+Chạy các validator ở gốc repo:
+
+```bash
+node scripts/validate-skills.js
+node scripts/validate-commands.js
+node scripts/validate-artifact-paths.js
+node scripts/validate-reference-links.js
+node scripts/validate-versions.js
+node scripts/run-evals.js --min-rank1 95
+```
+
+Kết quả mong đợi: mỗi lệnh kết thúc bằng `PASSED`.
+
+Lỗi `require is not defined in ES module scope`: một thư mục cha có `package.json` khai báo `"type": "module"`. Tạo tạm file `package.json` ở gốc repo với nội dung `{"type":"commonjs"}`, chạy lại, rồi xóa file đó.
+
+## Giấy phép
+
+MIT, giống bản gốc. Bản quyền nội dung gốc thuộc Addy Osmani. Xem [LICENSE](LICENSE).
