@@ -9,7 +9,7 @@ copyable prompts for Claude Code, Codex, or any other agent.
 
 ## How Skills Work
 
-Each skill is a Markdown file (`SKILL.md`) that describes a specific engineering workflow. When loaded into an agent's context, the agent follows the workflow — including verification steps, anti-patterns to avoid, and exit criteria.
+Each skill is a Markdown file (`SKILL.md`) that describes a specific engineering workflow. When loaded into an agent's context, the agent follows the workflow, including verification steps, anti-patterns to avoid, and exit criteria.
 
 **Skills are not reference docs.** They're step-by-step processes the agent follows.
 
@@ -24,11 +24,11 @@ git clone https://github.com/addyosmani/agent-skills.git
 ### 2. Choose a skill
 
 Browse the `skills/` directory. Each subdirectory contains a `SKILL.md` with:
-- **When to use** — triggers that indicate this skill applies
-- **Process** — step-by-step workflow
-- **Verification** — how to confirm the work is done
-- **Common rationalizations** — excuses the agent might use to skip steps
-- **Red flags** — signs the skill is being violated
+- **When to use**: triggers that indicate this skill applies
+- **Process**: step-by-step workflow
+- **Verification**: how to confirm the work is done
+- **Common rationalizations**: excuses the agent might use to skip steps
+- **Red flags**: signs the skill is being violated
 
 ### 3. Load the skill into your agent
 
@@ -66,9 +66,9 @@ Rolling out to a real project? The **[Adoption Guide](adoption-guide.md)** cover
 
 Load three essential skills into your rules file:
 
-1. **spec-driven-development** — For defining what to build
-2. **test-driven-development** — For proving it works
-3. **code-review-and-quality** — For verifying quality before merge
+1. **spec-driven-development**: For defining what to build
+2. **test-driven-development**: For proving it works
+3. **code-review-and-quality**: For verifying quality before merge
 
 These three cover the most critical quality gaps in AI-assisted development.
 
@@ -85,7 +85,7 @@ Before deploy:       shipping-and-launch
 
 ### Context-Aware Loading
 
-Don't load all skills at once — it wastes context. Load skills relevant to the current task:
+Don't load all skills at once: it wastes context. Load skills relevant to the current task:
 
 - Working on UI? Load `frontend-ui-engineering`
 - Debugging? Load `debugging-and-error-recovery`
@@ -97,13 +97,13 @@ Every skill follows the same structure:
 
 ```
 YAML frontmatter (name, description)
-├── Overview — What this skill does
-├── When to Use — Triggers and conditions
-├── Core Process — Step-by-step workflow
-├── Examples — Code samples and patterns
-├── Common Rationalizations — Excuses and rebuttals
-├── Red Flags — Signs the skill is being violated
-└── Verification — Exit criteria checklist
+├── Overview: What this skill does
+├── When to Use: Triggers and conditions
+├── Core Process: Step-by-step workflow
+├── Examples: Code samples and patterns
+├── Common Rationalizations: Excuses and rebuttals
+├── Red Flags: Signs the skill is being violated
+└── Verification: Exit criteria checklist
 ```
 
 See [skill-anatomy.md](skill-anatomy.md) for the full specification.
@@ -174,18 +174,18 @@ The `/spec` and `/plan` commands create working artifacts (`SPEC.md`, `tasks/pla
 
 - Keep them in version control during development so the human and the agent have a shared source of truth.
 - Update them when scope or decisions change.
-- If your repo doesn’t want these files long‑term, delete them before merge or add the folder to `.gitignore` — the workflow doesn’t require them to be permanent.
+- If your repo doesn’t want these files long‑term, delete them before merge or add the folder to `.gitignore`: the workflow doesn’t require them to be permanent.
 
 ### Working across sessions
 
-The same artifacts are the handoff between sessions. For a small task, run the whole lifecycle in one session. For anything non-trivial, a fresh session per phase (spec → plan → build → review) keeps context focused — what carries the work forward is the approved files, not the conversation:
+The same artifacts are the handoff between sessions. For a small task, run the whole lifecycle in one session. For anything non-trivial, a fresh session per phase (spec → plan → build → review) keeps context focused: what carries the work forward is the approved files, not the conversation:
 
-- the spec — `SPEC.md`, or wherever your spec actually lives
-- `tasks/plan.md` and `tasks/todo.md` — or the external tracker the plan identifies, if you use one
+- the spec: `SPEC.md`, or wherever your spec actually lives
+- `tasks/plan.md` and `tasks/todo.md`, or the external tracker the plan identifies, if you use one
 
 **Before switching**, make sure those files reflect the decisions that still apply, the scope you approved, the questions still open, the next task, and the current verification state (which tests ran, against what).
 
-**In the new session**, read the actual files and look at `git status` before doing anything. Don't assume approvals you can't see in the artifacts. Treat a recorded "tests pass" as a claim about a specific baseline: re-run the checks it covers if the code has moved since, if it doesn't say what was run against what, or if you're about to touch the area it covered. If the baseline still holds, take it and get on with the next task — the point is a check proportional to what changed, not a full suite at every handoff.
+**In the new session**, read the actual files and look at `git status` before doing anything. Don't assume approvals you can't see in the artifacts. Treat a recorded "tests pass" as a claim about a specific baseline: re-run the checks it covers if the code has moved since, if it doesn't say what was run against what, or if you're about to touch the area it covered. If the baseline still holds, take it and get on with the next task: the point is a check proportional to what changed, not a full suite at every handoff.
 
 #### Task-boundary restarts and Ralph loops
 
@@ -193,16 +193,16 @@ The same artifacts are the handoff between sessions. For a small task, run the w
 
 A shell-level "Ralph loop" is harness behavior, not a separate skill workflow. If you use one, restart only after the current task has reached a recorded boundary; on re-entry, read the durable artifacts and repository state before selecting the next pending task. A process exit is not evidence that a task passed, and a restart must not bypass an approval gate. See the `context-engineering` skill's **Restartable Session Boundaries** section for the handoff checklist.
 
-This doesn't need the `/spec` and `/plan` wrappers — plain requests work in any agent, including a `npx skills add` install that only has the skills:
+This doesn't need the `/spec` and `/plan` wrappers: plain requests work in any agent, including a `npx skills add` install that only has the skills:
 
-> Read SPEC.md, then break it into small verifiable tasks with acceptance criteria and dependency order. Save them to tasks/plan.md and tasks/todo.md. No product code yet — show me the plan first.
+> Read SPEC.md, then break it into small verifiable tasks with acceptance criteria and dependency order. Save them to tasks/plan.md and tasks/todo.md. No product code yet: show me the plan first.
 
-> Read SPEC.md, tasks/plan.md and tasks/todo.md, then check where things actually stand — `git status`, plus re-running whatever checks the recorded verification state no longer covers. Tell me the next unchecked task and anything still open, then stop: I'll confirm the scope before you start it. If the plan looks incomplete, say what's missing rather than rewriting it.
+> Read SPEC.md, tasks/plan.md and tasks/todo.md, then check where things actually stand: `git status`, plus re-running whatever checks the recorded verification state no longer covers. Tell me the next unchecked task and anything still open, then stop: I'll confirm the scope before you start it. If the plan looks incomplete, say what's missing rather than rewriting it.
 
 ## Tips
 
 1. **Start with spec-driven-development** for any non-trivial work
 2. **Always load test-driven-development** when writing code
-3. **Don't skip verification steps** — they're the whole point
-4. **Load skills selectively** — more context isn't always better
-5. **Use the agents for review** — different perspectives catch different issues
+3. **Don't skip verification steps**: they're the whole point
+4. **Load skills selectively**: more context isn't always better
+5. **Use the agents for review**: different perspectives catch different issues

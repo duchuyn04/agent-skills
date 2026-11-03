@@ -45,7 +45,7 @@ When TTFB is slow (> 800ms), check each component in DevTools Network waterfall:
 - [ ] Heavy computation offloaded to Web Workers (if applicable)
 - [ ] `React.memo()` on expensive components that re-render with same props
 - [ ] `useMemo()` / `useCallback()` only where profiling shows benefit
-- [ ] Long tasks (> 50ms) broken up to keep the main thread available — main lever for INP
+- [ ] Long tasks (> 50ms) broken up to keep the main thread available: main lever for INP
 - [ ] `yieldToMain` pattern used inside long-running loops so input events can run between chunks
 - [ ] Modern scheduling APIs used where available: `scheduler.yield()` (preferred), `scheduler.postTask()` with priorities, `isInputPending()` to yield only when needed
 - [ ] `requestIdleCallback` for deferrable, non-urgent work (analytics flush, prefetch, warmup)
@@ -58,8 +58,8 @@ When TTFB is slow (> 800ms), check each component in DevTools Network waterfall:
 - [ ] No CSS-in-JS runtime cost in production (use extraction)
 
 ### Fonts
-- [ ] Limited to 2–3 font families, 2–3 weights each (every additional weight is another request)
-- [ ] WOFF2 format only (smallest, universal support — skip WOFF/TTF/EOT)
+- [ ] Limited to 2-3 font families, 2-3 weights each (every additional weight is another request)
+- [ ] WOFF2 format only (smallest, universal support: skip WOFF/TTF/EOT)
 - [ ] Self-hosted when possible (third-party font CDNs add DNS + TCP + TLS round-trips)
 - [ ] LCP-critical fonts preloaded: `<link rel="preload" as="font" type="font/woff2" crossorigin>`
 - [ ] `font-display: swap` (or `optional` for non-critical) to avoid FOIT blocking render
@@ -73,7 +73,7 @@ When TTFB is slow (> 800ms), check each component in DevTools Network waterfall:
 - [ ] API responses cached where appropriate (`Cache-Control`)
 - [ ] HTTP/2 or HTTP/3 enabled
 - [ ] Resources preconnected (`<link rel="preconnect">`) for known origins
-- [ ] `fetchpriority` used on critical non-image resources (e.g., key `<link rel="preload">`, above-the-fold `<script>`) — not only on `<img>`
+- [ ] `fetchpriority` used on critical non-image resources (e.g., key `<link rel="preload">`, above-the-fold `<script>`), not only on `<img>`
 - [ ] No unnecessary redirects
 
 ### Rendering
@@ -82,7 +82,7 @@ When TTFB is slow (> 800ms), check each component in DevTools Network waterfall:
 - [ ] Long lists use virtualization (e.g., `react-window`)
 - [ ] No unnecessary full-page re-renders
 - [ ] Off-screen sections use `content-visibility: auto` with `contain-intrinsic-size` to skip layout/paint of non-visible areas
-- [ ] No `unload` event handlers and no `Cache-Control: no-store` on HTML responses — preserves back/forward cache (bfcache) eligibility
+- [ ] No `unload` event handlers and no `Cache-Control: no-store` on HTML responses: preserves back/forward cache (bfcache) eligibility
 
 ## Backend Checklist
 
@@ -94,11 +94,11 @@ When TTFB is slow (> 800ms), check each component in DevTools Network waterfall:
 - [ ] Slow query logging enabled
 
 #### Query plans
-- [ ] `EXPLAIN ANALYZE` captured **before** the fix, not just after — it is the baseline
+- [ ] `EXPLAIN ANALYZE` captured **before** the fix, not just after: it is the baseline
 - [ ] `Seq Scan` on a large table understood: index missing, unusable, or genuinely not worth it
 - [ ] Estimated vs actual `rows=` within an order of magnitude (if not, refresh statistics before touching indexes)
 - [ ] No `Sort` node that a composite index could absorb
-- [ ] Plan re-checked after the change — an index that did not change the plan gets reverted
+- [ ] Plan re-checked after the change: an index that did not change the plan gets reverted
 
 #### Index strategy
 - [ ] Composite index column order is equality first, then range/sort
@@ -179,16 +179,16 @@ For a shared cache, the same idea needs a distributed lock, or `stale-while-reva
 - [ ] Stampede protection on hot keys (coalescing, lock, or `stale-while-revalidate`)
 - [ ] Negative results cached with a shorter TTL; origin errors never cached
 - [ ] Eviction policy and memory ceiling set (an unbounded cache is a memory leak)
-- [ ] Hit rate monitored — a cache nobody measures is an assumption, and a low hit rate is pure overhead
+- [ ] Hit rate monitored: a cache nobody measures is an assumption, and a low hit rate is pure overhead
 - [ ] Nothing cached whose staleness is a correctness bug (balances, permissions, inventory at checkout)
 
 ## Measurement Commands
 
 ### INP field data and DevTools workflow
 
-1. **Field data first** — check [CrUX Vis](https://developer.chrome.com/docs/crux/vis) or your RUM tool for real-user INP before optimising
-2. **Identify slow interactions** — open DevTools → Performance panel → record while interacting; look for long tasks triggered by clicks/keystrokes
-3. **Test on mid-range Android** — INP issues often only surface on slower hardware; use a real device or DevTools CPU throttling (4×–6× slowdown)
+1. **Field data first**: check [CrUX Vis](https://developer.chrome.com/docs/crux/vis) or your RUM tool for real-user INP before optimising
+2. **Identify slow interactions**: open DevTools → Performance panel → record while interacting; look for long tasks triggered by clicks/keystrokes
+3. **Test on mid-range Android**: INP issues often only surface on slower hardware; use a real device or DevTools CPU throttling (4×-6× slowdown)
 
 ```bash
 # Lighthouse CLI

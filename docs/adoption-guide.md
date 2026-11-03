@@ -93,7 +93,7 @@ Goal: every area the agent will touch gets a safety net first.
 
 ### Phase 3 | New work runs the full lifecycle
 
-Goal: two-speed adoption, legacy code stays under the Phase 1–2 regime; **new features get the greenfield treatment**.
+Goal: two-speed adoption, legacy code stays under the Phase 1-2 regime; **new features get the greenfield treatment**.
 
 - New feature in the old codebase? `/spec → /plan → /build → /review`. The spec's boundaries section is where you declare what legacy surface the feature may and may not touch.
 - **`api-and-interface-design` at the seams.** When new code must talk to old code, design the boundary contract-first. Hyrum's Law is not theoretical in a years-old codebase, someone depends on every observable behavior, including the bugs.

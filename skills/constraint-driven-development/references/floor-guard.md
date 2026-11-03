@@ -16,7 +16,7 @@ This is the reference. Adapt the patterns to your stack; keep the contract ident
 
 ```js
 #!/usr/bin/env node
-// floor-guard.mjs — diff-scoped enforcement of the CONSTRAINTS.md floor.
+// floor-guard.mjs: diff-scoped enforcement of the CONSTRAINTS.md floor.
 // Usage: node floor-guard.mjs [--base <ref>]   (default base: origin/main)
 import { execFileSync } from 'node:child_process';
 
@@ -83,7 +83,7 @@ const flag = (rule, f, text) => findings.push({ rule, file: f, text: text.trim()
 const isTest = (f) => /\.(test|spec)\.|_test\.|test_/.test(f);
 const isConstraints = (f) => /CONSTRAINTS\.md$/.test(f);
 
-// 1. Silenced checker — extend this list for your ecosystem.
+// 1. Silenced checker: extend this list for your ecosystem.
 const SUPPRESSIONS = /@ts-ignore|@ts-nocheck|eslint-disable|biome-ignore|# *noqa|# *type: *ignore|istanbul ignore|nosemgrep|gitleaks:allow|Stryker disable/;
 // 4. Unfinished work.
 const STUBS = /throw new (Error|NotImplemented).*[Nn]ot implemented|catch\s*\(\w*\)\s*\{\s*\}|catch\s*\{\s*\}|\bTODO\b|\bpass\s*# *stub/;

@@ -1,5 +1,5 @@
 #!/bin/bash
-# sdd-cache-post.sh — PostToolUse hook for WebFetch.
+# sdd-cache-post.sh: PostToolUse hook for WebFetch.
 #
 # After WebFetch, stores the response body in .claude/sdd-cache/<sha>.json
 # with the current ETag / Last-Modified captured via a HEAD request so the
@@ -35,7 +35,7 @@ if [ -z "$URL" ]; then dbg "no url in tool_input, exit"; exit 0; fi
 dbg "url=$URL prompt=$(printf '%s' "$PROMPT" | head -c 80)"
 
 # WebFetch tool_response shape (Claude Code as of 2026-04): an object with
-# keys bytes, code, codeText, durationMs, result, url — content lives at
+# keys bytes, code, codeText, durationMs, result, url: content lives at
 # .result. The other keys (.output / .text / .content / .body) are kept as
 # defensive fallbacks in case the shape changes; jq returns empty if none
 # match. The string branch handles older/custom integrations.

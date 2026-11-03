@@ -7,7 +7,7 @@ description: Optimizes agent context setup. Use when starting a new session, whe
 
 ## Overview
 
-Feed agents the right information at the right time. Context is the single biggest lever for agent output quality — too little and the agent hallucinates, too much and it loses focus. Context engineering is the practice of deliberately curating what the agent sees, when it sees it, and how it's structured.
+Feed agents the right information at the right time. Context is the single biggest lever for agent output quality: too little and the agent hallucinates, too much and it loses focus. Context engineering is the practice of deliberately curating what the agent sees, when it sees it, and how it's structured.
 
 ## When to Use
 
@@ -116,9 +116,9 @@ Long conversations accumulate stale context. Manage this:
 
 - **Start fresh sessions** when switching between major features
 - **Summarize progress** when context is getting long: "So far we've completed X, Y, Z. Now working on W."
-- **Compact deliberately** — if the tool supports it, compact/summarize before critical work
+- **Compact deliberately**: if the tool supports it, compact/summarize before critical work
 
-For the proactive discipline that makes these last resorts unnecessary — what to cut first, what to protect, and when to start — see **Context Budget Management** below.
+For the proactive discipline that makes these last resorts unnecessary (what to cut first, what to protect, and when to start), see **Context Budget Management** below.
 
 ### Restartable Session Boundaries
 
@@ -197,7 +197,7 @@ Load only the relevant section when working on a specific area.
 
 ## Context Budget Management
 
-The context window is not a filing cabinet — it's a working desk. As a session runs, conversation history, tool output, and exploration accumulate. Most of it becomes deadweight. Budget proactively: waiting until the window is full causes abrupt quality drops; managing regularly keeps the agent coherent through long tasks.
+The context window is not a filing cabinet: it's a working desk. As a session runs, conversation history, tool output, and exploration accumulate. Most of it becomes deadweight. Budget proactively: waiting until the window is full causes abrupt quality drops; managing regularly keeps the agent coherent through long tasks.
 
 **Compact well before the host's limit; the threshold varies by host.** By the time the window is genuinely full, the model's attention is already fragmented across too many signals. The margin gives room to compress gracefully rather than cut desperately mid-task.
 
@@ -205,10 +205,10 @@ The context window is not a filing cabinet — it's a working desk. As a session
 
 | Content | When to cut |
 |---|---|
-| Past failed attempts and their error output | Once you've moved past them — keep the conclusion, not the journey |
+| Past failed attempts and their error output | Once you've moved past them: keep the conclusion, not the journey |
 | Verbose tool output (long `find` results, full file listings) | After you've extracted what you needed |
 | Conversational back-and-forth | As soon as the decision is reached |
-| Earlier drafts of code that were replaced | Immediately on replacement — the current file is the record |
+| Earlier drafts of code that were replaced | Immediately on replacement: the current file is the record |
 
 ### What to protect until the end
 
@@ -222,8 +222,8 @@ The context window is not a filing cabinet — it's a working desk. As a session
 Summarizing beats deleting. Before removing a long stretch of exploration, reduce it to one sentence capturing the conclusion:
 
 ```
-Before: [8 messages debugging a failing import — various attempts, error logs, dead ends]
-After:  "Import issue traced to a circular dependency in src/lib/db.ts —
+Before: [8 messages debugging a failing import: various attempts, error logs, dead ends]
+After:  "Import issue traced to a circular dependency in src/lib/db.ts
          resolved by moving the shared type to src/types/index.ts."
 ```
 
@@ -231,7 +231,7 @@ The detail is gone; the decision is preserved. If the detail turns out to matter
 
 ### Order for recency
 
-Put the most task-critical content **last** in context. Models recall content at the start and end of the window more reliably than the middle (the lost-in-the-middle effect — Liu et al., 2023). Keep stable rules and specs at the start; put the active task material last, closest to the generation point:
+Put the most task-critical content **last** in context. Models recall content at the start and end of the window more reliably than the middle (the lost-in-the-middle effect: Liu et al., 2023). Keep stable rules and specs at the start; put the active task material last, closest to the generation point:
 
 ```
 ← session start                              generation point →
@@ -269,9 +269,9 @@ The spec calls for REST endpoints, but the existing codebase uses GraphQL
 for user queries (src/graphql/user.ts).
 
 Options:
-A) Follow the spec — add REST endpoint, potentially deprecate GraphQL later
-B) Follow existing patterns — use GraphQL, update the spec
-C) Ask — this seems like an intentional decision I shouldn't override
+A) Follow the spec: add REST endpoint, potentially deprecate GraphQL later
+B) Follow existing patterns: use GraphQL, update the spec
+C) Ask: this seems like an intentional decision I shouldn't override
 
 → Which approach should I take?
 ```
@@ -282,7 +282,7 @@ If the spec doesn't cover a case you need to implement:
 
 1. Check existing code for precedent
 2. If no precedent exists, **stop and ask**
-3. Don't invent requirements — that's the human's job
+3. Don't invent requirements: that's the human's job
 
 ```
 MISSING REQUIREMENT:
@@ -303,7 +303,7 @@ For multi-step tasks, emit a lightweight plan before executing:
 
 ```
 PLAN:
-1. Add Zod schema for task creation — validates title (required) and description (optional)
+1. Add Zod schema for task creation: validates title (required) and description (optional)
 2. Wire schema into POST /api/tasks route handler
 3. Add test for validation error response
 → Executing unless you redirect.
@@ -319,15 +319,15 @@ This catches wrong directions before you've built on them. It's a 30-second inve
 | Context flooding | Agent loses focus when loaded with >5,000 lines of non-task-specific context. More files does not mean better output. | Include only what is relevant to the current task. Aim for <2,000 lines of focused context per task. |
 | Stale context | Agent references outdated patterns or deleted code | Start fresh sessions when context drifts |
 | Missing examples | Agent invents a new style instead of following yours | Include one example of the pattern to follow |
-| Implicit knowledge | Agent doesn't know project-specific rules | Write it down in rules files — if it's not written, it doesn't exist |
+| Implicit knowledge | Agent doesn't know project-specific rules | Write it down in rules files: if it's not written, it doesn't exist |
 | Silent confusion | Agent guesses when it should ask | Surface ambiguity explicitly using the confusion management patterns above |
-| Context cliff | Waiting until the window is full before managing it — attention fragments and output quality drops abruptly at the limit | Compact well before the host's limit; compress rather than cut |
+| Context cliff | Waiting until the window is full before managing it: attention fragments and output quality drops abruptly at the limit | Compact well before the host's limit; compress rather than cut |
 
 ## Common Rationalizations
 
 | Rationalization | Reality |
 |---|---|
-| "The agent should figure out the conventions" | It can't read your mind. Write a rules file — 10 minutes that saves hours. |
+| "The agent should figure out the conventions" | It can't read your mind. Write a rules file: 10 minutes that saves hours. |
 | "I'll just correct it when it goes wrong" | Prevention is cheaper than correction. Upfront context prevents drift. |
 | "More context is always better" | Research shows performance degrades with too many instructions. Be selective. |
 | "The context window is huge, I'll use it all" | Context window size ≠ attention budget. Focused context outperforms large context. |
@@ -337,7 +337,7 @@ This catches wrong directions before you've built on them. It's a 30-second inve
 - Agent output doesn't match project conventions
 - Agent invents APIs or imports that don't exist
 - Agent re-implements utilities that already exist in the codebase
-- Agent quality degrades mid-task as the conversation grows — failed attempts, replaced drafts, and verbose tool output are not being trimmed
+- Agent quality degrades mid-task as the conversation grows: failed attempts, replaced drafts, and verbose tool output are not being trimmed
 - No rules file exists in the project
 - External data files or config treated as trusted instructions without verification
 

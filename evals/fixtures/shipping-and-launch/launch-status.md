@@ -1,4 +1,4 @@
-# Checkout launch status — tomorrow
+# Checkout launch status: tomorrow
 
 - Unit tests: green.
 - End-to-end checkout test: failing on payment confirmation timeout.

@@ -1,6 +1,6 @@
 ---
 name: constraint-driven-development
-description: Establishes a project's quality bar as a written contract and stops agents quietly lowering it. Interviews the user on which dimensions matter, supplies sane default thresholds when they have no number in mind, records everything in CONSTRAINTS.md, and watches the diff for a weakened bar — new @ts-ignore or eslint-disable suppressions, skipped or deleted tests, assertions stripped out, unimplemented stubs, thresholds edited down. Use when no quality bar is written down, when the user says "set up constraints" or "define our standards", when the user wants dimensions they care about — accessibility, web performance, coverage — set up as enforced constraints, when an agent keeps silencing checks or skipping tests to get to green, when you need a coverage or performance threshold and don't know what number to pick, or when an agent writes more code than anyone will read.
+description: Establishes a project's quality bar as a written contract and stops agents quietly lowering it. Interviews the user on which dimensions matter, supplies sane default thresholds when they have no number in mind, records everything in CONSTRAINTS.md, and watches the diff for a weakened bar, such as new @ts-ignore or eslint-disable suppressions, skipped or deleted tests, assertions stripped out, unimplemented stubs, thresholds edited down. Use when no quality bar is written down, when the user says "set up constraints" or "define our standards", when the user wants dimensions they care about (accessibility, web performance, coverage) set up as enforced constraints, when an agent keeps silencing checks or skipping tests to get to green, when you need a coverage or performance threshold and don't know what number to pick, or when an agent writes more code than anyone will read.
 ---
 
 # Constraint-Driven Development
@@ -28,10 +28,10 @@ Apply this skill when:
 
 **When NOT to use:**
 
-- The project already has a `CONSTRAINTS.md` and the user isn't changing it — read it and follow it instead
+- The project already has a `CONSTRAINTS.md` and the user isn't changing it: read it and follow it instead
 - One-off scripts, spikes, throwaway prototypes
 - The user wants a code review right now (`code-review-and-quality`) or a CI pipeline built (`ci-cd-and-automation`)
-- Pre-product-market-fit code with a two-week expected lifetime — the floor below is still worth it, the rest isn't
+- Pre-product-market-fit code with a two-week expected lifetime: the floor below is still worth it, the rest isn't
 
 ## Loading Constraints
 
@@ -65,7 +65,7 @@ Q1: Beyond the floor, which of these do you want enforced?
     (c) Performance budgets
     (d) Accessibility
     (e) Architecture boundaries
-GUESS: (a) and (b) — you have a test runner already and you're handling user input.
+GUESS: (a) and (b): you have a test runner already and you're handling user input.
 DEFAULT if unsure: (a) and (b).
 Say what each pick costs: (c) and (d) need a running URL, (e) needs a rules file written.
 ```
@@ -141,7 +141,7 @@ Then add one line to `AGENTS.md` and `CLAUDE.md`: `Read CONSTRAINTS.md before wr
 
 ### Step 4: Install what each dimension needs
 
-Picking a dimension means installing something. Don't leave the user with a number and no mechanism, and don't invent your own checker when a de facto one exists — these tools are listed because their rule formats and thresholds are what everything else in the ecosystem targets, so the team's existing config keeps working.
+Picking a dimension means installing something. Don't leave the user with a number and no mechanism, and don't invent your own checker when a de facto one exists: these tools are listed because their rule formats and thresholds are what everything else in the ecosystem targets, so the team's existing config keeps working.
 
 | Dimension | Tool | Install | Run | Gate on |
 |-----------|------|---------|-----|---------|
@@ -162,7 +162,7 @@ Picking a dimension means installing something. Don't leave the user with a numb
 Five things that will bite you if you skip them:
 
 1. **`--redact` on gitleaks is not optional.** Without it the matched secret lands in the agent's transcript, which is how a leaked key ends up in a log, a summary, or a commit message. Report the rule and the location, never the value.
-2. **Lighthouse and axe need a URL.** They only work against a running app, so they belong in the runtime stage against a preview deploy or a local server you start first. If the project has no URL to hit — a CLI, a library, a desktop app — say so and drop the dimension rather than inventing a check that can't run.
+2. **Lighthouse and axe need a URL.** They only work against a running app, so they belong in the runtime stage against a preview deploy or a local server you start first. If the project has no URL to hit (a CLI, a library, a desktop app) say so and drop the dimension rather than inventing a check that can't run.
 3. **Scope the expensive ones to the diff.** `stryker run --mutate` on the whole repo takes hours and gets turned off; on the files a change touched it takes under a minute. Same for Semgrep, which takes a path list.
 4. **Coverage needs no second test run.** Read the lcov your suite already writes and intersect it with `git diff`. Running the suite twice to get a number is the fastest way to make people hate this.
 5. **Semgrep's registry rules are free to run; check the licence before redistributing them.** `opengrep` is a drop-in fork with the same rule format and JSON output if that matters to your legal team.
@@ -188,7 +188,7 @@ That mapping matters more than the tools. `check:fast` is what runs after an edi
 
 Before calling any row enforced, run its actual CI command against a known violation and a clean control. Confirm that the violation fails, the control passes, and scanner errors fail too. For a severity threshold, also confirm a below-threshold finding passes. Apply this to every dimension, including coverage and Lighthouse: generating a report alone does not enforce the number in `CONSTRAINTS.md`.
 
-The commands now live in two places — the `Checked by` column in `CONSTRAINTS.md` and these scripts. `CONSTRAINTS.md` is the canonical source: it carries the reason alongside each command and it shows up in review. The scripts are convenience wrappers that must mirror it, not a second source of truth; if they drift, the file wins.
+The commands now live in two places: the `Checked by` column in `CONSTRAINTS.md` and these scripts. `CONSTRAINTS.md` is the canonical source: it carries the reason alongside each command and it shows up in review. The scripts are convenience wrappers that must mirror it, not a second source of truth; if they drift, the file wins.
 
 ### Step 5: Wire it to the lifecycle
 
@@ -224,9 +224,9 @@ Unlike the numbered dimensions, the floor has no de facto tool of its own, so an
 
 **Not all checks are equally circular.** Rank them by one question: can the agent make this pass by writing code that doesn't work?
 
-- **External** — axe-core encodes WCAG, `osv-scanner` reads a vulnerability database, Lighthouse measures a real browser. The agent can't argue with these.
-- **Project** — your lint rules, your layer boundaries. A human owns the file.
-- **Suite** — your own tests. Most useful, and the only genuinely circular one.
+- **External**: axe-core encodes WCAG, `osv-scanner` reads a vulnerability database, Lighthouse measures a real browser. The agent can't argue with these.
+- **Project**: your lint rules, your layer boundaries. A human owns the file.
+- **Suite**: your own tests. Most useful, and the only genuinely circular one.
 
 A bar made entirely of the third kind is worth less than one with an outside opinion in it. Check that at least one external constraint is present.
 
@@ -311,9 +311,9 @@ The skill was applied correctly when:
 
 ## See Also
 
-- `interview-me` — the one-question-at-a-time discipline this skill's intake borrows
-- `code-review-and-quality` — how to review; this skill decides what the review enforces
-- `ci-cd-and-automation` — building the pipeline these constraints run in
-- `test-driven-development` — the suite that coverage and mutation constraints measure
-- `security-and-hardening` — what the security dimension should contain
-- `performance-optimization` — where the performance numbers come from
+- `interview-me`: the one-question-at-a-time discipline this skill's intake borrows
+- `code-review-and-quality`: how to review; this skill decides what the review enforces
+- `ci-cd-and-automation`: building the pipeline these constraints run in
+- `test-driven-development`: the suite that coverage and mutation constraints measure
+- `security-and-hardening`: what the security dimension should contain
+- `performance-optimization`: where the performance numbers come from

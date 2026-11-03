@@ -39,7 +39,7 @@ skills refer to it directly. A downstream catalog may rename it, but that
 catalog owns the alias or migration mapping; downstream-only aliases are not
 maintained in this repository.
 
-**Why this matters:** Agents discover skills by reading descriptions. The description is injected into the system prompt, so it must tell the agent both what the skill provides and when to activate it. Do not summarize the workflow — if the description contains process steps, the agent may follow the summary instead of reading the full skill.
+**Why this matters:** Agents discover skills by reading descriptions. The description is injected into the system prompt, so it must tell the agent both what the skill provides and when to activate it. Do not summarize the workflow: if the description contains process steps, the agent may follow the summary instead of reading the full skill.
 
 ### Standard Sections (Recommended Pattern)
 
@@ -88,7 +88,7 @@ The "elevator pitch" for the skill. Should answer: What does this skill do, and 
 Helps agents and humans decide if this skill applies to the current task. Include both positive triggers ("Use when X") and negative exclusions ("NOT for Y").
 
 ### Core Process
-The heart of the skill. This is the step-by-step workflow the agent follows. Must be specific and actionable — not vague advice.
+The heart of the skill. This is the step-by-step workflow the agent follows. Must be specific and actionable, not vague advice.
 
 **Good:** "Run `npm test` and verify all tests pass"
 **Bad:** "Make sure the tests work"
@@ -96,7 +96,7 @@ The heart of the skill. This is the step-by-step workflow the agent follows. Mus
 ### Common Rationalizations
 The most distinctive feature of well-crafted skills. These are excuses agents use to skip important steps, paired with rebuttals. They prevent the agent from rationalizing its way out of following the process.
 
-Think of every time an agent has said "I'll add tests later" or "This is simple enough to skip the spec" — those go here with a factual counter-argument.
+Think of every time an agent has said "I'll add tests later" or "This is simple enough to skip the spec": those go here with a factual counter-argument.
 
 ### Red Flags
 Observable signs that the skill is being violated. Useful during code review and self-monitoring.
@@ -117,7 +117,7 @@ If a skill does not need runnable helpers, do not create an empty `scripts/` dir
 
 ## Shared References
 
-Checklists used by more than one skill — testing, security, performance, accessibility, definition-of-done — live in `references/` at the repository root, deliberately *not* inside any skill directory.
+Checklists used by more than one skill (testing, security, performance, accessibility, definition-of-done) live in `references/` at the repository root, deliberately *not* inside any skill directory.
 
 This is a pack-level design choice. The Agent Skills spec describes a skill as a self-contained directory, but several skills here point at the same checklists. Colocating those would force one of two options: copy the checklist into every skill that uses it, or pick one skill to "own" it and have the others reach into that directory. Both drift over time. A single repo-root copy stays the source of truth.
 
@@ -186,7 +186,7 @@ Follow the `test-driven-development` skill for writing tests.
 If the build breaks, use the `debugging-and-error-recovery` skill.
 ```
 
-Don't duplicate content between skills — reference and link instead.
+Don't duplicate content between skills: reference and link instead.
 
 ## Required vs Recommended
 

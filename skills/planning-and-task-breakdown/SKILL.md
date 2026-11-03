@@ -56,7 +56,7 @@ Implementation order follows the dependency graph bottom-up: build foundations f
 
 ### Step 3: Slice Vertically
 
-Instead of building all the database, then all the API, then all the UI — build one complete feature path at a time:
+Instead of building all the database, then all the API, then all the UI: build one complete feature path at a time:
 
 **Bad (horizontal slicing):**
 ```
@@ -130,7 +130,7 @@ Add explicit checkpoints to the task list target:
 | **S** | 1-2 | One component or endpoint | Add a new API endpoint |
 | **M** | 3-5 | One feature slice | User registration flow |
 | **L** | 5-8 | Multi-component feature | Search with filtering and pagination |
-| **XL** | 8+ | **Too large — break it down further** | — |
+| **XL** | 8+ | **Too large: break it down further** | - |
 
 If a task is L or larger, it should be broken into smaller tasks. An agent performs best on S and M tasks.
 
@@ -142,7 +142,7 @@ If a task is L or larger, it should be broken into smaller tasks. An agent perfo
 
 ## Output Files
 
-- **Plan document:** Save the implementation plan to `tasks/plan.md`. This is always a markdown file — design decisions, risks, and open questions don't map cleanly onto individual tracker issues.
+- **Plan document:** Save the implementation plan to `tasks/plan.md`. This is always a markdown file: design decisions, risks, and open questions don't map cleanly onto individual tracker issues.
 - **Task list:** Record each task in the **task list target** (defined below).
 
 Create the `tasks/` directory if it does not exist.

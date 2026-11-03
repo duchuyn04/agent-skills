@@ -28,8 +28,8 @@ After install, invoke a skill in Codex chat with `@` (e.g. `@spec-driven-develop
 
 ## How it works
 
-- `.codex-plugin/plugin.json` — Codex plugin manifest at the repo root. Points `skills` at `./skills/` and provides the metadata required by Codex.
-- `.agents/plugins/marketplace.json` — marketplace entry declaring the repo root (`./`) as the plugin source.
-- `skills/<name>/SKILL.md` — unchanged. Codex and Claude Code share the same `name` + `description` frontmatter format, so one file serves both platforms.
+- `.codex-plugin/plugin.json`: Codex plugin manifest at the repo root. Points `skills` at `./skills/` and provides the metadata required by Codex.
+- `.agents/plugins/marketplace.json`: marketplace entry declaring the repo root (`./`) as the plugin source.
+- `skills/<name>/SKILL.md`: unchanged. Codex and Claude Code share the same `name` + `description` frontmatter format, so one file serves both platforms.
 
 Slash commands in `.claude/commands/` and personas in `agents/` stay Claude Code-specific. The `SessionStart` script under `hooks/` is a standalone helper for hosts without native skill routing and is not wired by either plugin. On Codex, invoke the underlying skill directly instead of the slash command (e.g. `@spec-driven-development` instead of `/spec`).

@@ -15,7 +15,7 @@
         "top_k": 3
       },
       {
-        "prompt": "This one requirement covers identity, billing, notifications, and reporting — decompose it into independently specifiable modules first",
+        "prompt": "This one requirement covers identity, billing, notifications, and reporting: decompose it into independently specifiable modules first",
         "top_k": 3
       },
       {

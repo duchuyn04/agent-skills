@@ -6,7 +6,7 @@ The Command Code binary is available as `cmd` (with aliases `cmdc` on Windows an
 
 ## Install
 
-**Project scope** (installs into `.commandcode/skills/` at the current git root — the default):
+**Project scope** (installs into `.commandcode/skills/` at the current git root: the default):
 
 ```bash
 cmd skills add addyosmani/agent-skills

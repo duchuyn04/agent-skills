@@ -2,9 +2,9 @@
 
 This guide covers Copilot in VS Code. For the standalone `copilot` command-line tool, see [copilot-cli-setup.md](copilot-cli-setup.md).
 
-**What an install actually gives you:** the skills. Each installed skill becomes a slash command named after its frontmatter `name` — `/spec-driven-development`, `/test-driven-development`, and so on. `npx skills add addyosmani/agent-skills` and the manual copy below both install skills only. Neither of those two routes copies this repo's short lifecycle wrappers (`/spec`, `/plan`, `/build`, `/test`, `/review`, `/ship`) — those are Claude Code commands living in `.claude/commands/`. Use the full skill names, or add your own aliases — see [Lifecycle workflows](#lifecycle-workflows).
+**What an install actually gives you:** the skills. Each installed skill becomes a slash command named after its frontmatter `name`: `/spec-driven-development`, `/test-driven-development`, and so on. `npx skills add addyosmani/agent-skills` and the manual copy below both install skills only. Neither of those two routes copies this repo's short lifecycle wrappers (`/spec`, `/plan`, `/build`, `/test`, `/review`, `/ship`): those are Claude Code commands living in `.claude/commands/`. Use the full skill names, or add your own aliases: see [Lifecycle workflows](#lifecycle-workflows).
 
-> **`/spec`, `/plan`, `/build`, `/test`, `/review`, `/code-simplify`, `/webperf` and `/ship` never appear in Copilot.** They are Claude Code commands, and Copilot does not read `.claude/commands/`. Not seeing them after an install is expected, not a missing step. Invoke the skill by its own name instead — `/spec-driven-development` for `/spec`, `/planning-and-task-breakdown` for `/plan`, and so on; the full mapping is in [Lifecycle Workflows](#lifecycle-workflows). On VS Code you can add [short aliases](#optional-short-spec-style-aliases) yourself if you want the short forms.
+> **`/spec`, `/plan`, `/build`, `/test`, `/review`, `/code-simplify`, `/webperf` and `/ship` never appear in Copilot.** They are Claude Code commands, and Copilot does not read `.claude/commands/`. Not seeing them after an install is expected, not a missing step. Invoke the skill by its own name instead: `/spec-driven-development` for `/spec`, `/planning-and-task-breakdown` for `/plan`, and so on; the full mapping is in [Lifecycle Workflows](#lifecycle-workflows). On VS Code you can add [short aliases](#optional-short-spec-style-aliases) yourself if you want the short forms.
 
 ## Setup
 
@@ -20,7 +20,7 @@ cat /path/to/agent-skills/skills/test-driven-development/SKILL.md > .github/skil
 cat /path/to/agent-skills/skills/code-review-and-quality/SKILL.md > .github/skills/code-review-and-quality/SKILL.md
 ```
 
-Whichever of these two routes you use, the result is one `SKILL.md` per skill directory under one of those three project paths. An installer run with a global/user flag writes somewhere else instead — check its output for the path it used. Run `/skills` in Copilot Chat to open the **Configure Skills** menu and confirm what got discovered.
+Whichever of these two routes you use, the result is one `SKILL.md` per skill directory under one of those three project paths. An installer run with a global/user flag writes somewhere else instead: check its output for the path it used. Run `/skills` in Copilot Chat to open the **Configure Skills** menu and confirm what got discovered.
 
 For more details, refer [Creating agent skills for GitHub Copilot](https://docs.github.com/en/copilot/how-tos/use-copilot-agents/coding-agent/create-skills) and the VS Code guide to [agent skills](https://code.visualstudio.com/docs/agent-customization/agent-skills).
 
@@ -89,7 +89,7 @@ Use the agents for targeted review workflows in Copilot Chat.
 
 ## Lifecycle Workflows
 
-Skills are user-invocable by default, so once they're discovered the whole lifecycle is available under the skills' own names — no extra configuration:
+Skills are user-invocable by default, so once they're discovered the whole lifecycle is available under the skills' own names: no extra configuration:
 
 | Workflow | Copilot invocation | Notes |
 |----------|--------------------|-------|
@@ -110,9 +110,9 @@ Natural language is the fallback, and works in any Copilot surface whether or no
 
 ### Optional: short `/spec`-style aliases
 
-VS Code's extension-host local agents support [prompt files](https://code.visualstudio.com/docs/agent-customization/prompt-files) at `.github/prompts/<name>.prompt.md`, and each becomes a `/<name>` slash command. The Agent Host does **not** use prompt files — there, use the skill names above.
+VS Code's extension-host local agents support [prompt files](https://code.visualstudio.com/docs/agent-customization/prompt-files) at `.github/prompts/<name>.prompt.md`, and each becomes a `/<name>` slash command. The Agent Host does **not** use prompt files: there, use the skill names above.
 
-An alias is a thin shortcut to one skill, nothing more. These aliases do not implement the orchestration in this repo's Claude Code commands — `/build auto`'s single-approval plan-and-implement pass and `/ship`'s parallel persona fan-out. Reproducing that on Copilot is its own piece of work, not something a one-file alias covers. Prefer the skill names as your default; reach for aliases only if the short form is worth the extra file.
+An alias is a thin shortcut to one skill, nothing more. These aliases do not implement the orchestration in this repo's Claude Code commands: `/build auto`'s single-approval plan-and-implement pass and `/ship`'s parallel persona fan-out. Reproducing that on Copilot is its own piece of work, not something a one-file alias covers. Prefer the skill names as your default; reach for aliases only if the short form is worth the extra file.
 
 Create one, without clobbering an existing file:
 
@@ -135,11 +135,11 @@ EOF
 
 Reload the window, then type `/spec`.
 
-For the rest, run the same `mkdir`/`cat` block with the filename swapped (the filename *is* the command name), and take the `description` and body from this table. **Replace the entire body below the `---` frontmatter**, not just the skill name — the spec body's SPEC.md and clarifying-question instructions belong to Define only, and leaving them in would make `/plan` or `/test` write a spec.
+For the rest, run the same `mkdir`/`cat` block with the filename swapped (the filename *is* the command name), and take the `description` and body from this table. **Replace the entire body below the `---` frontmatter**, not just the skill name: the spec body's SPEC.md and clarifying-question instructions belong to Define only, and leaving them in would make `/plan` or `/test` write a spec.
 
-| Alias file | `description` | Complete body — everything below the frontmatter |
+| Alias file | `description` | Complete body, everything below the frontmatter |
 |------------|---------------|--------------------------------------------------|
-| `.github/prompts/plan.prompt.md` | Break an approved spec into ordered, verifiable tasks | Use the planning-and-task-breakdown skill. Read the spec, then break the work into small, independently verifiable tasks, each with acceptance criteria and explicit dependency order. Save the result to `tasks/plan.md` and `tasks/todo.md`. Write no product code — show me the plan and wait for my approval. |
+| `.github/prompts/plan.prompt.md` | Break an approved spec into ordered, verifiable tasks | Use the planning-and-task-breakdown skill. Read the spec, then break the work into small, independently verifiable tasks, each with acceptance criteria and explicit dependency order. Save the result to `tasks/plan.md` and `tasks/todo.md`. Write no product code: show me the plan and wait for my approval. |
 | `.github/prompts/build.prompt.md` | Implement the next planned task, test-first | Use the incremental-implementation and test-driven-development skills. Read `tasks/plan.md` and `tasks/todo.md`, then take the next unchecked task and only that one. Write a failing test first, make it pass, refactor, run the suite, and tick the task off. Stop there and report what changed. |
 | `.github/prompts/test.prompt.md` | Write tests before the code that satisfies them | Use the test-driven-development skill. For new behavior, write a failing test that captures it before any implementation. For a bug, reproduce it with a failing test first, then fix it. Run the suite after each step and show me the red and the green output. |
 
@@ -147,12 +147,12 @@ Write the body yourself, or take it from this table, rather than copying `.claud
 
 ### If the skill slash commands don't appear
 
-First rule out the expected case: if the only commands you miss are the short lifecycle wrappers (`/spec`, `/plan`, `/build`, `/test`, `/review`, `/ship`), nothing is wrong — those are Claude Code commands and never surface in Copilot (see the note at the top). The steps below are for when the skills' own names, such as `/spec-driven-development`, are missing too.
+First rule out the expected case: if the only commands you miss are the short lifecycle wrappers (`/spec`, `/plan`, `/build`, `/test`, `/review`, `/ship`), nothing is wrong: those are Claude Code commands and never surface in Copilot (see the note at the top). The steps below are for when the skills' own names, such as `/spec-driven-development`, are missing too.
 
-Work through these in order — `/spec-driven-development` missing and `/spec` missing have different causes:
+Work through these in order: `/spec-driven-development` missing and `/spec` missing have different causes:
 
-1. **Check where the skills landed.** Each one needs its own directory containing a `SKILL.md`. The project-level paths this guide uses are `.github/skills/`, `.claude/skills/` and `.agents/skills/` — but an installer run with a global/user flag writes outside the workspace instead (`~/.agents/skills/` and equivalents), so a skill that isn't in any of the three may simply be installed personally. Confirm the actual path against the [VS Code agent skills docs](https://code.visualstudio.com/docs/agent-customization/agent-skills), then re-install into the project if you wanted it project-scoped.
-2. **Check the frontmatter.** `name` must be present and valid — it *is* the slash command. A skill whose frontmatter opts out of user invocation won't appear.
+1. **Check where the skills landed.** Each one needs its own directory containing a `SKILL.md`. The project-level paths this guide uses are `.github/skills/`, `.claude/skills/` and `.agents/skills/`, but an installer run with a global/user flag writes outside the workspace instead (`~/.agents/skills/` and equivalents), so a skill that isn't in any of the three may simply be installed personally. Confirm the actual path against the [VS Code agent skills docs](https://code.visualstudio.com/docs/agent-customization/agent-skills), then re-install into the project if you wanted it project-scoped.
+2. **Check the frontmatter.** `name` must be present and valid: it *is* the slash command. A skill whose frontmatter opts out of user invocation won't appear.
 3. **Check the Configure Skills menu.** Run `/skills` and confirm the skill is enabled here.
 4. **Start a fresh session.** Newly added skills aren't always picked up mid-conversation.
 5. **Check the host.** If `/spec-driven-development` works but your `/spec` alias doesn't, you're likely on the Agent Host, which doesn't read prompt files.
@@ -160,7 +160,7 @@ Work through these in order — `/spec-driven-development` missing and `/spec` m
 
 ## Usage Tips
 
-1. **Keep instructions concise** — Copilot instructions work best when focused. Summarize the key rules rather than including full skill files.
-2. **Use agents for review** — The code-reviewer, test-engineer, and security-auditor agents are designed for Copilot's agent model.
-3. **Reference in chat** — When working on a specific phase, paste the relevant skill content into Copilot Chat for context.
-4. **Combine with PR reviews** — Set up Copilot to review PRs using the code-reviewer agent persona.
+1. **Keep instructions concise**: Copilot instructions work best when focused. Summarize the key rules rather than including full skill files.
+2. **Use agents for review**: The code-reviewer, test-engineer, and security-auditor agents are designed for Copilot's agent model.
+3. **Reference in chat**: When working on a specific phase, paste the relevant skill content into Copilot Chat for context.
+4. **Combine with PR reviews**: Set up Copilot to review PRs using the code-reviewer agent persona.

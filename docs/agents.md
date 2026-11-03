@@ -15,9 +15,9 @@ Three layers, each with a distinct job:
 
 | Layer | What it is | Example | Composition role |
 |-------|-----------|---------|------------------|
-| **Skill** | A workflow with steps and exit criteria | `code-review-and-quality` | The *how* — invoked from inside a persona or command |
-| **Persona** | A role with a perspective and an output format | `code-reviewer` | The *who* — adopts a viewpoint, produces a report |
-| **Command** | A user-facing entry point | `/review`, `/ship` | The *when* — composes personas and skills |
+| **Skill** | A workflow with steps and exit criteria | `code-review-and-quality` | The *how*: invoked from inside a persona or command |
+| **Persona** | A role with a perspective and an output format | `code-reviewer` | The *who*: adopts a viewpoint, produces a report |
+| **Command** | A user-facing entry point | `/review`, `/ship` | The *when*: composes personas and skills |
 
 The user (or a slash command) is the orchestrator. **Personas do not call other personas.** Skills are mandatory hops inside a persona's workflow.
 
@@ -38,7 +38,7 @@ Pick this when there's a repeatable workflow you'd otherwise re-explain every ti
 
 `/review` and `/test` are not persona wrappers. They run the `code-review-and-quality` and `test-driven-development` skills in the main session, where the conversation's context is. To get `code-reviewer` or `test-engineer` in a fresh context, invoke the persona directly or run `/ship`.
 
-### Slash command (orchestrator — fan-out)
+### Slash command (orchestrator: fan-out)
 Pick this only when **independent** investigations can run in parallel and produce reports that a single agent then merges.
 
 - `/ship` → fans out to `code-reviewer` + `security-auditor` + `test-engineer` in parallel, then synthesizes their reports into a go/no-go decision
@@ -99,7 +99,7 @@ Why this fails:
 ## Rules for personas
 
 1. A persona is a single role with a single output format. If you find yourself adding a second role, create a second persona.
-2. **Personas do not invoke other personas.** Composition is the job of slash commands or the user. On Claude Code this is also a hard platform constraint — *"subagents cannot spawn other subagents"* — so the rule is enforced for you.
+2. **Personas do not invoke other personas.** Composition is the job of slash commands or the user. On Claude Code this is also a hard platform constraint (*"subagents cannot spawn other subagents"*) so the rule is enforced for you.
 3. A persona may invoke skills (the *how*).
 4. Every persona file ends with a "Composition" block stating where it fits.
 
@@ -112,7 +112,7 @@ The personas in this repo are designed to work as Claude Code subagents and as A
 
 Subagents only report results back to the main agent. Agent Teams let teammates message each other directly. Use subagents when reports are enough; use Agent Teams when sub-agents need to challenge each other's findings (e.g. competing-hypothesis debugging). See [references/orchestration-patterns.md](../references/orchestration-patterns.md) for the full mapping.
 
-Plugin agents do not support `hooks`, `mcpServers`, or `permissionMode` frontmatter — those fields are silently ignored. Avoid relying on them when authoring new personas here.
+Plugin agents do not support `hooks`, `mcpServers`, or `permissionMode` frontmatter: those fields are silently ignored. Avoid relying on them when authoring new personas here.
 
 ## Adding a new persona
 

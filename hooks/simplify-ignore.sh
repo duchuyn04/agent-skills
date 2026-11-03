@@ -1,5 +1,5 @@
 #!/bin/bash
-# simplify-ignore.sh — Hook for Read (PreToolUse), Edit|Write (PostToolUse), Stop
+# simplify-ignore.sh: Hook for Read (PreToolUse), Edit|Write (PostToolUse), Stop
 #
 # PreToolUse Read   → backs up file, replaces blocks with BLOCK_<hash> in-place
 # PostToolUse Edit  → expands placeholders, re-filters so file stays hidden
@@ -31,7 +31,7 @@ fi
 CACHE="${CLAUDE_PROJECT_DIR:-.}/.claude/.simplify-ignore-cache"
 if [ -t 0 ]; then INPUT="{}"; else INPUT=$(cat); fi
 
-# Parse hook input — trap errors explicitly so set -e doesn't cause
+# Parse hook input: trap errors explicitly so set -e doesn't cause
 # a silent exit on malformed JSON, and surface a useful diagnostic.
 parse_error=""
 TOOL_NAME=$(printf '%s' "$INPUT" | jq -r '.tool_name // empty' 2>/dev/null) || {
@@ -76,7 +76,7 @@ filter_file() {
   local count=0 in_block=0 buf="" reason="" prefix="" suffix=""
 
   while IFS= read -r line || [ -n "$line" ]; do
-    # Check for start marker (no fork — uses bash case)
+    # Check for start marker (no fork: uses bash case)
     if [ $in_block -eq 0 ]; then
       case "$line" in *simplify-ignore-start*)
         in_block=1
@@ -336,8 +336,8 @@ if [ -z "$TOOL_NAME" ]; then
         cat "$EXPANDED" > "$orig"
         rm -f "$EXPANDED"
       else
-        # A placeholder is gone — the file was rewritten wholesale, or one
-        # block's line was deleted — so the backup is the only remaining copy
+        # A placeholder is gone: the file was rewritten wholesale, or one
+        # block's line was deleted: so the backup is the only remaining copy
         # of that protected block. Keep the rewrite in the cache (with any
         # surviving placeholders expanded) before the backup overwrites it, so
         # the work is recoverable rather than lost.
@@ -354,7 +354,7 @@ if [ -z "$TOOL_NAME" ]; then
       rm -f "$bak" "$pathfile" "$CACHE/${fid}".block.* "$CACHE/${fid}".reason.* "$CACHE/${fid}".prefix.* "$CACHE/${fid}".suffix.*
       rmdir "$CACHE/${fid}.lock" 2>/dev/null || true
     else
-      # File was moved/deleted — save backup as .recovered, don't destroy it
+      # File was moved/deleted: save backup as .recovered, don't destroy it
       mkdir -p "$(dirname "${orig}.recovered")"
       mv "$bak" "${orig}.recovered"
       rm -f "$pathfile" "$CACHE/${fid}".block.* "$CACHE/${fid}".reason.* "$CACHE/${fid}".prefix.* "$CACHE/${fid}".suffix.*
@@ -380,7 +380,7 @@ if [ "$TOOL_NAME" = "Read" ]; then
   mkdir -p "$CACHE"
   ID=$(file_id "$FILE_PATH")
 
-  # If backup exists, file is already filtered — skip
+  # If backup exists, file is already filtered: skip
   # unless the real file was put back meanwhile (git checkout, stash, undo):
   # skipping then would show the model every protected block, so take that
   # file as the new original and filter it again.
@@ -396,7 +396,7 @@ if [ "$TOOL_NAME" = "Read" ]; then
   # Atomic lock: mkdir fails if another session races us
   # (a refilter already holds the lock from the first Read)
   if [ "$REFILTER" -eq 0 ] && ! mkdir "$CACHE/${ID}.lock" 2>/dev/null; then
-    # Lock exists — reclaim only if stale (>60s old, no backup = crash leftover)
+    # Lock exists: reclaim only if stale (>60s old, no backup = crash leftover)
     if [ ! -f "$CACHE/${ID}.bak" ] && \
        [ -n "$(find "$CACHE/${ID}.lock" -maxdepth 0 -mmin +1 2>/dev/null)" ]; then
       rmdir "$CACHE/${ID}.lock" 2>/dev/null || true

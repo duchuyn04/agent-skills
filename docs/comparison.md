@@ -8,7 +8,7 @@
 
 People often ask how **agent-skills** relates to the two other "skills for coding agents" collections they hear about most: **Superpowers** (Jesse Vincent / obra) and **Matt Pocock's skills**. All three are good, share a lot of DNA, and are worth learning from. This page is an honest map of how they are *shaped* differently, so you can pick the one that fits how you work, or borrow across all three.
 
-> **TL;DR** — They optimize for different moments. **agent-skills** organizes the *whole product lifecycle* (Define, Plan, Build, Verify, Review, Ship) with review personas, anti-rationalization guards, and an in-repo eval framework that checks the skills actually route and behave. **Superpowers** leans into *autonomous, reasoning-heavy* runs with subagents, a strict pipeline, and worktree isolation. **Matt Pocock's skills** are a *sharp, opinionated Claude Code toolkit* distilled from one expert's daily workflow, with a signature "grill me" interrogation loop. None is "best" in the abstract; it depends on the work in front of you.
+> **TL;DR**: They optimize for different moments. **agent-skills** organizes the *whole product lifecycle* (Define, Plan, Build, Verify, Review, Ship) with review personas, anti-rationalization guards, and an in-repo eval framework that checks the skills actually route and behave. **Superpowers** leans into *autonomous, reasoning-heavy* runs with subagents, a strict pipeline, and worktree isolation. **Matt Pocock's skills** are a *sharp, opinionated Claude Code toolkit* distilled from one expert's daily workflow, with a signature "grill me" interrogation loop. None is "best" in the abstract; it depends on the work in front of you.
 
 ---
 

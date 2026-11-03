@@ -13,9 +13,9 @@ library never touches floating point.
 
 Every result must satisfy both invariants, for every input:
 
-1. **Exactness** — the shares sum to exactly `totalCents`. Money is never
+1. **Exactness**: the shares sum to exactly `totalCents`. Money is never
    lost or created.
-2. **Fairness** — no two shares differ by more than one cent. When the
+2. **Fairness**: no two shares differ by more than one cent. When the
    total does not divide evenly, the leftover cents go to the earliest
    shares, one cent each.
 

@@ -1,13 +1,13 @@
 # Optimization Patterns
 
-Worked fixes for the anti-patterns named in Step 3 of the `performance-optimization` skill. The skill states the rule and the signature to look for; this file shows one concrete implementation. Open the section you need after Step 2 has identified the bottleneck — it is not meant to be read top to bottom.
+Worked fixes for the anti-patterns named in Step 3 of the `performance-optimization` skill. The skill states the rule and the signature to look for; this file shows one concrete implementation. Open the section you need after Step 2 has identified the bottleneck: it is not meant to be read top to bottom.
 
 Checklists, measurement commands, TTFB diagnosis, and caching read/write strategies live in `../../../references/performance-checklist.md`.
 
 ## N+1 Queries (Backend)
 
 ```typescript
-// BAD: N+1 — one query per task for the owner
+// BAD: N+1: one query per task for the owner
 const tasks = await db.tasks.findMany();
 for (const task of tasks) {
   task.owner = await db.users.findUnique({ where: { id: task.ownerId } });
@@ -73,7 +73,7 @@ Re-run `EXPLAIN ANALYZE` after. An index that did not change the plan is a rever
 The signature is distinctive: **every** endpoint slows at once, the slow time is spent waiting for a connection rather than executing, and the database reports mostly idle sessions.
 
 ```typescript
-// BAD: a pool per request or per module — under serverless this multiplies
+// BAD: a pool per request or per module: under serverless this multiplies
 // by instance count and exhausts the database's connection limit
 // GOOD: one pool per process, sized against the database's ceiling
 const pool = new Pool({
@@ -91,7 +91,7 @@ const pool = new Pool({
 <!-- BAD: No dimensions, no format optimization -->
 <img src="/hero.jpg" />
 
-<!-- GOOD: Hero / LCP image — art direction + resolution switching, high priority -->
+<!-- GOOD: Hero / LCP image: art direction + resolution switching, high priority -->
 <!--
   Two techniques combined:
   - Art direction (media): different crop/composition per breakpoint
@@ -139,7 +139,7 @@ const pool = new Pool({
   />
 </picture>
 
-<!-- GOOD: Below-the-fold image — lazy loaded + async decoding -->
+<!-- GOOD: Below-the-fold image: lazy loaded + async decoding -->
 <img
   src="/content.webp"
   width="800"
@@ -181,7 +181,7 @@ function TaskStats({ tasks }: Props) {
 ```typescript
 // Modern bundlers (Vite, webpack 5+) handle named imports with tree-shaking automatically,
 // provided the dependency ships ESM and is marked `sideEffects: false` in package.json.
-// Profile before changing import styles — the real gains come from splitting and lazy loading.
+// Profile before changing import styles: the real gains come from splitting and lazy loading.
 
 // GOOD: Dynamic import for heavy, rarely-used features
 const ChartLibrary = lazy(() => import('./ChartLibrary'));

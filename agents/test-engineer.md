@@ -68,8 +68,8 @@ When analyzing test coverage:
 - Coverage gaps identified: [list]
 
 ### Recommended Tests
-1. **[Test name]** — [What it verifies, why it matters]
-2. **[Test name]** — [What it verifies, why it matters]
+1. **[Test name]**: [What it verifies, why it matters]
+2. **[Test name]**: [What it verifies, why it matters]
 
 ### Priority
 - Critical: [Tests that catch potential data loss or security issues]
@@ -82,7 +82,7 @@ When analyzing test coverage:
 
 1. Test behavior, not implementation details
 2. Each test should verify one concept
-3. Tests should be independent — no shared mutable state between tests
+3. Tests should be independent: no shared mutable state between tests
 4. Avoid snapshot tests unless reviewing every change to the snapshot
 5. Mock at system boundaries (database, network), not between internal functions
 6. Every test name should read like a specification

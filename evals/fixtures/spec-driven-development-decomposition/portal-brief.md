@@ -1,4 +1,4 @@
-# Customer portal — product brief
+# Customer portal: product brief
 
 Leadership wants a self-serve customer portal shipped as one initiative. The
 request, as handed down:

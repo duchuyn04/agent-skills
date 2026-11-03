@@ -1,6 +1,6 @@
 # Using agent-skills with Cursor
 
-How to wire [agent-skills](../README.md) into **Cursor** using current, supported project context — not legacy monolith files or Kaizen-specific layouts.
+How to wire [agent-skills](../README.md) into **Cursor** using current, supported project context, not legacy monolith files or Kaizen-specific layouts.
 
 Every `.cursor/` path in this guide lives in **your** project (or under `~/.cursor/` for user scope). This repository does not ship a `.cursor/` directory: you create it and sync the skills into it, which is what [step 1](#1-install-skills-into-cursorskills) does.
 
@@ -21,8 +21,8 @@ Docs: [Rules](https://cursor.com/docs/rules) · [Skills](https://cursor.com/docs
 
 ### Rules vs skills
 
-- **Rules** — concise, stable (“use conventional commits”, “type-annotate public Python APIs”). Prefer one concern per file; avoid large pasted guides.
-- **Skills** — step-by-step processes from this repo (`test-driven-development`, `code-review-and-quality`, etc.). **Do not** copy entire `SKILL.md` bodies into rules; that duplicates `.cursor/skills/` and wastes context.
+- **Rules**: concise, stable (“use conventional commits”, “type-annotate public Python APIs”). Prefer one concern per file; avoid large pasted guides.
+- **Skills**: step-by-step processes from this repo (`test-driven-development`, `code-review-and-quality`, etc.). **Do not** copy entire `SKILL.md` bodies into rules; that duplicates `.cursor/skills/` and wastes context.
 
 ### Legacy (avoid for new setups)
 
@@ -30,7 +30,7 @@ Docs: [Rules](https://cursor.com/docs/rules) · [Skills](https://cursor.com/docs
 |--------|--------|
 | Root `.cursorrules` | `.cursor/rules/*.mdc` |
 | Copying `SKILL.md` → `.cursor/rules/` | `.cursor/skills/<name>/SKILL.md` |
-| “Load 10 skills as always-on rules” | 1–2 thin `alwaysApply` rules + skills on demand |
+| “Load 10 skills as always-on rules” | 1-2 thin `alwaysApply` rules + skills on demand |
 
 ---
 
@@ -51,7 +51,7 @@ your-project/
 ```
 
 **Source of truth for the agent:** `.cursor/skills/`.  
-Treat `agent-skills/skills/` (or a cloned [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills)) as **upstream** — sync into `.cursor/skills/`, do not edit only upstream and expect Cursor to see it.
+Treat `agent-skills/skills/` (or a cloned [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills)) as **upstream**: sync into `.cursor/skills/`, do not edit only upstream and expect Cursor to see it.
 
 ---
 
@@ -135,18 +135,18 @@ Project skills in `.cursor/skills/` take precedence for **this** repo’s workfl
 
 ### 4. Verify
 
-1. **Settings → Rules** — project `.mdc` files listed.
-2. **Agent chat** — skills from `.cursor/skills/` appear in the skill list (if your Cursor build exposes it).
-3. Run a task that maps to a skill (e.g. “add a feature with tests first”) without naming the file — agent should open `test-driven-development` when routing works.
+1. **Settings → Rules**: project `.mdc` files listed.
+2. **Agent chat**: skills from `.cursor/skills/` appear in the skill list (if your Cursor build exposes it).
+3. Run a task that maps to a skill (e.g. “add a feature with tests first”) without naming the file: agent should open `test-driven-development` when routing works.
 
 ---
 
 ## How agents should use skills
 
-1. **Discover** — `using-agent-skills` maps task phase → skill name.
-2. **Read** — full process in `.cursor/skills/<name>/SKILL.md`.
-3. **Deep dive** — `reference.md`, `references/*.md`, or linked checklists when the skill says so.
-4. **Combine** — e.g. `incremental-implementation` + `api-and-interface-design` for an API slice.
+1. **Discover**: `using-agent-skills` maps task phase → skill name.
+2. **Read**: full process in `.cursor/skills/<name>/SKILL.md`.
+3. **Deep dive**: `reference.md`, `references/*.md`, or linked checklists when the skill says so.
+4. **Combine**: e.g. `incremental-implementation` + `api-and-interface-design` for an API slice.
 
 Explicit user phrases (“follow TDD”, “use code-review-and-quality”) still help if the agent drifts.
 
@@ -181,7 +181,7 @@ Full tree: `skills/using-agent-skills/SKILL.md` in the repo.
 
 ## Context tips
 
-- Keep **always-on** rules small (routing + 1–2 non-negotiables).
+- Keep **always-on** rules small (routing + 1-2 non-negotiables).
 - Let **skills** carry long checklists and rationalization tables.
 - Add phase-specific **globs** rules only when needed (e.g. `**/*.py`, `**/components/**`).
 - Nudge by skill name if verification steps are skipped.
@@ -224,5 +224,5 @@ Files under `agent-skills/agents/` (e.g. code reviewer persona) are **not** load
 ## See also
 
 - [getting-started.md](getting-started.md)
-- [../README.md](../README.md) — Cursor quick blurb
+- [../README.md](../README.md): Cursor quick blurb
 - Upstream: [github.com/addyosmani/agent-skills](https://github.com/addyosmani/agent-skills)

@@ -1,5 +1,5 @@
 #!/bin/bash
-# simplify-ignore-test.sh — Tests for the simplify-ignore hook
+# simplify-ignore-test.sh: Tests for the simplify-ignore hook
 #
 # Exercises filter_file by extracting function definitions from the hook.
 # Run: bash hooks/simplify-ignore-test.sh
@@ -277,7 +277,7 @@ EOF
   printf 'const added = 3;\n' >> "$TARGET"
   hook_event "$edit_event"
 
-  # A later write through Bash — no Edit or Write event follows it
+  # A later write through Bash: no Edit or Write event follows it
   sed 's/const editable = 1;/const editable = 2;/' "$TARGET" > "$TMPDIR/bash-write.js"
   cat "$TMPDIR/bash-write.js" > "$TARGET"
 
@@ -314,7 +314,7 @@ EOF
   hook_event "$read_event"
   assert_eq "protected block hidden after Read" "1" "$(grep -c 'BLOCK_' "$TARGET")"
 
-  # Wholesale rewrite — every placeholder is gone, so Stop has nothing to expand
+  # Wholesale rewrite: every placeholder is gone, so Stop has nothing to expand
   printf 'const rewritten = 7;\n' > "$TARGET"
 
   stop_out=$(hook_event '{}' 2>&1) || true

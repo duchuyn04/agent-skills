@@ -7,7 +7,7 @@ description: Hardens code against vulnerabilities. Use when auditing an input ha
 
 ## Overview
 
-Security-first development practices for web applications. Treat every external input as hostile, every secret as sacred, and every authorization check as mandatory. Security isn't a phase — it's a constraint on every line of code that touches user data, authentication, or external systems.
+Security-first development practices for web applications. Treat every external input as hostile, every secret as sacred, and every authorization check as mandatory. Security isn't a phase: it's a constraint on every line of code that touches user data, authentication, or external systems.
 
 ## When to Use
 
@@ -22,9 +22,9 @@ Security-first development practices for web applications. Treat every external 
 
 Controls bolted on without a threat model are guesses. Before hardening, spend five minutes thinking like an attacker:
 
-1. **Map the trust boundaries.** Where does untrusted data cross into your system? HTTP requests, form fields, file uploads, webhooks, third-party APIs, message queues, and **LLM output** — plus the local values that look internal because the OS handed them to you: another process's command line or environment, filenames on a shared volume, a path in a job payload. Trust follows who *wrote* a value, not which channel delivered it. Every boundary is attack surface.
+1. **Map the trust boundaries.** Where does untrusted data cross into your system? HTTP requests, form fields, file uploads, webhooks, third-party APIs, message queues, and **LLM output**, plus the local values that look internal because the OS handed them to you: another process's command line or environment, filenames on a shared volume, a path in a job payload. Trust follows who *wrote* a value, not which channel delivered it. Every boundary is attack surface.
 2. **Name the assets.** What's worth stealing or breaking? Credentials, PII, payment data, admin actions, money movement.
-3. **Run STRIDE over each boundary** — a quick lens, not a ceremony:
+3. **Run STRIDE over each boundary**: a quick lens, not a ceremony:
 
 | Threat | Ask | Typical mitigation |
 |---|---|---|
@@ -35,16 +35,16 @@ Controls bolted on without a threat model are guesses. Before hardening, spend f
 | **D**enial of service | Can it be overwhelmed? | Rate limiting, input size caps, timeouts |
 | **E**levation of privilege | Can a user gain rights they shouldn't? | Authorization checks, least privilege |
 
-4. **Write abuse cases next to use cases.** For each feature, ask "how would I misuse this?" — then make that your first test.
+4. **Write abuse cases next to use cases.** For each feature, ask "how would I misuse this?", then make that your first test.
 
-If you can't name the trust boundaries for a feature, you're not ready to secure it. This is OWASP **A04: Insecure Design** — most breaches begin in design, not code.
+If you can't name the trust boundaries for a feature, you're not ready to secure it. This is OWASP **A04: Insecure Design**: most breaches begin in design, not code.
 
 ## The Three-Tier Boundary System
 
 ### Always Do (No Exceptions)
 
 - **Validate all external input** at the system boundary (API routes, form handlers)
-- **Parameterize all database queries** — never concatenate user input into SQL
+- **Parameterize all database queries**: never concatenate user input into SQL
 - **Encode output** to prevent XSS (use framework auto-escaping, don't bypass it)
 - **Use HTTPS** for all external communication
 - **Hash passwords** with bcrypt/scrypt/argon2 (never store plaintext)
@@ -108,7 +108,7 @@ Patterns: [Schema validation](references/hardening-patterns.md#schema-validation
 
 ### Server-side fetches (SSRF)
 
-Any URL the user influences — webhooks, import-from-URL, image proxies, link previews — can be aimed at internal services. Allowlist scheme and host, resolve **all** DNS records and reject any private or reserved address (loopback, link-local `169.254.169.254`, private, unique-local, for IPv4 and IPv6), and forbid redirects. That check still has a DNS-rebinding TOCTOU gap: for high-risk surfaces, pin the resolved IP or put a filtering agent in front.
+Any URL the user influences (webhooks, import-from-URL, image proxies, link previews) can be aimed at internal services. Allowlist scheme and host, resolve **all** DNS records and reject any private or reserved address (loopback, link-local `169.254.169.254`, private, unique-local, for IPv4 and IPv6), and forbid redirects. That check still has a DNS-rebinding TOCTOU gap: for high-risk surfaces, pin the resolved IP or put a filtering agent in front.
 
 Pattern: [SSRF](references/hardening-patterns.md#server-side-request-forgery-ssrf).
 
@@ -153,10 +153,10 @@ Classification table: [Data classification](references/hardening-patterns.md#dat
 
 ### AI / LLM features
 
-Calling an LLM — chatbots, summarizers, agents, RAG — adds a new attack surface; map it to the [OWASP Top 10 for LLM Applications (2025)](https://genai.owasp.org/llm-top-10/):
+Calling an LLM (chatbots, summarizers, agents, RAG) adds a new attack surface; map it to the [OWASP Top 10 for LLM Applications (2025)](https://genai.owasp.org/llm-top-10/):
 
 - **Model output is untrusted input** (LLM05). Never into `eval`, SQL, a shell, `innerHTML`, or a file path; parse defensively, validate against a schema, then encode.
-- **Prompts can be hijacked** (LLM01). Untrusted text in the context — a user message, a fetched page, a PDF — can carry instructions. The system prompt is not a security boundary; enforce permissions in code.
+- **Prompts can be hijacked** (LLM01). Untrusted text in the context (a user message, a fetched page, a PDF) can carry instructions. The system prompt is not a security boundary; enforce permissions in code.
 - **Keep secrets, other tenants' data, and the full system prompt out of the context window** (LLM02, LLM07); scope tool permissions, validate every tool argument, and confirm destructive actions (LLM06); cap tokens, request rate, and recursion depth (LLM10); partition RAG embeddings per tenant and validate documents before indexing (LLM08).
 
 Pattern: [LLM output handling](references/hardening-patterns.md#llm-output-handling).
@@ -178,7 +178,7 @@ Before sign-off, walk `../../references/security-checklist.md`: it covers authen
 | "It's just LLM output, it's only text" | That "text" can be a SQL statement, a script tag, or a shell command. Treat it like any untrusted input. |
 | "The audit passed, so the dependency is safe" | Audits match known advisories. They do not detect a newly malicious package or make unreviewed install scripts safe to execute. |
 | "Collect it now, we might need it later" | Data you don't hold can't be breached, subpoenaed, or mis-deleted. "Might need it" is breach scope, not a purpose. |
-| "We'll handle deletion requests manually" | Manual erasure misses backups, caches, and analytics copies. If the schema can't find a user's data, you can't honor the request — design for it. |
+| "We'll handle deletion requests manually" | Manual erasure misses backups, caches, and analytics copies. If the schema can't find a user's data, you can't honor the request: design for it. |
 | "Compliance is legal's problem, not ours" | Export, deletion, retention, and consent are schema and code. Legal can't bolt them on after you've smeared PII across ten systems. |
 
 ## Red Flags

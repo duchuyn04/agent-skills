@@ -1,6 +1,6 @@
 ---
 name: debugging-and-error-recovery
-description: Guides systematic root-cause debugging. Use when tests fail, builds break, something that worked yesterday broke, behavior doesn't match expectations, or you encounter any unexpected error. Use when you need to figure out what broke and why — a systematic approach to finding and fixing the root cause rather than guessing.
+description: Guides systematic root-cause debugging. Use when tests fail, builds break, something that worked yesterday broke, behavior doesn't match expectations, or you encounter any unexpected error. Use when you need to figure out what broke and why; it gives a systematic approach to finding and fixing the root cause rather than guessing.
 ---
 
 # Debugging and Error Recovery
@@ -72,7 +72,7 @@ Cannot reproduce on demand:
     └── Document the conditions observed and revisit when it recurs
 ```
 
-For test failures (npm shown — substitute the repository's own test command, per the test-driven-development skill's Discover the Stack First section):
+For test failures (npm shown: substitute the repository's own test command, per the test-driven-development skill's Discover the Stack First section):
 ```bash
 # Run the specific failing test
 npm test -- --grep "test name"

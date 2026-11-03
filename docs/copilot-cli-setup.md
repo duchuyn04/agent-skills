@@ -1,10 +1,10 @@
 # Using agent-skills with GitHub Copilot CLI
 
-The standalone `copilot` command-line tool installs this repository as a plugin and discovers every skill in `skills/`. For Copilot inside VS Code, see [copilot-setup.md](copilot-setup.md) instead — the setup and the invocation model are different.
+The standalone `copilot` command-line tool installs this repository as a plugin and discovers every skill in `skills/`. For Copilot inside VS Code, see [copilot-setup.md](copilot-setup.md) instead: the setup and the invocation model are different.
 
 ## Install
 
-**From this repository's marketplace** — register it, then install from it. `addy-agent-skills` is the marketplace name this repository declares, not a GitHub-wide registry, and the name only resolves after the `marketplace add`:
+**From this repository's marketplace**: register it, then install from it. `addy-agent-skills` is the marketplace name this repository declares, not a GitHub-wide registry, and the name only resolves after the `marketplace add`:
 
 ```bash
 copilot plugin marketplace add addyosmani/agent-skills
@@ -24,7 +24,7 @@ git clone https://github.com/addyosmani/agent-skills.git
 copilot --plugin-dir /path/to/agent-skills
 ```
 
-`--plugin-dir` loads the plugin for that session only and installs nothing persistently — use it while editing skills.
+`--plugin-dir` loads the plugin for that session only and installs nothing persistently: use it while editing skills.
 
 ## Verify
 
@@ -58,7 +58,7 @@ Name the skill you want, or describe the task and let the agent route to it:
 
 | Symptom | What to check |
 |---------|---------------|
-| `plugin install` can't resolve `agent-skills@addy-agent-skills` | Run `copilot plugin marketplace add addyosmani/agent-skills` first — that name only resolves once the marketplace is registered. Or install the repository directly. |
+| `plugin install` can't resolve `agent-skills@addy-agent-skills` | Run `copilot plugin marketplace add addyosmani/agent-skills` first: that name only resolves once the marketplace is registered. Or install the repository directly. |
 | Plugin installed but no skills | `copilot plugin list` to confirm the plugin, then `copilot skill list` (or `/skills list` in session) to see what was discovered. If the list is empty, check the root `plugin.json` against the [1.0.0 schema](https://agent-plugins.org/schemas/1.0.0/plugin.schema.json): in Agent Plugins mode any schema error (say, `author` as a string instead of an object) is fatal and the CLI loads no skills. |
 | `/spec`, `/build` and friends are not found | Expected, not a broken install: the root manifest registers no commands. Ask for the skill by name instead. |
 | Skills changed locally but the CLI shows the old copy | Start a fresh session, or run with `--plugin-dir` pointing at your clone. |

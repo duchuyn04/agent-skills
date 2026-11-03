@@ -3,7 +3,7 @@
   "trigger": {
     "positive": [
       {
-        "prompt": "Set up quality constraints for this project — I want to define our bar before the agent writes more code",
+        "prompt": "Set up quality constraints for this project: I want to define our bar before the agent writes more code",
         "top_k": 3
       },
       {
@@ -19,7 +19,7 @@
         "top_k": 3
       },
       {
-        "prompt": "I care about accessibility and web performance — set those up as enforced constraints",
+        "prompt": "I care about accessibility and web performance: set those up as enforced constraints",
         "top_k": 3
       }
     ],

@@ -7,7 +7,7 @@ description: Optimizes application performance across frontend, backend, queries
 
 ## Overview
 
-Measure before optimizing. Performance work without measurement is guessing — and guessing leads to premature optimization that adds complexity without improving what matters. Profile first, identify the actual bottleneck, fix it, measure again. Optimize only what measurements prove matters.
+Measure before optimizing. Performance work without measurement is guessing, and guessing leads to premature optimization that adds complexity without improving what matters. Profile first, identify the actual bottleneck, fix it, measure again. Optimize only what measurements prove matters.
 
 ## When to Use
 
@@ -39,7 +39,7 @@ Measure before optimizing. Performance work without measurement is guessing — 
 
 ### Step 1: Measure
 
-Two complementary approaches — use both:
+Two complementary approaches: use both:
 
 - **Synthetic (Lighthouse, DevTools Performance tab):** Controlled conditions, reproducible. Best for CI regression detection and isolating specific issues.
 - **RUM (web-vitals library, CrUX):** Real user data in real conditions. Required to validate that a fix actually improved user experience.

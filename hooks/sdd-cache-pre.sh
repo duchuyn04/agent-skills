@@ -1,5 +1,5 @@
 #!/bin/bash
-# sdd-cache-pre.sh — PreToolUse hook for WebFetch.
+# sdd-cache-pre.sh: PreToolUse hook for WebFetch.
 #
 # HTTP resource cache keyed by URL. Freshness is delegated to the origin via
 # HTTP validators; 304 Not Modified is the only signal to serve from cache.
@@ -58,7 +58,7 @@ ORIGINAL_PROMPT=$(jq -r '.prompt // empty' "$CACHE_FILE" 2>/dev/null || true)
 ETAG=$(jq -r '.etag // empty' "$CACHE_FILE" 2>/dev/null || true)
 LAST_MOD=$(jq -r '.last_modified // empty' "$CACHE_FILE" 2>/dev/null || true)
 
-# No validator means we cannot verify freshness — never serve from cache.
+# No validator means we cannot verify freshness: never serve from cache.
 if [ -z "$ETAG" ] && [ -z "$LAST_MOD" ]; then
   dbg "cached entry has no etag/last-modified, cannot revalidate, bypass"
   exit 0

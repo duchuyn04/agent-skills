@@ -1,10 +1,10 @@
 #!/bin/bash
-# sdd-cache-test.sh — Tests for the sdd-cache pre/post WebFetch hooks
+# sdd-cache-test.sh: Tests for the sdd-cache pre/post WebFetch hooks
 #
 # No real network traffic: a deterministic curl stub is placed first on PATH.
-#   CURL_STUB_STATUS  — printed when the hook probes a status code (pre hook,
+#   CURL_STUB_STATUS: printed when the hook probes a status code (pre hook,
 #                       invoked with -w); defaults to 000
-#   CURL_STUB_HEADERS — printed for header captures (post hook, no -w)
+#   CURL_STUB_HEADERS: printed for header captures (post hook, no -w)
 # Every test URL is a public https:// host and every seeded cache entry uses
 # a fresh fetched_at, so the suite passes both with and without the SSRF /
 # TTL hardening of the hooks (issue #295).
@@ -75,7 +75,7 @@ run_hook() {
     bash "hooks/$script" 2>&1 >/dev/null) || RC=$?
 }
 
-# seed_entry <proj> <url> <content> [etag] — write a valid, fresh cache entry.
+# seed_entry <proj> <url> <content> [etag]: write a valid, fresh cache entry.
 seed_entry() {
   # ${4-...} (not ${4:-...}): an explicitly empty etag must stay empty.
   local proj="$1" url="$2" content="$3" etag="${4-\"seed-etag\"}"
@@ -99,47 +99,47 @@ post_input() { jq -n --arg url "$1" --arg result "$2" \
 
 URL="https://docs.example.com/guide"
 
-# ── Test 1: pre — no url in input lets WebFetch proceed ───────────────────
-printf 'Test 1: pre — no url in tool_input\n'
+# ── Test 1: pre: no url in input lets WebFetch proceed ───────────────────
+printf 'Test 1: pre: no url in tool_input\n'
 P="$TMPDIR/t1"; mkdir -p "$P"
 run_hook sdd-cache-pre.sh "$P" '{"tool_input":{}}'
 assert_eq "exit 0 without url" "0" "$RC"
 
-# ── Test 2: pre — malformed JSON input is not fatal ───────────────────────
-printf '\nTest 2: pre — malformed JSON input\n'
+# ── Test 2: pre: malformed JSON input is not fatal ───────────────────────
+printf '\nTest 2: pre: malformed JSON input\n'
 P="$TMPDIR/t2"; mkdir -p "$P"
 run_hook sdd-cache-pre.sh "$P" 'NOT_JSON{{{'
 assert_eq "exit 0 on malformed JSON" "0" "$RC"
 
-# ── Test 3: pre — no cache entry lets WebFetch proceed ────────────────────
-printf '\nTest 3: pre — cache miss\n'
+# ── Test 3: pre: no cache entry lets WebFetch proceed ────────────────────
+printf '\nTest 3: pre: cache miss\n'
 P="$TMPDIR/t3"; mkdir -p "$P"
 run_hook sdd-cache-pre.sh "$P" "$(pre_input "$URL")"
 assert_eq "exit 0 on cache miss" "0" "$RC"
 
-# ── Test 4: pre — entry without validators is never served ────────────────
-printf '\nTest 4: pre — entry lacking ETag/Last-Modified bypasses cache\n'
+# ── Test 4: pre: entry without validators is never served ────────────────
+printf '\nTest 4: pre: entry lacking ETag/Last-Modified bypasses cache\n'
 P="$TMPDIR/t4"; mkdir -p "$P"
 seed_entry "$P" "$URL" "cached body" ""
 CURL_STUB_STATUS=304 run_hook sdd-cache-pre.sh "$P" "$(pre_input "$URL")"
 assert_eq "exit 0 despite 304 when no validator stored" "0" "$RC"
 
-# ── Test 5: pre — non-304 status lets WebFetch proceed ────────────────────
-printf '\nTest 5: pre — origin answers 200\n'
+# ── Test 5: pre: non-304 status lets WebFetch proceed ────────────────────
+printf '\nTest 5: pre: origin answers 200\n'
 P="$TMPDIR/t5"; mkdir -p "$P"
 seed_entry "$P" "$URL" "cached body"
 CURL_STUB_STATUS=200 run_hook sdd-cache-pre.sh "$P" "$(pre_input "$URL")"
 assert_eq "exit 0 on 200 (content changed)" "0" "$RC"
 
-# ── Test 6: pre — network failure lets WebFetch proceed ───────────────────
-printf '\nTest 6: pre — revalidation request fails\n'
+# ── Test 6: pre: network failure lets WebFetch proceed ───────────────────
+printf '\nTest 6: pre: revalidation request fails\n'
 P="$TMPDIR/t6"; mkdir -p "$P"
 seed_entry "$P" "$URL" "cached body"
 CURL_STUB_STATUS=000 run_hook sdd-cache-pre.sh "$P" "$(pre_input "$URL")"
 assert_eq "exit 0 on network failure" "0" "$RC"
 
-# ── Test 7: pre — 304 serves cached content byte-exactly ──────────────────
-printf '\nTest 7: pre — cache hit on 304\n'
+# ── Test 7: pre: 304 serves cached content byte-exactly ──────────────────
+printf '\nTest 7: pre: cache hit on 304\n'
 P="$TMPDIR/t7"; mkdir -p "$P"
 # Content with the shell-hostile shapes the hook promises to pass through:
 # backticks, $vars, backslashes, glob chars, multiple lines.
@@ -155,30 +155,30 @@ assert_eq "original prompt surfaced" "1" "$(printf '%s' "$ERR" | grep -cF 'origi
 served=$(printf '%s\n' "$ERR" | sed -n '/BEGIN CACHED CONTENT/,/END CACHED CONTENT/p' | sed '1d;$d')
 assert_eq "cached content served byte-exactly" "$TRICKY" "$served"
 
-# ── Test 8: pre — empty content field bypasses even on 304 ────────────────
-printf '\nTest 8: pre — empty cached content\n'
+# ── Test 8: pre: empty content field bypasses even on 304 ────────────────
+printf '\nTest 8: pre: empty cached content\n'
 P="$TMPDIR/t8"; mkdir -p "$P"
 seed_entry "$P" "$URL" ""
 CURL_STUB_STATUS=304 run_hook sdd-cache-pre.sh "$P" "$(pre_input "$URL")"
 assert_eq "exit 0 when cached content empty" "0" "$RC"
 
-# ── Test 9: post — no url in input writes nothing ─────────────────────────
-printf '\nTest 9: post — no url in tool_input\n'
+# ── Test 9: post: no url in input writes nothing ─────────────────────────
+printf '\nTest 9: post: no url in tool_input\n'
 P="$TMPDIR/t9"; mkdir -p "$P"
 run_hook sdd-cache-post.sh "$P" '{"tool_input":{},"tool_response":{"result":"body"}}'
 assert_eq "exit 0 without url" "0" "$RC"
 assert_eq "no cache dir created" "0" "$([ -d "$P/.claude/sdd-cache" ] && echo 1 || echo 0)"
 
-# ── Test 10: post — unknown tool_response shape writes nothing ────────────
-printf '\nTest 10: post — unextractable tool_response\n'
+# ── Test 10: post: unknown tool_response shape writes nothing ────────────
+printf '\nTest 10: post: unextractable tool_response\n'
 P="$TMPDIR/t10"; mkdir -p "$P"
 run_hook sdd-cache-post.sh "$P" \
   "$(jq -n --arg url "$URL" '{tool_input:{url:$url}, tool_response:42}')"
 assert_eq "exit 0 on unknown shape" "0" "$RC"
 assert_eq "no cache dir created" "0" "$([ -d "$P/.claude/sdd-cache" ] && echo 1 || echo 0)"
 
-# ── Test 11: post — caches when the origin provides an ETag ───────────────
-printf '\nTest 11: post — entry written with origin validators\n'
+# ── Test 11: post: caches when the origin provides an ETag ───────────────
+printf '\nTest 11: post: entry written with origin validators\n'
 P="$TMPDIR/t11"; mkdir -p "$P"
 CURL_STUB_HEADERS='HTTP/2 200
 etag: "abc123"
@@ -193,8 +193,8 @@ assert_eq "content stored" "fetched body" "$(jq -r '.content' "$CF")"
 assert_eq "prompt stored" "test prompt" "$(jq -r '.prompt' "$CF")"
 assert_eq "fetched_at is numeric" "number" "$(jq -r '.fetched_at | type' "$CF")"
 
-# ── Test 12: post — string-shaped tool_response is accepted ───────────────
-printf '\nTest 12: post — string tool_response\n'
+# ── Test 12: post: string-shaped tool_response is accepted ───────────────
+printf '\nTest 12: post, string tool_response\n'
 P="$TMPDIR/t12"; mkdir -p "$P"
 CURL_STUB_HEADERS='HTTP/2 200
 etag: "str-etag"' \
@@ -203,8 +203,8 @@ etag: "str-etag"' \
 CF="$P/.claude/sdd-cache/$(hash_key "$URL").json"
 assert_eq "content from string response" "plain string body" "$(jq -r '.content' "$CF" 2>/dev/null)"
 
-# ── Test 13: post — origin without validators removes stale entry ─────────
-printf '\nTest 13: post — no validators from origin\n'
+# ── Test 13: post: origin without validators removes stale entry ─────────
+printf '\nTest 13: post: no validators from origin\n'
 P="$TMPDIR/t13"; mkdir -p "$P"
 seed_entry "$P" "$URL" "stale body"
 CF="$P/.claude/sdd-cache/$(hash_key "$URL").json"
@@ -214,8 +214,8 @@ content-type: text/html' \
 assert_eq "exit 0" "0" "$RC"
 assert_eq "stale entry removed, nothing cached" "0" "$([ -f "$CF" ] && echo 1 || echo 0)"
 
-# ── Test 14: post — validators taken from final response block ────────────
-printf '\nTest 14: post — multi-block HEAD output uses last block\n'
+# ── Test 14: post: validators taken from final response block ────────────
+printf '\nTest 14: post: multi-block HEAD output uses last block\n'
 P="$TMPDIR/t14"; mkdir -p "$P"
 CURL_STUB_HEADERS='HTTP/1.1 301 Moved Permanently
 location: https://docs.example.com/new
@@ -227,7 +227,7 @@ etag: "final-etag"' \
 CF="$P/.claude/sdd-cache/$(hash_key "$URL").json"
 assert_eq "etag from final block" '"final-etag"' "$(jq -r '.etag' "$CF" 2>/dev/null)"
 
-# ── Test 15: round-trip — post writes, pre serves the same bytes ──────────
+# ── Test 15: round-trip: post writes, pre serves the same bytes ──────────
 printf '\nTest 15: round-trip post → pre\n'
 P="$TMPDIR/t15"; mkdir -p "$P"
 BODY='Round-trip body with `ticks`, $vars and

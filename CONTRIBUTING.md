@@ -15,7 +15,7 @@ This pack already covers most of the development lifecycle, and many proposals o
 3. **Check rejected proposals.** Search the [skill-change rejection ledger](evals/skill-impact.md) for earlier proposals that overlap with your idea and review their eval evidence before repeating the work.
 4. **Read the anatomy.** Confirm your idea fits the format in [docs/skill-anatomy.md](docs/skill-anatomy.md), an actionable workflow with verification, not vague advice.
 5. **Justify the gap in your PR description.** State explicitly why this isn't covered by an existing skill, open PR, or previously rejected proposal. If it overlaps, propose extending the existing skill instead of adding a new one.
-6. **Strip model-specific workarounds.** If a step can't be justified without naming a model, a model version, or one agent's private tool name, it doesn't belong in a skill — describe the capability instead (see [Write the Procedure, Not the Workaround](docs/skill-anatomy.md#write-the-procedure-not-the-workaround)).
+6. **Strip model-specific workarounds.** If a step can't be justified without naming a model, a model version, or one agent's private tool name, it doesn't belong in a skill: describe the capability instead (see [Write the Procedure, Not the Workaround](docs/skill-anatomy.md#write-the-procedure-not-the-workaround)).
 
 If your idea is a refinement of an existing skill, prefer a focused edit to that skill over a new directory.
 
@@ -30,10 +30,10 @@ If your idea is a refinement of an existing skill, prefer a focused edit to that
 
 Skills should be:
 
-- **Specific** — Actionable steps, not vague advice
-- **Verifiable** — Clear exit criteria with evidence requirements
-- **Battle-tested** — Based on real engineering workflows, not theoretical ideals
-- **Minimal** — Only the content needed to guide the agent correctly
+- **Specific**: Actionable steps, not vague advice
+- **Verifiable**: Clear exit criteria with evidence requirements
+- **Battle-tested**: Based on real engineering workflows, not theoretical ideals
+- **Minimal**: Only the content needed to guide the agent correctly
 
 ### Structure
 
@@ -41,26 +41,26 @@ Every new skill must have:
 
 - `SKILL.md` in the skill directory
 - YAML frontmatter with valid `name` and `description`
-- An eval case file at `evals/cases/<skill-name>.json` — at least 3 positive triggers, 2 negative triggers (with `owner` where possible), and 1 behavioral eval. Execution evals must be backed by real files under `evals/fixtures/`; conversation-shaped skills may use a reviewer-gated `kind: "dialogue"` eval instead (see [evals/README.md](evals/README.md)). CI enforces these requirements.
+- An eval case file at `evals/cases/<skill-name>.json`: at least 3 positive triggers, 2 negative triggers (with `owner` where possible), and 1 behavioral eval. Execution evals must be backed by real files under `evals/fixtures/`; conversation-shaped skills may use a reviewer-gated `kind: "dialogue"` eval instead (see [evals/README.md](evals/README.md)). CI enforces these requirements.
 
 New skills should generally follow the standard anatomy:
 
-- **Overview** — What this skill does and why it matters
-- **When to Use** — Triggering conditions
-- **Process** — Step-by-step workflow
-- **Common Rationalizations** — Excuses agents use to skip steps, with rebuttals
-- **Red Flags** — Warning signs that the skill is being applied incorrectly
-- **Verification** — How to confirm the skill was applied correctly
+- **Overview**: What this skill does and why it matters
+- **When to Use**: Triggering conditions
+- **Process**: Step-by-step workflow
+- **Common Rationalizations**: Excuses agents use to skip steps, with rebuttals
+- **Red Flags**: Warning signs that the skill is being applied incorrectly
+- **Verification**: How to confirm the skill was applied correctly
 
 The frontmatter fields above are required. The section anatomy is a recommended pattern: equivalent headings such as `How It Works`, `Workflow`, or `Core Process` are fine when they preserve the same intent and keep the skill easy to follow.
 
 ### What Not to Do
 
-- Don't duplicate content between skills — reference other skills instead
+- Don't duplicate content between skills: reference other skills instead
 - Don't add skills that are vague advice instead of actionable processes
 - Don't create supporting files unless content exceeds 100 lines
-- Don't create an empty `scripts/` directory just to match another skill — add `scripts/` only when the skill includes runnable helpers
-- Don't put reference material inside skill directories — use `references/` instead
+- Don't create an empty `scripts/` directory just to match another skill: add `scripts/` only when the skill includes runnable helpers
+- Don't put reference material inside skill directories: use `references/` instead
 
 ## Modifying Existing Skills
 
@@ -90,7 +90,7 @@ We don't accept translations of the documentation (README, `docs/`) or of skills
 
 ## Testing Hooks
 
-The session-start script (`hooks/session-start.sh`) injects the `using-agent-skills` meta-skill when wired into a host's `SessionStart` hook. The Claude Code plugin does not register it — Claude Code routes skills natively, and always-on injection would create two routers for the same task (see [docs/getting-started.md](docs/getting-started.md)); the script remains for hosts without native skill routing. A regression test at `hooks/session-start-test.sh` validates the script's JSON payload — both when `jq` is available and when it isn't.
+The session-start script (`hooks/session-start.sh`) injects the `using-agent-skills` meta-skill when wired into a host's `SessionStart` hook. The Claude Code plugin does not register it: Claude Code routes skills natively, and always-on injection would create two routers for the same task (see [docs/getting-started.md](docs/getting-started.md)); the script remains for hosts without native skill routing. A regression test at `hooks/session-start-test.sh` validates the script's JSON payload: both when `jq` is available and when it isn't.
 
 Run it before opening any PR that touches:
 
@@ -129,7 +129,7 @@ If a skill's guidance was wrong, outdated, or did not apply in your project
 (for example, it assumed `npm test` in a Maven or Gradle repo), use the
 [Skill gap](https://github.com/addyosmani/agent-skills/issues/new?template=skill-gap.yml)
 issue form. It asks for the affected skill, the relevant excerpt, your project
-context, and what you did instead — enough for maintainers to triage without a
+context, and what you did instead: enough for maintainers to triage without a
 freeform write-up.
 
 ## License

@@ -7,7 +7,7 @@ description: Prepares production launches. Use when preparing to deploy to produ
 
 ## Overview
 
-Ship with confidence. The goal is not just to deploy — it's to deploy safely, with monitoring in place, a rollback plan ready, and a clear understanding of what success looks like. Every launch should be reversible, observable, and incremental.
+Ship with confidence. The goal is not just to deploy: it's to deploy safely, with monitoring in place, a rollback plan ready, and a clear understanding of what success looks like. Every launch should be reversible, observable, and incremental.
 
 ## When to Use
 
@@ -243,16 +243,16 @@ In the first hour after launch:
 
 ## Error Budget Release Gate
 
-Your service's error budget — the fraction of requests or time your SLO allows to fail — determines whether it's safe to ship. Use it as an objective gate — not a negotiation:
+Your service's error budget (the fraction of requests or time your SLO allows to fail) determines whether it's safe to ship. Use it as an objective gate, not a negotiation:
 
 ```
 Budget remaining > 20%  →  Ship normally; monitor closely
-Budget remaining 0–20%  →  Slow rollouts only; no high-risk changes
+Budget remaining 0-20%  →  Slow rollouts only; no high-risk changes
 Budget exhausted        →  Freeze feature work; focus entirely on reliability
 Budget resets           →  Resume normal pace; bake in the fix that recovered it
 ```
 
-A high burn rate during a canary (consuming budget faster than the baseline pace) is a **hold** signal in the rollout thresholds table above — treat it the same as an elevated error rate.
+A high burn rate during a canary (consuming budget faster than the baseline pace) is a **hold** signal in the rollout thresholds table above: treat it the same as an elevated error rate.
 
 ## Rollback Strategy
 
