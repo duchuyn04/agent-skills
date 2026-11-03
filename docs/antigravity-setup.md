@@ -51,14 +51,14 @@ Use the native plugin skills directly while that importer limitation applies:
 
 | Intended wrapper | Direct Antigravity invocation | Notes |
 |------------------|-------------------------------|-------|
-| `/spec` | `/agent-skills:spec-driven-development` | Writes a structured spec before code |
-| `/constraints` | `/agent-skills:constraint-driven-development` | Defines and enforces the project's quality bar |
-| `/planning` | `/agent-skills:planning-and-task-breakdown` | Antigravity's built-in `/planning` command is a separate plan-mode control |
-| `/build` | `/agent-skills:incremental-implementation` | Also invoke `/agent-skills:test-driven-development`; wrapper-only `/build auto` orchestration is unavailable |
-| `/test` | `/agent-skills:test-driven-development` | Runs the red-green-refactor workflow |
-| `/review` | `/agent-skills:code-review-and-quality` | Runs the five-axis review workflow |
-| `/code-simplify` | `/agent-skills:code-simplification` | Simplifies without changing behavior |
-| `/ship` | `/agent-skills:shipping-and-launch` | The wrapper's automatic persona fan-out is unavailable; invoke specialist agents separately |
+| `/spec` | `/duchuyn04-agent-skills:spec-driven-development` | Writes a structured spec before code |
+| `/constraints` | `/duchuyn04-agent-skills:constraint-driven-development` | Defines and enforces the project's quality bar |
+| `/planning` | `/duchuyn04-agent-skills:planning-and-task-breakdown` | Antigravity's built-in `/planning` command is a separate plan-mode control |
+| `/build` | `/duchuyn04-agent-skills:incremental-implementation` | Also invoke `/duchuyn04-agent-skills:test-driven-development`; wrapper-only `/build auto` orchestration is unavailable |
+| `/test` | `/duchuyn04-agent-skills:test-driven-development` | Runs the red-green-refactor workflow |
+| `/review` | `/duchuyn04-agent-skills:code-review-and-quality` | Runs the five-axis review workflow |
+| `/code-simplify` | `/duchuyn04-agent-skills:code-simplification` | Simplifies without changing behavior |
+| `/ship` | `/duchuyn04-agent-skills:shipping-and-launch` | The wrapper's automatic persona fan-out is unavailable; invoke specialist agents separately |
 | `/webperf` | Select `web-performance-auditor` from `/agents` | This workflow is a persona, not a skill |
 
 Do not add YAML frontmatter to the TOML files as a workaround. Gemini CLI reads the parallel TOML command format with a strict parser, and `---` frontmatter makes those files invalid TOML without changing Antigravity's conversion behavior.

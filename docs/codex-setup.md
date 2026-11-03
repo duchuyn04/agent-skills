@@ -6,7 +6,7 @@ This repository is also a [Codex plugin](https://developers.openai.com/codex/plu
 
 ```bash
 codex plugin marketplace add duchuyn04/agent-skills
-codex plugin add agent-skills@duchuyn04-agent-skills
+codex plugin add duchuyn04-agent-skills@duchuyn04-agent-skills
 ```
 
 > Requires Codex CLI v0.122 or later. On older releases the command was `codex marketplace add`. See the [Codex CLI docs](https://developers.openai.com/codex/cli).
@@ -17,7 +17,7 @@ Local clones work too:
 
 ```bash
 codex plugin marketplace add /path/to/your/clone
-codex plugin add agent-skills@duchuyn04-agent-skills
+codex plugin add duchuyn04-agent-skills@duchuyn04-agent-skills
 ```
 
 ## Usage

@@ -3,7 +3,7 @@ description: Define and enforce this project's quality bar (interview, sane defa
 disable-model-invocation: true
 ---
 
-Invoke the agent-skills:constraint-driven-development skill.
+Invoke the duchuyn04-agent-skills:constraint-driven-development skill.
 
 $ARGUMENTS
 

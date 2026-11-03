@@ -20,7 +20,7 @@ Bộ này có 25 skill, 4 persona và 9 lệnh tắt như `/spec`, `/plan`, `/bu
 | Frontend và backend làm song song | Viết hợp đồng API và dữ liệu mẫu trước. Frontend dựng giao diện bằng dữ liệu mẫu. Backend có test so response thật với dữ liệu mẫu. Hai bên gặp nhau ở bước E2E | `references/parallel-frontend-backend.md` |
 | Mỗi module một thư mục kế hoạch | Lưu kế hoạch ở `tasks/[module]/plan.md` và `tasks/[module]/todo.md`. Giữ mục lục ở `tasks/README.md` | `skills/planning-and-task-breakdown/SKILL.md` |
 | Không còn dấu gạch dài | Văn bản của mọi skill dùng dấu phẩy, dấu hai chấm hoặc ngoặc đơn | Toàn bộ repo |
-| Tên marketplace mới | Cài song song không đụng bản gốc: `duchuyn04-agent-skills` | `.claude-plugin/marketplace.json` |
+| Tên plugin và marketplace mới | Lệnh và skill mang tiền tố `duchuyn04-agent-skills:`, ví dụ `/duchuyn04-agent-skills:spec`. Không lẫn với bản gốc tên `agent-skills` | `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json` |
 
 Khi repo bạn làm việc có `AGENTS.md` hoặc `CLAUDE.md` ghi luật khác, luật của repo đó được ưu tiên.
 
@@ -80,12 +80,12 @@ Gỡ bản gốc trước nếu máy đã cài nó. Hai bản cùng tên skill s
 4. Cài plugin:
 
    ```
-   /plugin install agent-skills@duchuyn04-agent-skills
+   /plugin install duchuyn04-agent-skills@duchuyn04-agent-skills
    ```
 
 5. Thoát Claude Code rồi mở lại.
 
-Kết quả mong đợi: gõ `/` thấy các lệnh `/spec`, `/plan`, `/build`. Skill hiện với tên dạng `agent-skills:spec-driven-development`.
+Kết quả mong đợi: gõ `/` thấy các lệnh `/spec`, `/plan`, `/build`. Skill hiện với tên dạng `duchuyn04-agent-skills:spec-driven-development`.
 
 Lỗi thường gặp:
 
@@ -101,7 +101,7 @@ Lỗi thường gặp:
   git config --global url."https://github.com/".insteadOf git@github.com:
   ```
 
-- Lệnh `/review` chạy lệnh có sẵn của Claude Code: gõ `/agent-skills:review`.
+- Lệnh `/review` chạy lệnh có sẵn của Claude Code: gõ `/duchuyn04-agent-skills:review`.
 
 Cập nhật lên bản mới nhất:
 
@@ -129,7 +129,7 @@ Cần Codex CLI bản 0.122 trở lên.
 2. Cài plugin:
 
    ```bash
-   codex plugin add agent-skills@duchuyn04-agent-skills
+   codex plugin add duchuyn04-agent-skills@duchuyn04-agent-skills
    ```
 
 3. Mở phiên Codex mới.
@@ -151,7 +151,7 @@ Không dán nội dung `using-agent-skills/SKILL.md` vào `AGENTS.md` của dự
 2. Cài plugin:
 
    ```bash
-   copilot plugin install agent-skills@duchuyn04-agent-skills
+   copilot plugin install duchuyn04-agent-skills@duchuyn04-agent-skills
    ```
 
 3. Kiểm tra:
@@ -161,11 +161,11 @@ Không dán nội dung `using-agent-skills/SKILL.md` vào `AGENTS.md` của dự
    copilot skill list
    ```
 
-Kết quả mong đợi: `copilot plugin list` có dòng `agent-skills@duchuyn04-agent-skills`, và `copilot skill list` có các skill như `spec-driven-development`.
+Kết quả mong đợi: `copilot plugin list` có dòng `duchuyn04-agent-skills@duchuyn04-agent-skills`, và `copilot skill list` có các skill như `spec-driven-development`.
 
 Lỗi thường gặp:
 
-- Lệnh cài báo không tìm thấy `agent-skills@duchuyn04-agent-skills`: chạy bước 1 trước. Tên này chỉ có sau khi thêm marketplace.
+- Lệnh cài báo không tìm thấy `duchuyn04-agent-skills@duchuyn04-agent-skills`: chạy bước 1 trước. Tên này chỉ có sau khi thêm marketplace.
 - Gõ `/spec` hay `/build` không có: Copilot CLI không nhận lệnh tắt của plugin. Gọi skill bằng tên, ví dụ "dùng skill spec-driven-development".
 
 ## Cài cho Antigravity CLI
@@ -178,7 +178,7 @@ Lỗi thường gặp:
 
 2. Mở phiên mới.
 
-Kết quả mong đợi: agent gọi được skill theo tên có tiền tố, ví dụ `agent-skills:spec-driven-development`.
+Kết quả mong đợi: agent gọi được skill theo tên có tiền tố, ví dụ `duchuyn04-agent-skills:spec-driven-development`.
 
 Một số bản Antigravity báo đã chuyển các lệnh tắt nhưng không hiện chúng. Khi đó gọi thẳng skill theo tên, thay cho lệnh tắt.
 

@@ -37,7 +37,7 @@ Skills encode the workflows, quality gates, and best practices that senior engin
 | Simplify the code | `/code-simplify` | Clarity over cleverness |
 | Ship to production | `/ship` | Faster is safer |
 
-In Claude Code these install as plugin commands. Where a built-in command has the same name, as `/review` does, use the namespaced form: `/agent-skills:review`.
+In Claude Code these install as plugin commands. Where a built-in command has the same name, as `/review` does, use the namespaced form: `/duchuyn04-agent-skills:review`.
 
 Want fewer manual steps once the spec exists? **`/build auto`** generates the plan and implements every task in a single approved pass: you approve the plan once, then it runs autonomously. It removes the human stepping *between* tasks, not the verification: every task is still test-driven and committed individually, and it pauses on failures or risky steps.
 
@@ -78,13 +78,13 @@ Prefer a native integration? Pick your tool below.
 
 ```
 /plugin marketplace add duchuyn04/agent-skills
-/plugin install agent-skills@duchuyn04-agent-skills
+/plugin install duchuyn04-agent-skills@duchuyn04-agent-skills
 ```
 
 > **SSH errors?** The marketplace clones repos via SSH. If you don't have SSH keys set up on GitHub, either [add your SSH key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account) or use the full HTTPS URL to force HTTPS cloning during the marketplace-add step:
 > ```bash
 > /plugin marketplace add https://github.com/duchuyn04/agent-skills.git
-> /plugin install agent-skills@duchuyn04-agent-skills
+> /plugin install duchuyn04-agent-skills@duchuyn04-agent-skills
 > ```
 >
 > If `/plugin install` still fails with `git@github.com: Permission denied (publickey)` on Windows or macOS, the recommended workaround is to configure Git once to rewrite GitHub SSH URLs to HTTPS for subprocess clones:
@@ -184,7 +184,7 @@ Install as a native Codex plugin (Codex CLI v0.122+):
 
 ```bash
 codex plugin marketplace add duchuyn04/agent-skills
-codex plugin add agent-skills@duchuyn04-agent-skills
+codex plugin add duchuyn04-agent-skills@duchuyn04-agent-skills
 ```
 
 The first command registers the marketplace; the second installs the plugin. Codex reads the root `skills/` directory directly through `.codex-plugin/plugin.json`. Once installed, invoke skills in chat using `@` (e.g., `@spec-driven-development`). See [docs/codex-setup.md](docs/codex-setup.md) for local installation and troubleshooting.

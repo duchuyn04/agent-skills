@@ -8,7 +8,7 @@ The standalone `copilot` command-line tool installs this repository as a plugin 
 
 ```bash
 copilot plugin marketplace add duchuyn04/agent-skills
-copilot plugin install agent-skills@duchuyn04-agent-skills
+copilot plugin install duchuyn04-agent-skills@duchuyn04-agent-skills
 ```
 
 **Directly from the repository**, without registering a marketplace:
@@ -29,7 +29,7 @@ copilot --plugin-dir /path/to/agent-skills
 ## Verify
 
 ```bash
-copilot plugin list   # agent-skills@duchuyn04-agent-skills
+copilot plugin list   # duchuyn04-agent-skills@duchuyn04-agent-skills
 copilot skill list    # the plugin's skills, alongside the built-in ones
 ```
 
@@ -58,7 +58,7 @@ Name the skill you want, or describe the task and let the agent route to it:
 
 | Symptom | What to check |
 |---------|---------------|
-| `plugin install` can't resolve `agent-skills@duchuyn04-agent-skills` | Run `copilot plugin marketplace add duchuyn04/agent-skills` first: that name only resolves once the marketplace is registered. Or install the repository directly. |
+| `plugin install` can't resolve `duchuyn04-agent-skills@duchuyn04-agent-skills` | Run `copilot plugin marketplace add duchuyn04/agent-skills` first: that name only resolves once the marketplace is registered. Or install the repository directly. |
 | Plugin installed but no skills | `copilot plugin list` to confirm the plugin, then `copilot skill list` (or `/skills list` in session) to see what was discovered. If the list is empty, check the root `plugin.json` against the [1.0.0 schema](https://agent-plugins.org/schemas/1.0.0/plugin.schema.json): in Agent Plugins mode any schema error (say, `author` as a string instead of an object) is fatal and the CLI loads no skills. |
 | `/spec`, `/build` and friends are not found | Expected, not a broken install: the root manifest registers no commands. Ask for the skill by name instead. |
 | Skills changed locally but the CLI shows the old copy | Start a fresh session, or run with `--plugin-dir` pointing at your clone. |
