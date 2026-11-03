@@ -16,12 +16,12 @@ Skills that use this reference: `spec-driven-development`, `planning-and-task-br
 
 | Artifact | Default location | Purpose |
 |---|---|---|
-| API contract | `tasks/<feature>/api-contract.md` | The data shape of every route and realtime event the feature adds or changes |
-| Shared fixtures | `spec/fixtures/<feature>/*.json` | Example requests, responses and events that both sides test against |
-| Shared task list | `tasks/<feature>/todo.md` | Shared conventions, finished foundation tasks, checkpoints, end-to-end tasks, acceptance |
-| Backend task list | `tasks/<feature>/todo-backend.md` | Tasks of the backend track |
-| Frontend task list | `tasks/<feature>/todo-frontend.md` | Tasks of the frontend track |
-| Progress board | "Task List" section of `tasks/<feature>/plan.md` | The only place that shows which tasks are done |
+| API contract | `tasks/[module]/api-contract.md` | The data shape of every route and realtime event the feature adds or changes |
+| Shared fixtures | `spec/fixtures/[module]/*.json` | Example requests, responses and events that both sides test against |
+| Shared task list | `tasks/[module]/todo.md` | Shared conventions, finished foundation tasks, checkpoints, end-to-end tasks, acceptance |
+| Backend task list | `tasks/[module]/todo-backend.md` | Tasks of the backend track |
+| Frontend task list | `tasks/[module]/todo-frontend.md` | Tasks of the frontend track |
+| Progress board | "Task List" section of `tasks/[module]/plan.md` | The only place that shows which tasks are done |
 
 Follow the repository's existing layout when it already has a place for specs, plans or fixtures.
 

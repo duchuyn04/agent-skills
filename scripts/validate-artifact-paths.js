@@ -31,12 +31,14 @@ const ROOT = path.resolve(__dirname, '..');
 
 // The canonical spec/plan/todo artifact paths. These are the only artifact
 // file paths the pipeline files may reference. To change the convention, edit
-// this list and update every guarded file to match — CI enforces the pairing.
+// this list and update every guarded file to match; CI enforces the pairing.
+// Plans live in one folder per module (`tasks/[module]/`), so a flat
+// `tasks/plan.md` or `tasks/todo.md` is a drift and fails the check.
 const ARTIFACT_ALLOWLIST = new Set([
-  'SPEC.md',        // spec, project root (produced by /spec, read by /build)
-  'docs/SPEC.md',   // spec, alternate location accepted by /build
-  'tasks/plan.md',  // plan (produced by /plan, read by /build)
-  'tasks/todo.md',  // task list (produced by /plan)
+  'SPEC.md',                 // spec, project root (produced by /spec, read by /build)
+  'docs/SPEC.md',            // spec, alternate location accepted by /build
+  'tasks/[module]/plan.md',  // plan (produced by /plan, read by /build)
+  'tasks/[module]/todo.md',  // task list (produced by /plan, read by /build)
 ]);
 
 // The files that make up the spec -> plan -> build pipeline. Absent files are

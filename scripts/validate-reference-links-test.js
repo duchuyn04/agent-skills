@@ -211,7 +211,7 @@ test('ignores paths that are not references/ links', () => {
     root,
     'skills/planning-and-task-breakdown/SKILL.md',
     [
-      'Save the task list to `tasks/todo.md` and the plan to `tasks/plan.md`.',
+      'Save the task list to `tasks/[module]/todo.md` and the plan to `tasks/[module]/plan.md`.',
       'Record findings in `PERF.md` or `docs/ideas/[idea-name].md`.',
       'Related: `skills/incremental-implementation/SKILL.md`.',
       'See `../../references/definition-of-done.md`.',

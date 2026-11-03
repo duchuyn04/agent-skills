@@ -30,7 +30,7 @@ Before writing any code, operate in read-only mode:
 - Map dependencies between components
 - Note risks and unknowns
 
-**Do NOT write code during planning.** The output is a plan document saved to `tasks/plan.md` and a task list recorded in the task list target (see Output Files; default `tasks/todo.md`), not implementation.
+**Do NOT write code during planning.** The output is a plan document saved to `tasks/[module]/plan.md` and a task list recorded in the task list target (see Output Files; default `tasks/[module]/todo.md`), not implementation.
 
 ### Step 2: Identify the Dependency Graph
 
@@ -146,12 +146,34 @@ If a task is L or larger, it should be broken into smaller tasks. An agent perfo
 
 ## Output Files
 
-- **Plan document:** Save the implementation plan to `tasks/plan.md`. This is always a markdown file: design decisions, risks, and open questions don't map cleanly onto individual tracker issues.
+- **Plan document:** Save the implementation plan to `tasks/[module]/plan.md`. This is always a markdown file: design decisions, risks, and open questions don't map cleanly onto individual tracker issues.
 - **Task list:** Record each task in the **task list target** (defined below).
 
-Create the `tasks/` directory if it does not exist.
+### One Folder per Module
 
-**Never overwrite an incomplete plan.** Before writing `tasks/plan.md` or `tasks/todo.md`, check whether they already exist and still contain unchecked tasks:
+Every plan lives in its own subfolder of `tasks/`. Never write the plan or the task list directly under `tasks/`.
+
+1. Name the folder after the module or the batch of work the plan covers, in kebab-case. Use the module id from the spec or capability map when one exists, for example `tasks/support-desk/`. A cross-cutting batch gets its own name, for example `tasks/rest-routes/`.
+2. Create `tasks/` and `tasks/[module]/` if they do not exist.
+3. Pick a short task ID prefix for the module, for example `SD` for `support-desk`. Number its tasks `SD-01`, `SD-02`, and so on.
+4. Keep every file of the plan in that folder: `tasks/[module]/plan.md`, `tasks/[module]/todo.md`, and when they exist `todo-backend.md`, `todo-frontend.md` and `api-contract.md`.
+5. Keep `tasks/README.md` as the index of all module folders. Create it with the first module. Give it one row per folder with the folder, its content and task ID prefix, and its status. Update the status when the module finishes a phase or a checkpoint.
+
+A minimal `tasks/README.md`:
+
+```markdown
+# Plans and task lists
+
+Each subfolder is one module or one batch of work. Each folder holds the plan (decisions, dependency graph, phases, progress) and the task list (tasks with acceptance criteria).
+
+| Folder | Content | Status |
+|---|---|---|
+| `support-desk/` | `support-desk` module (prefix `SD`) | Phase 2 in progress |
+```
+
+If the repository already keeps a plan or a task list directly under `tasks/` from older work, do not move it on your own. Ask the user whether to move it into a module folder.
+
+**Never overwrite an incomplete plan.** Before writing `tasks/[module]/plan.md` or `tasks/[module]/todo.md`, check whether they already exist and still contain unchecked tasks:
 
 - Same work being replanned (the user asked to revise or extend this plan) → update the existing files in place.
 - Different work → **stop and ask.** The unchecked tasks may be mid-build in another session. Do not delete, overwrite, or rename the existing files on your own; present the conflict and let the user decide (finish the old plan first, explicitly discard it, or tell you where the new plan should go).
@@ -162,18 +184,18 @@ The same rule applies to an external task list target: never bulk-close or delet
 
 The task list target is where tasks and checkpoints are recorded. It is defined once, here; every other reference in this skill defers to it.
 
-- **Default: a checklist-style markdown file at `tasks/todo.md`.** This is the convention the `/build` command and other downstream tooling expect. Use it unless the project says otherwise.
-- **External tracker:** if the project's agent rules (`CLAUDE.md`, `AGENTS.md`, etc.) or the user designate an issue tracker (e.g. GitHub Issues, Jira, Linear, `bd`/beads), create one tracker item per task instead of writing `tasks/todo.md`. Map the Step 4 structure onto the tracker's fields: acceptance criteria and verification steps in the item body, dependencies via the tracker's linking mechanism (`bd dep add`, "blocked by", etc.). Record Step 5 checkpoints as tracker items too, or as a checklist in the plan document if the tracker has no natural equivalent.
+- **Default: a checklist-style markdown file at `tasks/[module]/todo.md`.** This is the convention the `/build` command and other downstream tooling expect. Use it unless the project says otherwise.
+- **External tracker:** if the project's agent rules (`CLAUDE.md`, `AGENTS.md`, etc.) or the user designate an issue tracker (e.g. GitHub Issues, Jira, Linear, `bd`/beads), create one tracker item per task instead of writing `tasks/[module]/todo.md`. Map the Step 4 structure onto the tracker's fields: acceptance criteria and verification steps in the item body, dependencies via the tracker's linking mechanism (`bd dep add`, "blocked by", etc.). Record Step 5 checkpoints as tracker items too, or as a checklist in the plan document if the tracker has no natural equivalent.
 
-When using an external tracker, note it in `tasks/plan.md` (e.g. "Tasks tracked in Linear project FOO") so downstream steps and future sessions know where to look, and keep the plan document's Task List section as an ordered index of tracker item IDs or links rather than a duplicate checklist.
+When using an external tracker, note it in `tasks/[module]/plan.md` (e.g. "Tasks tracked in Linear project FOO") so downstream steps and future sessions know where to look, and keep the plan document's Task List section as an ordered index of tracker item IDs or links rather than a duplicate checklist.
 
 **Parallel tracks:** when the plan splits work into a backend track and a frontend track, the markdown target becomes three files:
 
-- `tasks/todo.md`: shared conventions, checkpoints, and the tasks where the tracks meet;
-- `tasks/todo-backend.md`: the backend track;
-- `tasks/todo-frontend.md`: the frontend track.
+- `tasks/[module]/todo.md`: shared conventions, checkpoints, and the tasks where the tracks meet;
+- `tasks/[module]/todo-backend.md`: the backend track;
+- `tasks/[module]/todo-frontend.md`: the frontend track.
 
-The Task List section of the plan document stays the single progress board. `/build` reads only `tasks/todo.md`, so start each track's session by naming its track file as the task list.
+The Task List section of the plan document stays the single progress board. `/build` reads `tasks/[module]/todo.md`, so start each track's session by naming its track file as the task list.
 
 ## Plan Document Template
 
@@ -257,14 +279,14 @@ When a feature has UI work and backend work, plan two tracks that share only a w
 | "The tasks are obvious" | Write them down anyway. Explicit tasks surface hidden dependencies and forgotten edge cases. |
 | "Planning is overhead" | Planning is the task. Implementation without a plan is just typing. |
 | "I can hold it all in my head" | Context windows are finite. Written plans survive session boundaries and compaction. |
-| "The old `tasks/plan.md` is stale, I'll just replace it" | Unchecked tasks may be mid-build in another session. Overwriting them destroys work state that exists nowhere else. Stop and ask. |
+| "The old `tasks/[module]/plan.md` is stale, I'll just replace it" | Unchecked tasks may be mid-build in another session. Overwriting them destroys work state that exists nowhere else. Stop and ask. |
 | "The UI can't start until the endpoint exists" | It can start once the contract and fixtures exist. Waiting serializes two people's work. |
 
 ## Red Flags
 
 - Starting implementation without a written task list
-- Overwriting a `tasks/plan.md` or `tasks/todo.md` that still has unchecked tasks for different work, without asking
-- Writing `tasks/todo.md` when the project has designated an external tracker (or scattering tasks across both)
+- Overwriting a `tasks/[module]/plan.md` or `tasks/[module]/todo.md` that still has unchecked tasks for different work, without asking
+- Writing `tasks/[module]/todo.md` when the project has designated an external tracker (or scattering tasks across both)
 - Tasks that say "implement the feature" without acceptance criteria
 - No verification steps in the plan
 - All tasks are XL-sized
@@ -280,7 +302,7 @@ Before starting implementation, confirm:
 - [ ] Every task has acceptance criteria
 - [ ] Every task has a verification step
 - [ ] Task dependencies are identified and ordered correctly
-- [ ] Tasks are recorded in the task list target (default `tasks/todo.md`)
+- [ ] Tasks are recorded in the task list target (default `tasks/[module]/todo.md`)
 - [ ] No pre-existing incomplete plan was overwritten without explicit user confirmation
 - [ ] No task touches more than ~5 files
 - [ ] Checkpoints exist between major phases

@@ -14,6 +14,8 @@ Read the existing spec (SPEC.md or equivalent) and the relevant codebase section
 5. Add checkpoints between phases
 6. Present the plan for human review
 
-Save the plan to tasks/plan.md and task list to tasks/todo.md.
+Pick the module folder tasks/[module]/, where [module] is the kebab-case id of the module or batch of work the plan covers (for example tasks/support-desk/). Create the folder if it does not exist. Never write the plan or the task list directly under tasks/.
 
-If tasks/plan.md or tasks/todo.md already exists with unchecked tasks for different work, stop and ask before writing: never silently overwrite an incomplete plan.
+Save the plan to tasks/[module]/plan.md and task list to tasks/[module]/todo.md. Add or update the module's row in tasks/README.md: folder, content with the task ID prefix, and status.
+
+If tasks/[module]/plan.md or tasks/[module]/todo.md already exists with unchecked tasks for different work, stop and ask before writing: never silently overwrite an incomplete plan.

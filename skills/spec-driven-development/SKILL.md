@@ -158,8 +158,8 @@ Don't silently fill in ambiguous requirements. The spec's entire purpose is to s
 **Contract for UI and backend features.** When the feature has UI work and backend work, the spec also fixes the API contract, so the two tracks can start at the same time:
 
 1. List every route and realtime event in the API section, with its permission.
-2. Write the data shapes, error codes and proposed limits in a contract file, default `tasks/<feature>/api-contract.md`.
-3. Write example requests, responses and events as JSON fixtures, default `spec/fixtures/<feature>/`.
+2. Write the data shapes, error codes and proposed limits in a contract file, default `tasks/[module]/api-contract.md`.
+3. Write example requests, responses and events as JSON fixtures, default `spec/fixtures/[module]/`.
 4. Give every open question that only changes a value a fixed shape and an interim value, for example `null`.
 5. List limits the user has not set in a "Proposed limits" section, and ask the user to approve them.
 
@@ -203,7 +203,7 @@ With the validated spec, generate a technical implementation plan:
 
 > Follow `planning-and-task-breakdown` for the dependency-graph mapping and vertical-slicing mechanics behind these steps; it is the canonical source. The bullets above are a lightweight summary; if they ever diverge, `planning-and-task-breakdown` takes precedence.
 >
-> **Output convention:** Save the plan to `tasks/plan.md` and record the task list in the task list target defined by `planning-and-task-breakdown` (default `tasks/todo.md`; projects may designate an external tracker instead). Create `tasks/` if it does not exist. Downstream commands (`/build`, etc.) expect these defaults.
+> **Output convention:** Save the plan to `tasks/[module]/plan.md` and record the task list in the task list target defined by `planning-and-task-breakdown` (default `tasks/[module]/todo.md`; projects may designate an external tracker instead). Create `tasks/[module]/` if it does not exist, and add the module to the index in `tasks/README.md`. Downstream commands (`/build`, etc.) expect these defaults.
 
 The plan should be reviewable: the human should be able to read it and say "yes, that's the right approach" or "no, change X."
 

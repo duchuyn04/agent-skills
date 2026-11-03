@@ -58,14 +58,14 @@ interface TaskAPI {
 }
 ```
 
-**Write the contract down where both sides can test against it.** When a UI and a backend consume the same API, a type in one codebase is not enough. Record the contract in a file both teams read, default `tasks/<feature>/api-contract.md`, with:
+**Write the contract down where both sides can test against it.** When a UI and a backend consume the same API, a type in one codebase is not enough. Record the contract in a file both teams read, default `tasks/[module]/api-contract.md`, with:
 
 - a route table: method, path, permission, fixture file, backend task, frontend task, and the task that made the route real;
 - per route: request fields, response fields, nullability, limits, and every error code with its HTTP status;
 - per realtime event: name, data shape, and what the client does with it;
 - a "Proposed limits" section and a dated change log.
 
-Back the file with JSON fixtures, default `spec/fixtures/<feature>/`. The backend compares real responses with the fixtures (keys and value kinds). The frontend checks that its runtime schemas parse every fixture, and serves fixtures as fake routes until the backend route exists. Two rules keep the sides aligned:
+Back the file with JSON fixtures, default `spec/fixtures/[module]/`. The backend compares real responses with the fixtures (keys and value kinds). The frontend checks that its runtime schemas parse every fixture, and serves fixtures as fake routes until the backend route exists. Two rules keep the sides aligned:
 
 - A nullable field is always present with `null`. Never omit the key.
 - Change the contract and its fixtures in the same commit, before changing code.

@@ -37,7 +37,7 @@ Run the lifecycle in order for the project's first real feature:
 
 ```
 /spec   →  SPEC.md            (spec-driven-development)
-/plan   →  tasks/plan.md      (planning-and-task-breakdown)
+/plan   →  tasks/[module]/plan.md      (planning-and-task-breakdown)
 /build  →  one slice at a time (incremental-implementation + test-driven-development)
 /review →  before every merge  (code-review-and-quality)
 /ship   →  when going live     (shipping-and-launch)

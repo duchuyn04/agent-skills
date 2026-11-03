@@ -32,7 +32,7 @@
  * Scope is deliberately narrow: only `references/*.md` links, only SKILL.md
  * and `skills/<name>/references/*.md` files. It is not a general markdown
  * path linter — skills legitimately mention paths that do not exist yet
- * (`tasks/todo.md`, `PERF.md`, `docs/ideas/[idea-name].md`), and those must
+ * (`tasks/[module]/todo.md`, `PERF.md`, `docs/ideas/[idea-name].md`), and those must
  * not fail the build.
  *
  * Fenced code blocks are exempt for the same reason. Text inside a fence is

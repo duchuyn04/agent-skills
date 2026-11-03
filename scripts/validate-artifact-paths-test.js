@@ -43,10 +43,10 @@ afterEach(() => {
 test('passes when producers and consumers use the canonical artifact paths', () => {
   const root = makeSandbox();
   writeFile(root, '.claude/commands/spec.md', 'Save the spec as `SPEC.md` in the project root.\n');
-  writeFile(root, '.claude/commands/plan.md', 'Save the plan to `tasks/plan.md` and task list to `tasks/todo.md`.\n');
-  writeFile(root, '.claude/commands/build.md', 'Look for a spec at `SPEC.md`, `docs/SPEC.md`, or under `spec/`. Require `tasks/plan.md`.\n');
-  writeFile(root, 'skills/spec-driven-development/SKILL.md', 'Save the plan to `tasks/plan.md` and the task list to `tasks/todo.md`.\n');
-  writeFile(root, 'skills/planning-and-task-breakdown/SKILL.md', 'Save to `tasks/plan.md` and `tasks/todo.md`.\n');
+  writeFile(root, '.claude/commands/plan.md', 'Save the plan to `tasks/[module]/plan.md` and task list to `tasks/[module]/todo.md`.\n');
+  writeFile(root, '.claude/commands/build.md', 'Look for a spec at `SPEC.md`, `docs/SPEC.md`, or under `spec/`. Require `tasks/[module]/plan.md`.\n');
+  writeFile(root, 'skills/spec-driven-development/SKILL.md', 'Save the plan to `tasks/[module]/plan.md` and the task list to `tasks/[module]/todo.md`.\n');
+  writeFile(root, 'skills/planning-and-task-breakdown/SKILL.md', 'Save to `tasks/[module]/plan.md` and `tasks/[module]/todo.md`.\n');
 
   const result = run(root);
 
@@ -59,7 +59,7 @@ test('fails when a producer drifts to an unapproved artifact path (the #93 regre
   // Only the producers are changed to the per-feature layout; consumers stay on the old paths.
   writeFile(root, '.claude/commands/spec.md', 'Save the spec to `docs/features/[feature-name]/spec.md`.\n');
   writeFile(root, '.claude/commands/plan.md', 'Save the plan to `docs/features/[feature-name]/plan.md`.\n');
-  writeFile(root, '.claude/commands/build.md', 'Require a spec at `SPEC.md` and a plan at `tasks/plan.md`.\n');
+  writeFile(root, '.claude/commands/build.md', 'Require a spec at `SPEC.md` and a plan at `tasks/[module]/plan.md`.\n');
 
   const result = run(root);
 
@@ -95,7 +95,7 @@ test('ignores non-artifact markdown references (no false positives)', () => {
   writeFile(
     root,
     'skills/spec-driven-development/SKILL.md',
-    'See `SKILL.md` and `references/testing-patterns.md`. Save the plan to `tasks/plan.md`.\n',
+    'See `SKILL.md` and `references/testing-patterns.md`. Save the plan to `tasks/[module]/plan.md`.\n',
   );
 
   const result = run(root);
@@ -109,13 +109,25 @@ test('does not mistake the tail of an unrelated filename for an artifact path', 
   writeFile(
     root,
     'skills/planning-and-task-breakdown/SKILL.md',
-    'Attach `test-plan.md` and `release_todo.md`. Save the plan to `tasks/plan.md`.\n',
+    'Attach `test-plan.md` and `release_todo.md`. Save the plan to `tasks/[module]/plan.md`.\n',
   );
 
   const result = run(root);
 
   assert.equal(result.status, 0, result.stdout + result.stderr);
   assert.match(result.stdout, /1 files checked — 0 error\(s\) — PASSED/);
+});
+
+test('fails when a plan is written flat under tasks/ instead of a module folder', () => {
+  const root = makeSandbox();
+  writeFile(root, '.claude/commands/plan.md', 'Save the plan to `tasks/plan.md` and task list to `tasks/todo.md`.\n');
+
+  const result = run(root);
+
+  assert.equal(result.status, 1, result.stdout + result.stderr);
+  assert.match(result.stdout, /L1: tasks\/plan\.md/);
+  assert.match(result.stdout, /L1: tasks\/todo\.md/);
+  assert.match(result.stdout, /FAILED/);
 });
 
 test('skips guarded files that do not exist', () => {
@@ -155,7 +167,7 @@ test('fails when a Gemini command drifts while the Claude Code copy stays canoni
 
 test('fails when a root TOML consumer drifts away from the producers', () => {
   const root = makeSandbox();
-  writeFile(root, 'commands/planning.toml', 'prompt = """\nSave the plan to `tasks/plan.md` and the task list to `tasks/todo.md`.\n"""\n');
+  writeFile(root, 'commands/planning.toml', 'prompt = """\nSave the plan to `tasks/[module]/plan.md` and the task list to `tasks/[module]/todo.md`.\n"""\n');
   writeFile(root, 'commands/build.toml', 'prompt = """\nRead the plan from `planning/plan.md` before starting.\n"""\n');
 
   const result = run(root);
@@ -171,8 +183,8 @@ test('passes when all three command surfaces agree on the canonical paths', () =
     const ext = dir === '.claude/commands' ? 'md' : 'toml';
     const planStem = dir === '.claude/commands' ? 'plan' : 'planning';
     writeFile(root, `${dir}/spec.${ext}`, 'Save the spec as `SPEC.md`.\n');
-    writeFile(root, `${dir}/${planStem}.${ext}`, 'Save to `tasks/plan.md` and `tasks/todo.md`.\n');
-    writeFile(root, `${dir}/build.${ext}`, 'Require `SPEC.md` or `docs/SPEC.md`, and `tasks/plan.md`.\n');
+    writeFile(root, `${dir}/${planStem}.${ext}`, 'Save to `tasks/[module]/plan.md` and `tasks/[module]/todo.md`.\n');
+    writeFile(root, `${dir}/build.${ext}`, 'Require `SPEC.md` or `docs/SPEC.md`, and `tasks/[module]/plan.md`.\n');
   }
 
   const result = run(root);
@@ -183,7 +195,7 @@ test('passes when all three command surfaces agree on the canonical paths', () =
 
 test('guards the Copilot setup doc, whose prompt-file aliases name the artifacts', () => {
   const root = makeSandbox();
-  writeFile(root, 'docs/copilot-setup.md', 'Read `tasks/plan.md`, then write the spec to `specs/[name]/spec.md`.\n');
+  writeFile(root, 'docs/copilot-setup.md', 'Read `tasks/[module]/plan.md`, then write the spec to `specs/[name]/spec.md`.\n');
 
   const result = run(root);
 
