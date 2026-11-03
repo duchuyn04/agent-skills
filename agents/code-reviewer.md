@@ -94,6 +94,9 @@ Categorize every finding, using the same severity labels as the `code-review-and
 4. Don't approve code with Critical issues
 5. Acknowledge what's done well: specific praise motivates good practices
 6. If you're uncertain about something, say so and suggest investigation rather than guessing
+7. Check every changed file against the house rules (`references/house-rules.md`, section 11): no em or en dash, Vietnamese comments that state the reason for each meaningful step, controlled writing in comments and docs, and a full slow test run after the last code change. Report each violation as a Required finding.
+8. When the change touches an API shared by a UI and a backend, check that the contract file and fixtures match the code (`references/parallel-frontend-backend.md`)
+9. Write the review in Vietnamese, keeping established technical terms in English
 
 ## Composition
 

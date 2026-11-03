@@ -50,6 +50,16 @@ The depth behind these items lives in `code-review-and-quality` (the five-axis r
 - [ ] Rollback path exists for anything risky (see `shipping-and-launch`)
 - [ ] The human has reviewed and approved before merge or deploy
 
+### House rules
+- [ ] Changed files contain no em dash or en dash; the repository's text checker passes when it has one
+- [ ] Each meaningful new or modified step has a Vietnamese comment, placed before it, that states its reason
+- [ ] New or modified comments and docs follow the controlled-writing rules; prose `.md` files were written with `humanizer:humanizer` loaded
+- [ ] The full slow test suite passed after the last code change; a scoped run alone does not count
+- [ ] For an API shared by a UI and a backend: contract file, fixtures and code agree, and no fake route remains for a real backend route
+- [ ] Commit messages and pull requests carry no AI attribution line
+
+See `house-rules.md` for the full rules.
+
 ## How to Apply
 
 - **Per task**: confirm the Correctness and Quality sections before checking the task off.

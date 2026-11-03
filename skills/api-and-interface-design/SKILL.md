@@ -58,6 +58,20 @@ interface TaskAPI {
 }
 ```
 
+**Write the contract down where both sides can test against it.** When a UI and a backend consume the same API, a type in one codebase is not enough. Record the contract in a file both teams read, default `tasks/<feature>/api-contract.md`, with:
+
+- a route table: method, path, permission, fixture file, backend task, frontend task, and the task that made the route real;
+- per route: request fields, response fields, nullability, limits, and every error code with its HTTP status;
+- per realtime event: name, data shape, and what the client does with it;
+- a "Proposed limits" section and a dated change log.
+
+Back the file with JSON fixtures, default `spec/fixtures/<feature>/`. The backend compares real responses with the fixtures (keys and value kinds). The frontend checks that its runtime schemas parse every fixture, and serves fixtures as fake routes until the backend route exists. Two rules keep the sides aligned:
+
+- A nullable field is always present with `null`. Never omit the key.
+- Change the contract and its fixtures in the same commit, before changing code.
+
+See `../../references/parallel-frontend-backend.md` for the fixture format, the contract helpers, and how the frontend learns that a backend route is ready.
+
 ### 2. Consistent Error Semantics
 
 Pick one error strategy and use it everywhere:
@@ -367,3 +381,6 @@ After designing an API:
 - [ ] A reused key with a different payload fails loudly rather than replaying the wrong response
 - [ ] The in-flight-duplicate response is a deliberate choice (409, wait, or 202) rather than whatever falls out
 - [ ] Key retention outlives the longest retry path, including dead-letter replay
+- [ ] When a UI and a backend share the API: a contract file and JSON fixtures cover every route, event and error code
+- [ ] Every nullable response field is present with `null` rather than omitted
+- [ ] A backend contract test compares each new route's real response with its fixture

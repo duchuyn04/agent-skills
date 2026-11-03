@@ -303,9 +303,23 @@ function useToggleTask() {
 }
 ```
 
+## Building UI Before the Backend Exists
+
+When the feature follows an API contract (`../../references/parallel-frontend-backend.md`), the UI does not wait for the backend:
+
+1. Write the runtime schema (for example `zod`) for each response from the contract.
+2. Add a unit test that the schema parses every fixture example the screen uses.
+3. Serve fixture examples in end-to-end tests through the shared fake-route helper. Never call the browser test API's route interception directly for the feature's paths.
+4. Mark criteria that need the real backend with "Verify end to end in <E2E task>". The UI task passes when they work against fixtures.
+5. Remove a fake route when the helper reports that the backend now has it.
+
+Treat a response that fails the schema as a load error with a retry action, so a contract drift shows up as a clear error instead of a broken screen.
+
 ## See Also
 
 For detailed accessibility requirements and testing tools, see `../../references/accessibility-checklist.md`.
+
+For comments, UI copy punctuation and the completion check, see `../../references/house-rules.md`. UI copy follows the same punctuation rules as code: no em dash or en dash.
 
 ## Common Rationalizations
 
@@ -338,3 +352,5 @@ After building UI:
 - [ ] Follows the project's design system (spacing, colors, typography)
 - [ ] The rendered result passes a final UI-specific finish-gate review
 - [ ] No accessibility warnings in dev tools or axe-core
+- [ ] Runtime schemas parse every contract fixture the screen uses, when the feature has an API contract
+- [ ] End-to-end tests install fake routes only through the shared helper

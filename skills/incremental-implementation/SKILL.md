@@ -68,11 +68,22 @@ Each slice delivers working end-to-end functionality.
 When backend and frontend need to develop in parallel:
 
 ```
-Slice 0: Define the API contract (types, interfaces, OpenAPI spec)
-Slice 1a: Implement backend against the contract + API tests
-Slice 1b: Implement frontend against mock data matching the contract
-Slice 2: Integrate and test end-to-end
+Slice 0: Write the API contract file and the shared JSON fixtures
+Slice 0a: Backend helper that compares real responses with fixtures
+Slice 0b: Frontend helper that reads fixtures and serves fake routes
+Slice 1a: Implement backend against the contract + contract tests
+Slice 1b: Implement frontend against fixtures through the fake-route helper
+Slice 2: Integrate and test end-to-end against the real backend
 ```
+
+Rules for a slice inside one of the two tracks:
+
+- Serve fake data only through the shared fake-route helper, never through the browser test API directly. The helper checks the backend's route listing first and fails when the route already exists, which tells you to remove the fake data.
+- Merge the main branch into your track branch at least once a day. New backend routes reach the frontend only through that merge.
+- When a backend slice makes a route real, update the contract's "Available since" cell and tick the task's own line on the progress board.
+- Never change a data shape in code first. Change the contract and fixtures in one commit, then the code.
+
+Details: `../../references/parallel-frontend-backend.md`.
 
 ### Risk-First Slicing
 
@@ -206,7 +217,11 @@ After each increment, verify with the repository's own commands (see the test-dr
 - [ ] Type checking passes, where the stack has one (`npx tsc --noEmit`, `mypy`, ...)
 - [ ] Linting passes (the repository's lint command)
 - [ ] The new functionality works as expected
-- [ ] The change is committed with a descriptive message
+- [ ] Each meaningful new or modified step has a Vietnamese comment that states its reason (`../../references/house-rules.md`, section 6)
+- [ ] Changed files contain no em dash or en dash
+- [ ] The change is committed with a descriptive message and no AI attribution line
+
+While a task is in progress, run only the slow suites (integration, end to end) that the increment can affect. Run the full slow suite once after the last increment, before reporting the task complete. See section 7 of the house rules.
 
 **Note:** Run each verification command after a change that could affect it. After a successful run, don't repeat the same command unless the code has changed since: re-running on unchanged code adds no information.
 
@@ -239,7 +254,8 @@ After each increment, verify with the repository's own commands (see the test-dr
 After completing all increments for a task:
 
 - [ ] Each increment was individually tested and committed
-- [ ] The full test suite passes
+- [ ] The full test suite passes, including the full slow suite after the last code change
+- [ ] The house-rules compliance check passes (`../../references/house-rules.md`, section 11)
 - [ ] The build is clean
 - [ ] The feature works end-to-end as specified
 - [ ] No uncommitted changes remain

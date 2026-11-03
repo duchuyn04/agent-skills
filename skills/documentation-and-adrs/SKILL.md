@@ -103,7 +103,7 @@ PROPOSED → ACCEPTED → (SUPERSEDED or DEPRECATED)
 
 ### When to Comment
 
-Comment the *why*, not the *what*:
+Comment the *why*, not the *what*. Under the house rules (`../../references/house-rules.md`, section 6) this is a per-step duty: every meaningful new or modified processing step gets its own comment, placed directly before it, that names the invariant, business rule, security requirement, boundary or failure behavior it protects. Write new comments in Vietnamese, in one or two short sentences. The English examples below show the shape, not the language.
 
 ```typescript
 // BAD: Restates the code
@@ -257,6 +257,17 @@ Special consideration for AI agent context:
 - **ADRs**: Help agents understand why past decisions were made (prevents re-deciding)
 - **Inline gotchas**: Prevent agents from falling into known traps
 
+## Writing Rules for Docs
+
+Every prose document (README, spec, plan, ADR, guide) follows the house rules in `../../references/house-rules.md`:
+
+1. Load the `humanizer:humanizer` skill before writing or editing the file.
+2. Open specs and plans with a plain-language summary. Put technical detail after it.
+3. Explain each technical term in plain words at first use. Use an everyday example where it helps.
+4. Write how-to steps as a numbered list, one action per step, with the expected result and the fix for the most common error.
+5. Keep instructions at 20 words or fewer and descriptions at 25 words or fewer. Use one term per concept in the whole file.
+6. Write headings in sentence case. Use no em dash or en dash, no decorative bold, and no one-line closing sentence.
+
 ## Prose Review
 
 After checking the technical content, review the prose for the people who will use it. Clearer wording must not change the decision or its limits.
@@ -296,3 +307,7 @@ After documenting:
 - [ ] No commented-out code remains
 - [ ] Rules files (CLAUDE.md etc.) are current and accurate
 - [ ] Prose edits preserve source details, decision trade-offs, and qualifiers without adding unsupported guarantees
+- [ ] The `humanizer:humanizer` skill was loaded before the prose was written
+- [ ] Specs and plans open with a plain-language summary
+- [ ] New comments are in Vietnamese and state the reason for each meaningful step
+- [ ] No em dash or en dash in the changed files

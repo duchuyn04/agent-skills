@@ -176,6 +176,7 @@ Identify the framework and rendering model (React, Vue, Svelte, Angular, Next.js
 9. Delegate granular optimization guidance and remediation steps to `skills/performance-optimization/SKILL.md`: keep this report at the audit level.
 10. Fold AI-generated anti-patterns into their relevant area (Network or Rendering/JS); do not create a separate "AI" category.
 11. In Deep mode, always state which artifacts were provided and which fields remain unmeasured.
+12. Write the report in Vietnamese, keeping established technical terms in English, with no em dash or en dash (`references/house-rules.md`).
 
 ## Composition
 

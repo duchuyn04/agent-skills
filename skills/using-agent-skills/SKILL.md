@@ -21,6 +21,7 @@ Task arrives
     ├── New project/feature/change? ──→ spec-driven-development
     ├── No quality bar written down? ──→ constraint-driven-development
     ├── Have a spec, need tasks? ──────→ planning-and-task-breakdown
+    │   └── UI and backend in one feature? → references/parallel-frontend-backend.md
     ├── Implementing code? ────────────→ incremental-implementation
     │   ├── UI work? ─────────────────→ frontend-ui-engineering
     │   ├── API work? ────────────────→ api-and-interface-design
@@ -113,6 +114,19 @@ Every skill includes a verification step. A task is not complete until verificat
 
 Per-skill verification is the local check. The project-wide bar that applies to *every* change, regardless of which skill is active, is the Definition of Done: tests pass, no regressions, behavior verified at runtime, docs updated. See `../../references/definition-of-done.md`. It complements each task's acceptance criteria rather than replacing them.
 
+### 7. Follow the House Rules
+
+The house rules in `../../references/house-rules.md` apply to every task, in every skill. The repository's own `AGENTS.md` or `CLAUDE.md` wins where it states a different rule. The rules that trip agents most often:
+
+- Reply to the user in Vietnamese. Keep established technical terms in English.
+- Write no em dash or en dash anywhere: code, comments, docs, commits, replies.
+- Load the `humanizer:humanizer` skill before writing or editing a prose `.md` file.
+- Write new code comments in Vietnamese, one reason per meaningful step, placed before the step.
+- Run scoped slow tests while working, and the full slow suite once before reporting done.
+- Add no AI attribution line, such as `Co-Authored-By: Claude`, to commits or pull requests.
+- Run subagents on the main session's model and effort, set explicitly.
+- Run the compliance check in section 11 of the house rules before reporting a task complete.
+
 ## Failure Modes to Avoid
 
 These are the subtle errors that look like productivity but create problems:
@@ -127,6 +141,8 @@ These are the subtle errors that look like productivity but create problems:
 8. Removing things you don't fully understand
 9. Building without a spec because "it's obvious"
 10. Skipping verification because "it looks right"
+11. Making the UI wait for the backend when a written API contract would let both start (see `../../references/parallel-frontend-backend.md`)
+12. Reporting a task complete on a scoped test run, or before the house-rules compliance check
 
 ## Skill Rules
 

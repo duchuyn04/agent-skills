@@ -117,6 +117,9 @@ Don't silently fill in ambiguous requirements. The spec's entire purpose is to s
 ```markdown
 # Spec: [Project/Feature Name]
 
+## Summary
+[Plain-language summary for a beginner: what we build, who uses it, and how we know it works. Explain each technical term at first use. Use an everyday example.]
+
 ## Objective
 [What we're building and why. User stories or acceptance criteria.]
 
@@ -140,12 +143,27 @@ Don't silently fill in ambiguous requirements. The spec's entire purpose is to s
 - Ask first: [...]
 - Never: [...]
 
+## API Contract
+[Only when the feature has UI and backend work. Route table with permissions, plus a link to the contract file and the shared fixtures. See "Contract for UI and backend features" below.]
+
 ## Success Criteria
 [How we'll know this is done: specific, testable conditions]
 
 ## Open Questions
-[Anything unresolved that needs human input]
+[Anything unresolved that needs human input. For each one, state whether it changes a data shape or only a value.]
 ```
+
+**Write the spec under the house rules.** A spec is prose, so load the `humanizer:humanizer` skill before writing it. Follow the controlled-writing rules in `../../references/house-rules.md`: short sentences, one term per concept, numbered procedures, and no em or en dashes.
+
+**Contract for UI and backend features.** When the feature has UI work and backend work, the spec also fixes the API contract, so the two tracks can start at the same time:
+
+1. List every route and realtime event in the API section, with its permission.
+2. Write the data shapes, error codes and proposed limits in a contract file, default `tasks/<feature>/api-contract.md`.
+3. Write example requests, responses and events as JSON fixtures, default `spec/fixtures/<feature>/`.
+4. Give every open question that only changes a value a fixed shape and an interim value, for example `null`.
+5. List limits the user has not set in a "Proposed limits" section, and ask the user to approve them.
+
+The method, the fixture format and the contract rules are in `../../references/parallel-frontend-backend.md`.
 
 **External spec tools:** This workflow is format-agnostic. If the project
 already uses OpenSpec or another specification system, keep that system's
@@ -218,6 +236,7 @@ Execute tasks one at a time following `skills/incremental-implementation/SKILL.m
 The spec is a living document, not a one-time artifact:
 
 - **Update when decisions change**: If you discover the data model needs to change, update the spec first, then implement.
+- **Change the contract before the code**: Edit the API contract and its fixtures in the same commit, and add a line to the contract's change log. Then change the code on both sides.
 - **Update when scope changes**: Features added or cut should be reflected in the spec.
 - **Commit the spec**: The spec belongs in version control alongside the code.
 - **Reference the spec in PRs**: Link back to the spec section that each PR implements.
@@ -244,6 +263,7 @@ The spec is a living document, not a one-time artifact:
 - Writing the spec and starting the plan or code in the same turn
 - One spec whose requirements span several independently testable capabilities
 - Module boundaries or build order decided implicitly during implementation because no capability map was approved up front
+- A UI and backend feature whose spec leaves response shapes to be decided during implementation
 
 ## Verification
 
@@ -257,3 +277,5 @@ Before proceeding to implementation, confirm:
 - [ ] The spec is saved to a file in the repository
 - [ ] If the request bundles several independently testable capabilities, a capability map (module ids, dependency direction, build order) was approved before any module spec was written
 - [ ] Every module spec traces to a module id in the approved map
+- [ ] The spec opens with a plain-language summary
+- [ ] A feature with UI and backend work has a contract file and shared fixtures that cover every route and event

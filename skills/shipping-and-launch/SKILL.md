@@ -21,7 +21,9 @@ Ship with confidence. The goal is not just to deploy: it's to deploy safely, wit
 
 ### Code Quality
 
-- [ ] All tests pass (unit, integration, e2e)
+- [ ] All tests pass (unit, integration, e2e), with a full slow-suite run after the last code change
+- [ ] End-to-end tests run against the real backend, with no fake routes left for shipped API paths
+- [ ] The house-rules compliance check passes (`../../references/house-rules.md`, section 11)
 - [ ] Build succeeds with no warnings
 - [ ] Lint and type checking pass
 - [ ] Code reviewed and approved

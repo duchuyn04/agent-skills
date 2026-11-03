@@ -54,6 +54,8 @@ Database schema
 
 Implementation order follows the dependency graph bottom-up: build foundations first.
 
+The edge from "API endpoints" to "Frontend API client" is the one to cut when a feature has UI and backend work. Write the API contract and shared fixtures first. Then the UI tasks depend on the contract, not on the endpoint tasks, and the two tracks run in parallel. See "Parallel Frontend and Backend Tracks" below.
+
 ### Step 3: Slice Vertically
 
 Instead of building all the database, then all the API, then all the UI: build one complete feature path at a time:
@@ -95,6 +97,8 @@ Each task follows this structure, whether it lands in the markdown task list or 
 - [ ] Manual check: [description of what to verify]
 
 **Dependencies:** [Task numbers this depends on, or "None"]
+
+**Track:** [backend | frontend | shared] (only when the plan uses parallel tracks)
 
 **Files likely touched:**
 - `src/path/to/file.ts`
@@ -163,10 +167,21 @@ The task list target is where tasks and checkpoints are recorded. It is defined 
 
 When using an external tracker, note it in `tasks/plan.md` (e.g. "Tasks tracked in Linear project FOO") so downstream steps and future sessions know where to look, and keep the plan document's Task List section as an ordered index of tracker item IDs or links rather than a duplicate checklist.
 
+**Parallel tracks:** when the plan splits work into a backend track and a frontend track, the markdown target becomes three files:
+
+- `tasks/todo.md`: shared conventions, checkpoints, and the tasks where the tracks meet;
+- `tasks/todo-backend.md`: the backend track;
+- `tasks/todo-frontend.md`: the frontend track.
+
+The Task List section of the plan document stays the single progress board. `/build` reads only `tasks/todo.md`, so start each track's session by naming its track file as the task list.
+
 ## Plan Document Template
 
 ```markdown
 # Implementation Plan: [Feature/Project Name]
+
+## Summary
+[Plain-language summary a beginner can follow: what we build, for whom, and the order of work. Explain each technical term at first use.]
 
 ## Overview
 [One paragraph summary of what we're building]
@@ -210,6 +225,10 @@ When using an external tracker, note it in `tasks/plan.md` (e.g. "Tasks tracked 
 
 When tasks live in an external tracker, keep the Task List section above as an ordered index of tracker item IDs or links instead of a duplicate checklist.
 
+Put each task on its own line in the Task List, never a whole phase on one line. Two people who tick tasks on different branches then edit different lines, and git merges their ticks without conflicts.
+
+The plan document is prose, so the house rules for Markdown apply: load the `humanizer:humanizer` skill before writing it, and follow the controlled-writing rules in `../../references/house-rules.md`.
+
 ## Parallelization Opportunities
 
 When multiple agents or sessions are available:
@@ -217,6 +236,18 @@ When multiple agents or sessions are available:
 - **Safe to parallelize:** Independent feature slices, tests for already-implemented features, documentation
 - **Must be sequential:** Database migrations, shared state changes, dependency chains
 - **Needs coordination:** Features that share an API contract (define the contract first, then parallelize)
+
+### Parallel Frontend and Backend Tracks
+
+When a feature has UI work and backend work, plan two tracks that share only a written contract. The full method is in `../../references/parallel-frontend-backend.md`. In the plan:
+
+1. Add a task that writes the API contract and the shared fixtures, or write them during planning.
+2. Add one contract-checker task per track: a backend helper that compares real responses with fixtures, and a frontend helper that reads fixtures and serves fake routes.
+3. Make UI tasks depend on the frontend helper and earlier UI tasks only. Record any removed backend dependency as history.
+4. Give every backend task that adds a route a contract-test criterion.
+5. Mark UI criteria that need the real backend with "Verify end to end in <E2E task>".
+6. Make the end-to-end tasks depend on both tracks. Require that they run against the real backend with no fake routes.
+7. Draw the dependency graph as two columns, one per track, plus the meeting point.
 
 ## Common Rationalizations
 
@@ -227,6 +258,7 @@ When multiple agents or sessions are available:
 | "Planning is overhead" | Planning is the task. Implementation without a plan is just typing. |
 | "I can hold it all in my head" | Context windows are finite. Written plans survive session boundaries and compaction. |
 | "The old `tasks/plan.md` is stale, I'll just replace it" | Unchecked tasks may be mid-build in another session. Overwriting them destroys work state that exists nowhere else. Stop and ask. |
+| "The UI can't start until the endpoint exists" | It can start once the contract and fixtures exist. Waiting serializes two people's work. |
 
 ## Red Flags
 
@@ -238,6 +270,8 @@ When multiple agents or sessions are available:
 - All tasks are XL-sized
 - No checkpoints between tasks
 - Dependency order isn't considered
+- A UI task depends on a backend task in a feature that has no API contract yet
+- Several tasks share one checkbox line in the Task List
 
 ## Verification
 
@@ -250,6 +284,9 @@ Before starting implementation, confirm:
 - [ ] No pre-existing incomplete plan was overwritten without explicit user confirmation
 - [ ] No task touches more than ~5 files
 - [ ] Checkpoints exist between major phases
+- [ ] Each task has its own line in the Task List
+- [ ] A feature with UI and backend work has an API contract, shared fixtures, and no UI task that waits on a backend task
+- [ ] The plan opens with a plain-language summary
 - [ ] The human has reviewed and approved the plan
 
 ## See Also

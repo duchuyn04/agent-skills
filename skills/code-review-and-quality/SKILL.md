@@ -44,6 +44,8 @@ Can another engineer (or agent) understand this code without the author explaini
 - **Could this be done in fewer lines?** (1000 lines where 100 suffice is a failure)
 - **Are abstractions earning their complexity?** (Don't generalize until the third use case)
 - Would comments help clarify non-obvious intent? (But don't comment obvious code.)
+- Does each meaningful new or modified step carry a Vietnamese comment, placed before the step, that states its reason? Security checks, transformations, external calls, retries, state transitions and non-obvious error handling each need their own. A comment that restates the code, or one broad comment over a block, does not count. See section 6 of `../../references/house-rules.md`.
+- Do changed comments still match the behavior they explain?
 - Are there dead code artifacts: no-op variables (`_unused`), backwards-compat shims, or `// removed` comments?
 - **Is a new conditional bolted onto an unrelated flow?** That's a design smell, not a nit: push the logic into its own helper, state, or policy instead of tangling an existing path.
 - **Do repeated conditionals on the same shape appear?** They signal a missing model or dispatcher. A "temporary" branch is usually permanent debt.
@@ -344,6 +346,12 @@ For triaging `npm audit` findings and supply-chain risk (typosquatting, compromi
 - [ ] Build succeeds
 - [ ] Manual verification done (if applicable)
 
+### House rules
+- [ ] No em dash or en dash in changed files; repository text checker passes
+- [ ] Comments and docs follow the controlled-writing rules
+- [ ] Full slow suite passed after the last code change
+- [ ] Contract and fixtures changed in the same commit as any data-shape change
+
 ### Verdict
 - [ ] **Approve**: Ready to merge
 - [ ] **Request changes**: Issues must be addressed
@@ -394,5 +402,7 @@ After review is complete:
 - [ ] Build succeeds
 - [ ] The verification story is documented (what changed, how it was verified)
 - [ ] Dependency upgrades were reviewed against their changelog, isolated per package, and verified by a green suite with the lockfile diff reviewed
+- [ ] The house-rules compliance check passes for every changed file (`../../references/house-rules.md`, section 11)
+- [ ] When a change touches an API shared by a UI and a backend, the contract file and fixtures match the code
 
 **Presumptive blockers:** surface and propose the simpler design for each of these; escalate to Required only when the change actively makes structure worse: a refactor that relocates complexity instead of reducing it; a change that pushes a file past the size boundary with no decomposition; feature logic added to a shared module; a near-duplicate of an existing canonical helper; a silent fallback that hides an unclear invariant.

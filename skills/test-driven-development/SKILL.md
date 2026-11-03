@@ -247,6 +247,24 @@ Preference order (most to least preferred):
 
 For crash or rollback behavior, exercise the real boundary: an injected exception is not process termination, and a mocked transaction call is not a database rollback.
 
+### Contract Tests Against Shared Fixtures
+
+When a UI and a backend share an API contract with JSON fixtures (`../../references/parallel-frontend-backend.md`), both sides test against the same files:
+
+- **Backend:** for each new route, call the real endpoint and compare the response with the fixture example of the same scenario. Compare status, key set and value kinds, not values.
+- **Frontend:** for each screen, assert that the runtime schema parses every fixture example it uses.
+- **Fake routes:** serve fixtures only through a helper that first checks the backend's route listing and fails when the route already exists. A fake route that never expires keeps an end-to-end test green against data the backend no longer returns.
+
+Prove each contract test with one mutation: remove a key or change a type, and watch the test fail.
+
+### Test Scope While Working
+
+Run the fast suites (unit, architecture) in full after each change. Run only the slow suites (integration, end to end) of the changed module and its callers while the task is in progress. Run the full slow suite once after the last code change, and after any change to shared code, before reporting the task complete. A scoped run never proves completion. See section 7 of `../../references/house-rules.md`.
+
+### Manual Test Cases
+
+When the user asks for manual test cases, write executable Playwright scenarios and follow section 8 of `../../references/house-rules.md`: at most 100 cases, the fields ID, Group, Steps, Expected Result, Priority, Status and Notes, priority order P0 to P3, and the status values `Chưa chạy`, `PASS`, `FAILED`, `UNKNOWN`. Never mark `PASS` without a Playwright run of that exact scenario.
+
 ### Use the Arrange-Act-Assert Pattern
 
 ```typescript
@@ -396,5 +414,8 @@ After completing any implementation:
 - [ ] Test names describe the behavior being verified
 - [ ] No tests were skipped or disabled
 - [ ] Coverage hasn't decreased (if tracked)
+- [ ] The full slow suite ran after the last code change, not only a scoped filter
+- [ ] New routes have contract tests against the shared fixtures, when the feature has an API contract
+- [ ] Each new test was proven by at least one mutation of the rule it protects
 
 **Note:** Run each test command after a change that could affect the result. After a clean run, don't repeat the same command unless the code has changed since: re-running on unchanged code adds no confidence.

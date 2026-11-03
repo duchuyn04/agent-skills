@@ -60,7 +60,7 @@ Simplification that breaks project consistency is not simplification: it's churn
 
 ### 3. Prefer Clarity Over Cleverness
 
-Explicit code is better than compact code when the compact version requires a mental pause to parse.
+Explicit code is better than compact code when the compact version requires a mental pause to parse. The house rules (`../../references/house-rules.md`, sections 5 and 6) make this mandatory: names describe responsibilities, control flow hides no assumptions, and every meaningful step keeps a Vietnamese comment that states its reason. A simplification that moves or merges steps updates or removes their comments in the same change.
 
 ```typescript
 // UNCLEAR: Dense ternary chain
@@ -328,4 +328,5 @@ After completing a simplification pass:
 - [ ] Simplified code follows project conventions (checked against CLAUDE.md or equivalent)
 - [ ] No error handling was removed or weakened
 - [ ] No dead code was left behind (unused imports, unreachable branches)
+- [ ] Comments still match the steps they explain after the simplification
 - [ ] A teammate or review agent would approve the change as a net improvement

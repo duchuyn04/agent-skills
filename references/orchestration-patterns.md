@@ -110,7 +110,7 @@ main agent → research sub-agent (reads 50 files) → digest → main agent con
 
 **Cost:** one isolated sub-agent context. Worth it any time the alternative is loading hundreds of files into the main context.
 
-**On Claude Code, use the built-in `Explore` subagent** rather than defining a custom research persona. `Explore` runs on Haiku, is denied write/edit tools, and is purpose-built for this pattern. Define a custom research subagent only when `Explore` doesn't fit (e.g. you need a domain-specific system prompt the model wouldn't infer).
+**On Claude Code, use the built-in `Explore` subagent** rather than defining a custom research persona. `Explore` is denied write/edit tools and is purpose-built for this pattern. Its definition pins a smaller model, so pass `model` and `effort` with the main session's values when you spawn it (house rules, section 10). Define a custom research subagent only when `Explore` doesn't fit (e.g. you need a domain-specific system prompt the model wouldn't infer).
 
 ---
 
@@ -163,7 +163,9 @@ Don't redefine these. Layer your specialist personas (code-reviewer, security-au
 
 Plugin subagents do **not** support the `hooks`, `mcpServers`, or `permissionMode` frontmatter fields: these are silently ignored. If a future persona needs any of those, the user must copy the file into `.claude/agents/` or `~/.claude/agents/` instead.
 
-The fields that DO work in plugin agents are: `name`, `description`, `tools`, `disallowedTools`, `model`, `maxTurns`, `skills`, `memory`, `background`, `effort`, `isolation`, `color`, `initialPrompt`. Use `model` per-persona if you want to optimize cost (e.g. Haiku for `test-engineer` coverage scans, Sonnet for `code-reviewer`, Opus for `security-auditor`).
+The fields that DO work in plugin agents are: `name`, `description`, `tools`, `disallowedTools`, `model`, `maxTurns`, `skills`, `memory`, `background`, `effort`, `isolation`, `color`, `initialPrompt`. Leave `model` and `effort` out of persona files. Under the house rules (`house-rules.md`, section 10) every subagent runs on the main session's model and effort, set explicitly at spawn time. Use a different model or effort only when the user names that value.
+
+**Every handoff carries the house rules.** When you spawn a subagent for repository work, copy the applicable rules from `house-rules.md` into its prompt, and check its returned changes against them. A subagent that edits prose `.md` files must invoke the `humanizer:humanizer` skill itself.
 
 ### Spawning multiple subagents in parallel
 

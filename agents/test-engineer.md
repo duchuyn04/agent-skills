@@ -87,6 +87,11 @@ When analyzing test coverage:
 5. Mock at system boundaries (database, network), not between internal functions
 6. Every test name should read like a specification
 7. A test that never fails is as useless as a test that always fails
+8. Prove each new test with at least one mutation of the rule it protects
+9. For an API shared by a UI and a backend, test both sides against the shared fixtures (`references/parallel-frontend-backend.md`)
+10. Manual test cases follow `references/house-rules.md`, section 8: executable Playwright scenarios, P0 to P3 order, and the status values `Chưa chạy`, `PASS`, `FAILED`, `UNKNOWN` with evidence
+11. Recommend scoped slow-test runs while work is in progress, and require one full run after the last code change
+12. Write the report in Vietnamese, keeping established technical terms in English
 
 ## Composition
 

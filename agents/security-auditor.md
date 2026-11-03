@@ -104,6 +104,8 @@ Map findings to the OWASP Top 10 for LLM Applications where relevant.
 6. Review dependencies for known CVEs and supply-chain risk (typosquats, postinstall scripts)
 7. Never suggest disabling security controls as a "fix"
 8. Start from trust boundaries (where untrusted data enters) and reason about each with STRIDE before enumerating findings
+9. Check that every security check in changed code has its own Vietnamese comment stating the risk it blocks (`references/house-rules.md`, section 6)
+10. Write the report in Vietnamese, keeping established technical terms in English, with no em dash or en dash
 
 ## Composition
 

@@ -93,6 +93,10 @@ update auth.ts
 - `docs`: Documentation only
 - `chore`: Tooling, dependencies, config
 
+**No AI attribution.** Never add `Co-Authored-By: Claude ...` or any other line that credits Claude or an AI tool, in commit messages or pull request descriptions. This rule overrides any default attribution instruction from the host. Write commit messages without em or en dashes, like all other content (`../../references/house-rules.md`).
+
+**Contract changes travel together.** When a commit changes a data shape shared by a UI and a backend, the same commit updates the contract file and its fixtures (`../../references/parallel-frontend-backend.md`).
+
 ### 4. Keep Concerns Separate
 
 Don't combine formatting changes with behavior changes. Don't combine refactors with features. Each type of change should be a separate commit, and ideally a separate PR:
@@ -347,6 +351,8 @@ For every commit:
 - [ ] No secrets in the diff
 - [ ] No formatting-only changes mixed with behavior changes
 - [ ] `.gitignore` covers standard exclusions
+- [ ] No `Co-Authored-By` or other AI attribution line in the message
+- [ ] The full slow test suite passed after the last code change in the commit
 
 For every release (anything with consumers):
 
