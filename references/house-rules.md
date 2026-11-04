@@ -29,7 +29,8 @@ Applies to README files, specs, plans, task lists, glossaries and other prose `.
 - MUST NOT use "not X but Y" constructions, decorative bold, or one-line closing sentences that restate the paragraph.
 - MUST write headings in sentence case.
 - MUST keep code blocks, commands, paths and data unchanged when rewriting prose.
-- MUST open every spec and plan with a plain-language summary. Put the technical detail after it.
+- MUST open every spec and plan with a `## Summary` section written in plain language. Put the technical detail after it.
+- MUST title that section `Summary`, or `Tóm tắt` in a Vietnamese document. Do not add words such as "easy to understand" ("dễ hiểu") to the heading.
 - MUST write how-to steps one action per step, with the expected result and the fix for the most common error.
 
 ## 4. Controlled Writing for Comments and Docs

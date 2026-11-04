@@ -360,7 +360,7 @@ Kết quả mong đợi: file `<thư-mục-skill>/../references/house-rules.md` 
 
 Thử với một dự án bất kỳ:
 
-1. Gõ `/spec` rồi mô tả một tính năng nhỏ. Agent hỏi lại yêu cầu và viết spec có phần tóm tắt dễ hiểu ở đầu.
+1. Gõ `/spec` rồi mô tả một tính năng nhỏ. Agent hỏi lại yêu cầu và viết spec có mục "Tóm tắt" bằng lời thường ở đầu.
 2. Duyệt spec, rồi gõ `/plan`. Agent tạo `tasks/<tên-module>/plan.md`, `tasks/<tên-module>/todo.md` và cập nhật `tasks/README.md`.
 3. Gõ `/build`. Agent làm task đầu tiên: viết test trước, rồi viết code có comment tiếng Việt.
 

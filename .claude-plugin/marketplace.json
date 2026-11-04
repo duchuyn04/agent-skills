@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "duchuyn04-agent-skills",
-      "version": "0.6.15",
+      "version": "0.6.16",
       "source": {
         "source": "github",
         "repo": "duchuyn04/agent-skills"

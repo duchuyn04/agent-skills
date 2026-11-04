@@ -262,7 +262,7 @@ Special consideration for AI agent context:
 Every prose document (README, spec, plan, ADR, guide) follows the house rules in `../../references/house-rules.md`:
 
 1. Load the `humanizer:humanizer` skill before writing or editing the file.
-2. Open specs and plans with a plain-language summary. Put technical detail after it.
+2. Open specs and plans with a `## Summary` section in plain language (`## Tóm tắt` in Vietnamese, with no extra words in the heading). Put technical detail after it.
 3. Explain each technical term in plain words at first use. Use an everyday example where it helps.
 4. Write how-to steps as a numbered list, one action per step, with the expected result and the fix for the most common error.
 5. Keep instructions at 20 words or fewer and descriptions at 25 words or fewer. Use one term per concept in the whole file.
