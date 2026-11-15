@@ -30,6 +30,7 @@ The agent should automatically map user intent to skills:
 - Refactoring / simplification → `code-simplification`
 - API or interface design → `api-and-interface-design`
 - UI work → `frontend-ui-engineering`
+- Hand a task to a builder agent in another Herdr pane and review it → `builder-loop`
 
 ### Lifecycle Mapping (Implicit Commands)
 

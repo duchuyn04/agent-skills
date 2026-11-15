@@ -10,7 +10,7 @@ AI coding agent là trợ lý lập trình chạy trong terminal hoặc editor, 
 
 Skill là một file hướng dẫn quy trình mà agent đọc trước khi làm việc. Ví dụ: skill `test-driven-development` bắt agent viết test trước rồi mới viết code. Giống một bảng quy trình dán trên tường xưởng: thợ mới hay thợ cũ đều làm theo cùng các bước.
 
-Bộ này có 25 skill, 4 persona và 9 lệnh tắt như `/spec`, `/plan`, `/build`. Persona là vai chuyên gia, ví dụ người review code hay người kiểm bảo mật. Bạn cài một lần, sau đó agent tự chọn skill hợp với việc đang làm.
+Bộ này có 26 skill, 4 persona và 9 lệnh tắt như `/spec`, `/plan`, `/build`. Persona là vai chuyên gia, ví dụ người review code hay người kiểm bảo mật. Bạn cài một lần, sau đó agent tự chọn skill hợp với việc đang làm.
 
 ## Khác gì so với bản gốc
 
@@ -21,6 +21,7 @@ Bộ này có 25 skill, 4 persona và 9 lệnh tắt như `/spec`, `/plan`, `/bu
 | Mỗi module một thư mục kế hoạch | Lưu kế hoạch ở `tasks/[module]/plan.md` và `tasks/[module]/todo.md`. Giữ mục lục ở `tasks/README.md` | `skills/planning-and-task-breakdown/SKILL.md` |
 | Không còn dấu gạch dài | Văn bản của mọi skill dùng dấu phẩy, dấu hai chấm hoặc ngoặc đơn | Toàn bộ repo |
 | Tên plugin và marketplace mới | Lệnh và skill mang tiền tố `duchuyn04-agent-skills:`, ví dụ `/duchuyn04-agent-skills:spec`. Không lẫn với bản gốc tên `agent-skills` | `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json` |
+| Skill `builder-loop` | Giao một task cho agent builder chạy ở pane Herdr khác, review từng lượt và yêu cầu sửa đến khi đạt. Script `check-task` tự kiểm đường dẫn cấm, tiêu chí bị viết lại, chữ cấm và ảnh bằng chứng ở mọi lượt | `skills/builder-loop/SKILL.md` |
 
 Khi repo bạn làm việc có `AGENTS.md` hoặc `CLAUDE.md` ghi luật khác, luật của repo đó được ưu tiên.
 
@@ -192,7 +193,7 @@ Một số bản Antigravity báo đã chuyển các lệnh tắt nhưng không 
 
 2. Mở Gemini CLI và gõ `/skills list`.
 
-Kết quả mong đợi: danh sách có 25 skill như `spec-driven-development`, `test-driven-development`.
+Kết quả mong đợi: danh sách có 26 skill như `spec-driven-development`, `test-driven-development`.
 
 Lệnh này chỉ chép thư mục `skills/`. Làm thêm mục "Chép thêm thư mục references" với thư mục cài mà lệnh in ra.
 
@@ -366,6 +367,21 @@ Thử với một dự án bất kỳ:
 
 Agent không có lệnh tắt thì gõ yêu cầu bằng lời. Ví dụ: "dùng skill planning-and-task-breakdown để lập kế hoạch cho module thanh toán".
 
+## Dùng builder-loop
+
+Skill `builder-loop` chia một task cho hai agent. Builder là agent viết code, chạy trong một pane khác của Herdr. Phiên bạn đang chat làm reviewer: giao việc, review từng lượt và yêu cầu sửa đến khi task đạt. Herdr là terminal chia nhiều pane, mỗi pane chạy một agent, và các agent nhắn tin cho nhau được.
+
+1. Mở phiên agent bên trong Herdr. Mở sẵn một pane agent rảnh để làm builder, hoặc để skill tự mở.
+2. Tạo file hồ sơ `.claude/builder-loop.md` ở gốc repo. File này ghi luật riêng của repo: lệnh test, đường dẫn cấm, phạm vi commit. Chưa có file thì ở lần chạy đầu, skill tự dò, hỏi bạn phần còn thiếu và đề nghị lưu lại.
+3. Gõ `/duchuyn04-agent-skills:builder-loop <mã task>`, hoặc nói "giao task <mã task> cho builder".
+
+Kết quả mong đợi: builder bắt đầu làm ở pane bên cạnh. Sau mỗi lượt, reviewer báo ngắn các lỗi tìm được. Khi task đạt, reviewer dừng và chờ bạn báo "ok". Thêm `commit` hoặc `commit và push` sau mã task để reviewer làm việc đó sau khi bạn báo "ok".
+
+Lỗi thường gặp:
+
+- Reviewer báo phiên không chạy trong Herdr: mở agent từ bên trong Herdr rồi gõ lại lệnh.
+- Script `check-task` thoát với mã 2: khối JSON trong mục `## Kiểm tự động` của hồ sơ sai cú pháp. Cách viết nằm ở `skills/builder-loop/references/kiem-tu-dong.md`.
+
 ## Áp dụng luật chung ở mọi lượt chat
 
 Agent chỉ nạp một skill khi việc đang làm khớp với mô tả của skill đó. Câu hỏi ngắn có thể không khớp skill nào. Khi đó agent không đọc luật chung, ví dụ luật trả lời tiếng Việt.
@@ -405,7 +421,7 @@ Muốn áp dụng cho mọi dự án trên máy thì thêm dòng ở bước 2 v
 | `/constraints` | Ghi lại ngưỡng chất lượng của dự án |
 | `/webperf` | Kiểm hiệu năng web |
 
-Danh sách đầy đủ 25 skill và mô tả từng skill nằm ở [README.upstream.md](README.upstream.md).
+Mô tả 25 skill gốc nằm ở [README.upstream.md](README.upstream.md). Skill thứ 26, `builder-loop`, chỉ có ở bản này: xem mục "Dùng builder-loop".
 
 ## Lấy bản mới từ tác giả gốc
 

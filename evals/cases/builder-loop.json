@@ -1,0 +1,53 @@
+{
+  "skill_name": "builder-loop",
+  "trigger": {
+    "positive": [
+      {
+        "prompt": "Hand task CAT-05 to the builder agent in the other Herdr pane and keep reviewing until it passes",
+        "top_k": 3
+      },
+      {
+        "prompt": "Let the codex pane build ADM-12 while you act as reviewer and send it fixes",
+        "top_k": 3
+      },
+      {
+        "prompt": "/builder-loop SD-07 commit",
+        "top_k": 3
+      },
+      {
+        "prompt": "giao task T6 cho builder rồi review đến khi đạt",
+        "top_k": 3
+      }
+    ],
+    "negative": [
+      {
+        "prompt": "Review this pull request for correctness before I merge it",
+        "owner": "code-review-and-quality"
+      },
+      {
+        "prompt": "Break the approved spec into ordered tasks with acceptance criteria",
+        "owner": "planning-and-task-breakdown"
+      },
+      {
+        "prompt": "Build the next slice of the CSV export yourself, one small verified increment at a time",
+        "owner": "incremental-implementation"
+      }
+    ]
+  },
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "/builder-loop T1. Hand task T1 from tasks/todo.md to a builder agent and review its work until it passes.",
+      "expected_output": "The agent checks for a Herdr session first, reports that the session is not running inside Herdr, and stops without touching the task",
+      "files": [
+        "builder-loop"
+      ],
+      "expectations": [
+        "The agent checks whether the session runs inside Herdr before any other step",
+        "The agent tells the user the session is not running inside Herdr and stops",
+        "The agent does not edit src/slugify.js or any other file of the task itself",
+        "The agent does not tick criteria in tasks/todo.md and does not create a commit"
+      ]
+    }
+  ]
+}
