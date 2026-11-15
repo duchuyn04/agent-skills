@@ -11,7 +11,10 @@
 //       Ghi trạng thái toàn bộ thư mục làm việc lúc bắt đầu task vào
 //       refs/review/<mã>/start. Lệnh check so với mốc này, nên thay đổi có sẵn
 //       của người dùng từ trước task không bị tính cho builder.
-//   node check-task.mjs check --task <mã> [--report <file báo cáo của builder>]
+//   node check-task.mjs check --task <mã> [--report <file báo cáo>] [--module <module>]
+//   node check-task.mjs evidence --task <mã> --module <module>
+//       In đường dẫn thư mục bằng chứng <gốc>/<module>/<mã>/ và tạo thư mục nếu chưa có.
+//       Gốc mặc định là ~/builder-loop-evidence/<tên repo>, hồ sơ đổi bằng evidence.dir.
 //
 // Tùy chọn khác: --profile <file hồ sơ>, --base <ref thay cho mốc start>,
 // --force (cho start ghi đè mốc đã có).
@@ -25,7 +28,8 @@ import path from 'node:path';
 
 const USAGE = `Cách dùng:
   node check-task.mjs start --task <mã> [--repo <thư mục>] [--force]
-  node check-task.mjs check --task <mã> [--report <file>] [--repo <thư mục>] [--profile <file>] [--base <ref>]`;
+  node check-task.mjs check --task <mã> [--report <file>] [--module <module>] [--repo <thư mục>] [--profile <file>] [--base <ref>]
+  node check-task.mjs evidence --task <mã> --module <module> [--repo <thư mục>] [--profile <file>]`;
 
 const DEFAULTS = {
   noStage: [],
@@ -41,6 +45,11 @@ const DEFAULTS = {
 };
 
 const MEDIA_EXT = /\.(png|jpe?g|webp|gif|webm|mp4|mov|zip)$/i;
+const IMAGE_EXT = /\.(png|jpe?g|webp|gif)$/i;
+const VIDEO_EXT = /\.(webm|mp4|mov)$/i;
+const EVIDENCE_KEYS = new Set(['uiPaths', 'dir']);
+const DEFAULT_EVIDENCE_DIR = '~/builder-loop-evidence/{repo}';
+const MODULE_NAME = /^[a-z0-9][a-z0-9._-]*$/;
 const CHECKBOX = /^(\s*(?:[-*+]|\d+[.)]|#{1,6})\s+)\[[ xX]\]/;
 const CHECKED = /^\s*(?:[-*+]|\d+[.)]|#{1,6})\s+\[[xX]\]/;
 const LIST_LIMIT = 20;
@@ -125,6 +134,8 @@ function loadProfile(file) {
   }
   const unknown = Object.keys(config).filter((k) => !(k in DEFAULTS));
   if (unknown.length) throw new UsageError(`Khóa lạ trong khối "Kiểm tự động": ${unknown.join(', ')}`);
+  const badEvidence = Object.keys(config.evidence ?? {}).filter((k) => !EVIDENCE_KEYS.has(k));
+  if (badEvidence.length) throw new UsageError(`Khóa lạ trong "evidence": ${badEvidence.join(', ')}`);
   return { text, config: { ...DEFAULTS, ...config }, note: null };
 }
 
@@ -352,36 +363,71 @@ function extractEvidence(text) {
   return [...found].filter((s) => MEDIA_EXT.test(s));
 }
 
-function resolveEvidence(p, reportDir, repo) {
-  let s = p.replace(/^<|>$/g, '');
+// Đổi đường dẫn kiểu Git Bash (/c/..., /tmp/...) và ~ thành đường dẫn Node đọc được.
+// Thiếu bước này, Node trên Windows hiểu /tmp là C:\tmp.
+function toNativePath(p) {
+  let s = p;
   if (process.platform === 'win32') {
     const drive = s.match(/^\/([a-zA-Z])\/(.*)$/);
     if (drive) s = `${drive[1].toUpperCase()}:/${drive[2]}`;
-    else if (s.startsWith('/tmp/')) s = path.join(os.tmpdir(), s.slice(5));
+    else if (s === '/tmp' || s.startsWith('/tmp/')) s = path.join(os.tmpdir(), s.slice(5));
   }
-  if (s.startsWith('~/')) s = path.join(os.homedir(), s.slice(2));
+  if (s === '~' || s.startsWith('~/')) s = path.join(os.homedir(), s.slice(2));
+  return s;
+}
+
+function resolveEvidence(p, reportDir, repo) {
+  const s = toNativePath(p.replace(/^<|>$/g, ''));
   if (path.isAbsolute(s)) return [s];
   return [path.resolve(reportDir, s), path.resolve(repo, s)];
 }
 
-function checkEvidence(f, cfg, repo, baseTime, changes, inScope, reportPath) {
+// Tên repo lấy từ thư mục chứa .git chung, nên worktree vẫn cho tên của repo chính.
+function mainRepoName(repo) {
+  const common = git(repo, ['rev-parse', '--git-common-dir']).trim();
+  return path.basename(path.dirname(path.resolve(repo, common)));
+}
+
+// Bằng chứng xếp theo <gốc>/<module>/<task>/ để ảnh của cùng module nằm cạnh nhau.
+function evidenceDir(cfg, repo, module, task) {
+  const root = toNativePath((cfg.evidence?.dir ?? DEFAULT_EVIDENCE_DIR).replace('{repo}', mainRepoName(repo)));
+  return path.join(path.resolve(repo, root), module, task);
+}
+
+// path.relative trên Windows không phân biệt hoa thường, nên so được ổ C: và c:.
+function isInside(dir, file) {
+  const rel = path.relative(dir, file);
+  return rel !== '' && !rel.startsWith('..') && !path.isAbsolute(rel);
+}
+
+function listMedia(dir) {
+  if (!fs.existsSync(dir)) return [];
+  return fs
+    .readdirSync(dir, { withFileTypes: true, recursive: true })
+    .filter((e) => e.isFile() && MEDIA_EXT.test(e.name))
+    .map((e) => path.join(e.parentPath ?? e.path, e.name));
+}
+
+function checkEvidence(f, cfg, repo, baseTime, changes, inScope, opts) {
   const uiPaths = cfg.evidence?.uiPaths ?? [];
   const isUi = matcher(uiPaths);
   const uiFiles = uiPaths.length ? changes.filter((c) => inScope(c.file) && isUi(c.file)).map((c) => c.file) : [];
+  const expected = opts.module ? evidenceDir(cfg, repo, opts.module, opts.task) : null;
 
-  if (!reportPath) {
+  if (!opts.report) {
     if (uiFiles.length) f.warn('Diff chạm giao diện. Chạy lại với --report <file báo cáo> để kiểm ảnh và video.');
     return;
   }
-  if (!fs.existsSync(reportPath)) {
-    f.error(`Không thấy file báo cáo: ${reportPath}`);
+  if (!fs.existsSync(opts.report)) {
+    f.error(`Không thấy file báo cáo: ${opts.report}`);
     return;
   }
-  const reportDir = path.dirname(path.resolve(reportPath));
-  const refs = extractEvidence(fs.readFileSync(reportPath, 'utf8'));
+  const reportDir = path.dirname(path.resolve(opts.report));
+  const refs = extractEvidence(fs.readFileSync(opts.report, 'utf8'));
   const missing = [];
   const stale = [];
-  let valid = 0;
+  const outside = [];
+  const found = [];
   for (const p of refs) {
     const hit = resolveEvidence(p, reportDir, repo).find((c) => fs.existsSync(c));
     if (!hit) {
@@ -393,15 +439,33 @@ function checkEvidence(f, cfg, repo, baseTime, changes, inScope, reportPath) {
       missing.push(`${p} (file rỗng)`);
       continue;
     }
-    valid++;
+    found.push(path.resolve(hit));
     if (st.mtimeMs < baseTime) stale.push(p);
+    if (expected && !isInside(expected, hit)) outside.push(p);
   }
   if (missing.length) f.error(`Báo cáo nhắc tới bằng chứng không tồn tại:${listing(missing)}`);
   if (stale.length) f.warn(`Bằng chứng có từ trước khi task bắt đầu, có thể không phải của lượt này:${listing(stale)}`);
-  if (uiFiles.length && valid === 0) {
+  if (uiFiles.length && found.length === 0) {
     f.error(`Diff chạm giao diện nhưng báo cáo không có ảnh hoặc video nào:${listing(uiFiles)}`);
   }
-  if (refs.length) f.info(`Bằng chứng trong báo cáo: ${valid} file hợp lệ trên ${refs.length} đường dẫn.`);
+
+  // Ưu tiên ảnh: video khó xem nhanh và khó so giữa các lượt.
+  const images = found.filter((p) => IMAGE_EXT.test(p)).length;
+  const videos = found.filter((p) => VIDEO_EXT.test(p)).length;
+  if (videos && !images) f.warn('Báo cáo chỉ có video. Ưu tiên ảnh: chụp thêm ảnh của từng bước chính và trạng thái cuối.');
+
+  if (expected) {
+    if (outside.length) f.warn(`Bằng chứng nằm ngoài thư mục của module và task (${expected}):${listing(outside)}`);
+    const norm = (p) => (process.platform === 'win32' ? p.toLowerCase() : p);
+    const used = new Set(found.map(norm));
+    const orphans = listMedia(expected).filter((p) => !used.has(norm(path.resolve(p))));
+    if (orphans.length) {
+      f.warn(`Thư mục bằng chứng có file báo cáo không nhắc tới. Xóa file thừa hoặc ghi vào báo cáo:${listing(orphans.map((p) => path.relative(expected, p)))}`);
+    }
+  } else if (found.length) {
+    f.warn('Chưa truyền --module nên chưa kiểm bằng chứng có nằm đúng thư mục module không.');
+  }
+  if (refs.length) f.info(`Bằng chứng trong báo cáo: ${found.length} file hợp lệ trên ${refs.length} đường dẫn (ảnh: ${images}, video: ${videos}).`);
 }
 
 function checkRepeated(f, profileText) {
@@ -436,6 +500,14 @@ function cmdStart(repo, opts) {
   const commit = git(repo, ['commit-tree', tree, '-p', 'HEAD', '-m', `review start ${opts.task}`]).trim();
   git(repo, ['update-ref', ref, commit]);
   console.log(`Đã ghi mốc bắt đầu task ${opts.task}: ${ref} = ${commit.slice(0, 10)}`);
+  return 0;
+}
+
+function cmdEvidence(repo, opts) {
+  const profile = loadProfile(path.resolve(repo, opts.profile ?? '.claude/builder-loop.md'));
+  const dir = evidenceDir(profile.config, repo, opts.module, opts.task);
+  fs.mkdirSync(dir, { recursive: true });
+  console.log(dir);
   return 0;
 }
 
@@ -479,7 +551,7 @@ function cmdCheck(repo, opts) {
   checkCriteria(f, cfg, repo, baseCommit, changes);
   checkBannedText(f, cfg, repo, baseCommit, live);
   checkText(f, cfg, repo, live);
-  checkEvidence(f, cfg, repo, baseTime, changes, inScope, opts.report);
+  checkEvidence(f, cfg, repo, baseTime, changes, inScope, opts);
   checkRepeated(f, profile.text);
 
   console.log(`check-task ${opts.task}\n`);
@@ -499,9 +571,16 @@ function parseArgs(argv) {
     if (!a.startsWith('--') || i + 1 >= rest.length) throw new UsageError(`Tham số không hợp lệ: ${a}`);
     opts[a.slice(2)] = rest[++i];
   }
-  if (!['start', 'check'].includes(cmd)) throw new UsageError('Lệnh phải là start hoặc check.');
+  if (!['start', 'check', 'evidence'].includes(cmd)) throw new UsageError('Lệnh phải là start, check hoặc evidence.');
   if (!opts.task) throw new UsageError('Thiếu --task.');
-  if (!/^[A-Za-z0-9._-]+$/.test(opts.task)) throw new UsageError('Mã task chỉ gồm chữ, số, dấu chấm, gạch dưới và gạch nối.');
+  // Ký tự đầu là chữ hoặc số, để mã task và module không thành `..` khi ghép vào đường dẫn.
+  if (!/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(opts.task)) {
+    throw new UsageError('Mã task bắt đầu bằng chữ hoặc số, chỉ gồm chữ, số, dấu chấm, gạch dưới và gạch nối.');
+  }
+  if (cmd === 'evidence' && !opts.module) throw new UsageError('Lệnh evidence cần --module.');
+  if (opts.module && !MODULE_NAME.test(opts.module)) {
+    throw new UsageError('Tên module viết thường, bắt đầu bằng chữ hoặc số, nối bằng gạch nối. Ví dụ: support-desk.');
+  }
   return opts;
 }
 
@@ -509,7 +588,9 @@ function main() {
   try {
     const opts = parseArgs(process.argv.slice(2));
     const repo = git(path.resolve(opts.repo ?? '.'), ['rev-parse', '--show-toplevel']).trim();
-    return opts.cmd === 'start' ? cmdStart(repo, opts) : cmdCheck(repo, opts);
+    if (opts.cmd === 'start') return cmdStart(repo, opts);
+    if (opts.cmd === 'evidence') return cmdEvidence(repo, opts);
+    return cmdCheck(repo, opts);
   } catch (e) {
     console.error(e.message);
     if (e instanceof UsageError) console.error(USAGE);

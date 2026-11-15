@@ -25,8 +25,10 @@ Lệnh chụp lại toàn bộ thư mục làm việc, kể cả thay đổi ch�
 ### check: kiểm trạng thái hiện tại
 
 ```bash
-node "<thư mục skill>/scripts/check-task.mjs" check --task CAT-05 --report "<thư mục trao đổi>/CAT-05-report.md"
+node "<thư mục skill>/scripts/check-task.mjs" check --task CAT-05 --module catalog --report "<thư mục trao đổi>/CAT-05-report.md"
 ```
+
+`--module` là module của task. Có tham số này thì script kiểm thêm ảnh có nằm đúng thư mục bằng chứng của module và task không.
 
 Kết quả là danh sách dòng `[LỖI]`, `[CẢNH BÁO]`, `[THÔNG TIN]` và dòng cuối `Kết quả: N LỖI, M CẢNH BÁO.`
 
@@ -37,6 +39,16 @@ Kết quả là danh sách dòng `[LỖI]`, `[CẢNH BÁO]`, `[THÔNG TIN]` và 
 | 2 | gọi sai lệnh hoặc hồ sơ hỏng, script chưa kiểm gì |
 
 Script không đổi file nào trong thư mục làm việc và không đổi danh sách stage của repo.
+
+### evidence: lấy thư mục bằng chứng
+
+```bash
+node "<thư mục skill>/scripts/check-task.mjs" evidence --task CAT-05 --module catalog
+```
+
+Kết quả mong đợi: một dòng đường dẫn, ví dụ `C:\Users\<tên>\builder-loop-evidence\pickory\catalog\CAT-05`. Lệnh tạo thư mục nếu chưa có.
+
+Đường dẫn có dạng `<gốc bằng chứng>/<module>/<task>/`. Gốc mặc định là `~/builder-loop-evidence/<tên repo>`. Chạy trong worktree thì `<tên repo>` vẫn là tên repo chính, nên ảnh của mọi nhánh nằm chung một chỗ.
 
 ## Script kiểm gì
 
@@ -52,7 +64,10 @@ Script không đổi file nào trong thư mục làm việc và không đổi da
 | Dòng mới khớp mẫu chữ cấm | LỖI | `bannedText` |
 | Lệnh kiểm chữ của repo báo lỗi | LỖI | `textCheck` |
 | Báo cáo nhắc tới ảnh hoặc video không tồn tại | LỖI | `--report` |
-| Diff chạm giao diện mà báo cáo không có ảnh hoặc video | LỖI | `evidence` |
+| Diff chạm giao diện mà báo cáo không có ảnh hoặc video | LỖI | `evidence.uiPaths` |
+| Báo cáo chỉ có video, không có ảnh | CẢNH BÁO | `--report` |
+| Ảnh hoặc video nằm ngoài thư mục `<module>/<task>/` | CẢNH BÁO | `--module`, `evidence.dir` |
+| Thư mục bằng chứng có file mà báo cáo không nhắc tới | CẢNH BÁO | `--module`, `evidence.dir` |
 | Lỗi gặp ở từ 2 task trở lên mà chưa có cách chặn | CẢNH BÁO | bảng `## Lỗi lặp lại` |
 
 Script cũng in danh sách tiêu chí mới tick. Reviewer dùng danh sách này để đối chiếu từng tiêu chí với test hoặc bằng chứng.
@@ -76,7 +91,7 @@ Mọi khóa đều tùy chọn. Khóa lạ (gõ sai tên) làm script dừng v�
   "bannedText": [
     { "pattern": "[\u2014\u2013]", "files": ["**/*.md"], "exclude": ["tests/**"], "message": "Dòng mới trong file .md có em dash hoặc en dash:" }
   ],
-  "evidence": { "uiPaths": ["apps/frontend/src/"] }
+  "evidence": { "uiPaths": ["apps/frontend/src/"], "dir": "~/builder-loop-evidence/{repo}" }
 }
 ```
 
@@ -92,6 +107,7 @@ Mọi khóa đều tùy chọn. Khóa lạ (gõ sai tên) làm script dừng v�
 | `textCheck` | lệnh kiểm chữ của repo. Script nối danh sách file đã đổi vào cuối lệnh. Viết dạng `{ "run": "<lệnh>", "files": ["<mẫu>"] }` để chỉ quét một số file | không có |
 | `bannedText` | các mẫu chữ cấm trong dòng mới, xem mục dưới | `[]` |
 | `evidence.uiPaths` | code giao diện. Diff chạm các đường dẫn này thì báo cáo phải có ảnh hoặc video | không có |
+| `evidence.dir` | gốc thư mục bằng chứng. `{repo}` được thay bằng tên repo, `~` là thư mục home. Đường dẫn tương đối tính từ gốc repo | `~/builder-loop-evidence/{repo}` |
 
 ### Cách viết mẫu đường dẫn
 
@@ -139,7 +155,9 @@ Dòng có từ 2 task trở lên mà cột cuối là `chưa` (hoặc để tr�
 | Thông báo | Nguyên nhân | Cách sửa |
 |---|---|---|
 | `Khối JSON trong mục "Kiểm tự động" lỗi` | JSON sai cú pháp, hay gặp nhất là dấu phẩy thừa ở cuối danh sách | xóa dấu phẩy thừa, kiểm mọi chuỗi nằm trong dấu `"` |
-| `Khóa lạ trong khối "Kiểm tự động"` | gõ sai tên khóa | so với bảng khóa ở trên |
+| `Khóa lạ trong khối "Kiểm tự động"` hoặc `Khóa lạ trong "evidence"` | gõ sai tên khóa | so với bảng khóa ở trên |
+| `Tên module viết thường, bắt đầu bằng chữ hoặc số` | tên module có chữ hoa, dấu tiếng Việt hoặc dấu cách | viết lại dạng `support-desk` |
+| `Bằng chứng nằm ngoài thư mục của module và task` | builder lưu ảnh chỗ khác, hoặc truyền sai `--module` | chạy lệnh `evidence` để lấy đúng thư mục, chuyển ảnh vào đó và sửa đường dẫn trong báo cáo |
 | `không có file hồ sơ` | chạy trong worktree, mà `.claude/` bị Git bỏ qua nên worktree không có hồ sơ | thêm `--profile "<gốc repo chính>/.claude/builder-loop.md"` |
 | `Chưa có refs/review/<task>/start` | task bắt đầu trước khi có lệnh start | vẫn dùng được: script so với ảnh chụp 0. Thay đổi có sẵn ngoài phạm vi commit sẽ bị liệt kê, reviewer tự bỏ qua |
 | `Đã có refs/review/<task>/start` | chạy start lần hai trong cùng task | không cần làm gì. Mốc cũ vẫn đúng |

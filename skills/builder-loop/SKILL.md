@@ -54,7 +54,7 @@ Hồ sơ là file Markdown, mỗi mục là một heading cấp 2. Các mục sa
 | `Lệnh kiểm tra` | lệnh nhanh chạy mọi lượt, lệnh chậm chạy một lần, bộ lọc lệnh chậm theo module, đường dẫn dùng chung | đoán từ `package.json`, `Makefile`, file solution `.sln`; hỏi người dùng nếu không chắc |
 | `Kiểm comment` | phần kiểm comment cần reviewer tự đọc | không có |
 | `Kiểm tự động` | khối JSON cho `scripts/check-task.mjs`: đường dẫn cấm, phạm vi, file tiêu chí, mẫu chữ cấm, code giao diện. Cách viết ở `references/kiem-tu-dong.md` | không có: script chỉ báo file đổi và lỗi lặp lại |
-| `Bằng chứng chạy thật` | lệnh mở app, feature map (danh sách màn hình và tính năng theo góc nhìn người dùng), loại ảnh hoặc video cần nộp | không có: chỉ đòi ảnh khi diff chạm `evidence.uiPaths` |
+| `Bằng chứng chạy thật` | lệnh mở app, cách xác định module của task, feature map (danh sách màn hình và tính năng theo góc nhìn người dùng) | không có: theo mục "Bằng chứng chạy thật" bên dưới |
 | `Review của người dùng` | cách người dùng tự xem thay đổi trước khi commit | giữ thay đổi chưa commit và chưa stage |
 | `Commit` | quy ước commit message | theo `git log` gần đây |
 | `Lỗi lặp lại` | bảng lỗi đã gặp qua các task và cách đã chặn, theo mục "Lỗi lặp lại" bên dưới | bảng trống |
@@ -91,6 +91,7 @@ Ghi đường dẫn đầy đủ trong mọi tin nhắn gửi builder. Builder k
    - các điểm mơ hồ;
    - phần hạ tầng còn thiếu, ví dụ test chưa có;
    - chỗ tiêu chí lệch với code hiện tại, ví dụ tiêu chí viết cho stack cũ;
+   - module của task, theo mục "Bằng chứng chạy thật". Task có tiêu chí người dùng nhìn thấy được thì lấy luôn thư mục bằng chứng bằng lệnh `evidence` của mục đó;
    - pattern xấu trong vùng code task sẽ chạm: workaround, code deprecated, comment biện minh cho cách làm tắt, chỗ trái luật của repo. Builder đọc code xung quanh để bắt chước, nên dễ chép lại những chỗ này.
      - Với mỗi pattern, ghi vào file giao việc: file, số dòng, "không sao chép" và cách làm đúng.
      - Không giao builder dọn pattern trong task này, vì đó là việc ngoài phạm vi. Báo người dùng và đề xuất một task dọn riêng, hoặc một phép kiểm chặn pattern đó (lint rule, mẫu `bannedText`).
@@ -114,7 +115,7 @@ Ghi đường dẫn đầy đủ trong mọi tin nhắn gửi builder. Builder k
    - Không dùng `herdr agent wait` ngay sau prompt. Lệnh có thể trả về trước khi builder bắt đầu làm.
    - Người dùng báo builder bị kẹt: đọc màn hình bằng `herdr agent read builder`. Hỏi người dùng trước khi trả lời thay builder.
 10. Review theo mục "Luật review". Không tin báo cáo của builder.
-    1. Chạy `node "<thư mục skill>/scripts/check-task.mjs" check --task <task> --report <file báo cáo>`. Cách đọc kết quả ở `references/kiem-tu-dong.md`.
+    1. Chạy `node "<thư mục skill>/scripts/check-task.mjs" check --task <task> --module <module> --report <file báo cáo>`. Cách đọc kết quả ở `references/kiem-tu-dong.md`.
        - Mỗi dòng `[LỖI]` là một lỗi `Bắt buộc` trong file review. Đường dẫn cấm nằm trong stage thì bỏ stage bằng lệnh script ghi trong thông báo.
        - Dòng `[CẢNH BÁO]` thì reviewer tự xét và quyết định.
        - Script thoát với mã 2 thì sửa hồ sơ theo thông báo. Không sửa được thì tự kiểm bằng tay các mục script làm, và ghi lý do vào file review.
@@ -173,10 +174,7 @@ File `<task>-handoff.md` gồm các phần sau:
 - Mục "Agent skills" theo phần cùng tên bên dưới.
 - Yêu cầu TDD, và phép thử đột biến cho test xanh ngay lần đầu. Gợi ý đột biến cụ thể cho từng tiêu chí.
 - Lệnh kiểm tra theo mục "Luật chạy test", kèm yêu cầu ghi kết quả thật.
-- Bằng chứng chạy thật cho tiêu chí người dùng nhìn thấy được (giao diện, luồng thao tác):
-  - mở app theo mục `Bằng chứng chạy thật` của hồ sơ, làm đúng thao tác của tiêu chí;
-  - lưu ảnh hoặc video vào `<thư mục trao đổi>/<task>-evidence/`;
-  - ghi đường dẫn đầy đủ của từng file, trong backtick, cạnh tiêu chí tương ứng trong báo cáo.
+- Bằng chứng chạy thật cho tiêu chí người dùng nhìn thấy được, theo mục "Bằng chứng chạy thật" bên dưới: đường dẫn đầy đủ của thư mục bằng chứng, luật ưu tiên ảnh và cách đặt tên file. Chép các luật đó vào file giao việc, vì builder không đọc skill này.
 - Bước đánh dấu tiến độ, chạy sau khi lệnh kiểm tra xanh:
   - Tick `[x]` từng tiêu chí đã đạt, theo mục `Tiêu chí task`.
   - Giữ `[ ]` cho tiêu chí chưa kiểm được. Thêm một dòng thụt lề bên dưới, ghi lý do và task sẽ kiểm.
@@ -184,8 +182,29 @@ File `<task>-handoff.md` gồm các phần sau:
   - Không sửa nội dung tiêu chí khi tick.
   - Liệt kê tiêu chí đã tick và chưa tick trong báo cáo.
 - Đường dẫn đầy đủ của file báo cáo, và câu trả lời cố định `XONG, báo cáo ở <đường dẫn>`.
-- Kiểm tự động sau khi ghi báo cáo: chạy `node "<đường dẫn đầy đủ của thư mục skill>/scripts/check-task.mjs" check --task <task> --report <file báo cáo>`. Sửa hết dòng `[LỖI]` rồi chạy lại đến khi không còn. Chép dòng `Kết quả:` của lần chạy cuối vào báo cáo.
+- Kiểm tự động sau khi ghi báo cáo: chạy `node "<đường dẫn đầy đủ của thư mục skill>/scripts/check-task.mjs" check --task <task> --module <module> --report <file báo cáo>`. Sửa hết dòng `[LỖI]` rồi chạy lại đến khi không còn. Chép dòng `Kết quả:` của lần chạy cuối vào báo cáo.
 - Bước cuối: chạy `herdr agent prompt reviewer "XONG, báo cáo ở <đường dẫn>"`.
+
+## Bằng chứng chạy thật
+
+Tiêu chí người dùng nhìn thấy được (giao diện, luồng thao tác) cần bằng chứng chạy thật. Bằng chứng được xếp theo module để dễ tìm lại, và ưu tiên ảnh.
+
+1. Xác định module của task ở bước 4.
+   - Hồ sơ ghi cách xác định ở mục `Bằng chứng chạy thật` thì làm theo hồ sơ.
+   - Hồ sơ không ghi: lấy tên thư mục `tasks/<module>/` chứa tiêu chí, hoặc tên module trong spec của task. Không xác định được thì dùng `chung`.
+   - Tên module viết thường, không dấu, nối bằng gạch nối, ví dụ `support-desk`, `calculator-ui`.
+2. Lấy thư mục bằng chứng bằng `node "<thư mục skill>/scripts/check-task.mjs" evidence --task <task> --module <module>`.
+   - Lệnh in đường dẫn `<gốc bằng chứng>/<module>/<task>/` và tạo thư mục nếu chưa có.
+   - Gốc mặc định là `~/builder-loop-evidence/<tên repo>`. Thư mục này nằm ngoài repo nên ảnh không lẫn vào Git, và giữ lại được sau khi task xong. Hồ sơ đổi gốc bằng khóa `evidence.dir` trong mục `Kiểm tự động`.
+   - Ghi đường dẫn đầy đủ vào file giao việc.
+3. Ưu tiên ảnh:
+   - Chụp ảnh cho từng tiêu chí, gồm trạng thái trước và sau thao tác chính. Luồng nhiều bước thì mỗi bước một ảnh.
+   - Chỉ quay video khi tiêu chí nói về chuyển động mà ảnh không thể hiện được, ví dụ hiệu ứng, kéo thả, trạng thái loading. Video luôn kèm ảnh của trạng thái cuối.
+4. Đặt tên file dạng `<số thứ tự 2 chữ số>-<tên ngắn của màn hình hoặc bước>.png`, viết thường, không dấu, nối bằng gạch nối. Ví dụ: `01-form-trong.png`, `02-bao-loi-email.png`.
+5. Lượt sửa sau chụp lại thì ghi đè file cùng tên, để thư mục chỉ còn bản mới nhất. Xóa ảnh không còn dùng.
+6. Báo cáo ghi đường dẫn đầy đủ của từng file, trong backtick, cạnh tiêu chí tương ứng.
+
+`check-task` báo lỗi khi báo cáo nhắc tới ảnh không tồn tại. Nó cảnh báo khi ảnh nằm ngoài thư mục của module và task, khi thư mục có file báo cáo không nhắc tới, và khi báo cáo chỉ có video.
 
 Builder có thể là agent khác bạn. Viết file giao việc để agent nào cũng làm theo được: dùng lệnh shell cụ thể, không dùng lệnh riêng của một agent.
 
