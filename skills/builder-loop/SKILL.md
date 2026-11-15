@@ -132,7 +132,7 @@ Ghi đường dẫn đầy đủ trong mọi tin nhắn gửi builder. Builder k
     1. Viết `<task>-review-<N>.md` theo mục "Luật review". Gắn mức cho từng lỗi: `Critical`, `Bắt buộc`, `Optional` hoặc `Nit`.
     2. Đổi tên báo cáo cũ thành `<task>-builder-report-r<N>.md`.
     3. Ở lượt 1, tạo ảnh chụp lượt 1. Từ lượt 2, ảnh chụp đã có từ đầu lượt.
-    4. Ghi bước cuối `herdr agent prompt reviewer "XONG, báo cáo ở <đường dẫn>"` vào file review.
+    4. Ghi bước cuối `herdr agent prompt reviewer "XONG, báo cáo ở <đường dẫn>"` vào file review, kèm bước đọc màn hình reviewer và gửi Enter như bước cuối của mục "File giao việc".
     5. Gửi review cho builder.
     6. Quay lại bước 9.
 12. Dừng vòng lặp và hỏi người dùng khi gặp một trong các trường hợp sau:
@@ -184,6 +184,8 @@ File `<task>-handoff.md` gồm các phần sau:
 - Đường dẫn đầy đủ của file báo cáo, và câu trả lời cố định `XONG, báo cáo ở <đường dẫn>`.
 - Kiểm tự động sau khi ghi báo cáo: chạy `node "<đường dẫn đầy đủ của thư mục skill>/scripts/check-task.mjs" check --task <task> --module <module> --report <file báo cáo>`. Sửa hết dòng `[LỖI]` rồi chạy lại đến khi không còn. Chép dòng `Kết quả:` của lần chạy cuối vào báo cáo.
 - Bước cuối: chạy `herdr agent prompt reviewer "XONG, báo cáo ở <đường dẫn>"`.
+  - Sau đó đọc màn hình reviewer bằng `herdr agent read reviewer`. Tin nhắn còn nằm ở ô nhập thì gửi `herdr agent send-keys reviewer Enter`. Một số agent, ví dụ omp, cần bước này. Thiếu nó, reviewer không nhận được tin và vòng lặp đứng yên.
+  - Chữ mờ trong ô nhập có thể là gợi ý của agent, không phải tin đang chờ. Không gửi Enter cho gợi ý đó.
 
 ## Bằng chứng chạy thật
 
