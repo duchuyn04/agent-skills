@@ -4,9 +4,13 @@
 # Cách dùng:
 #   run-slow-test.sh --name <tên> --out <thư mục trao đổi> --notify <pane reviewer> [--env KEY=VALUE]... -- <lệnh test...>
 #
-# Ví dụ:
-#   run-slow-test.sh --name sd06-full --out "$S" --notify reviewer-backend \
+# Ví dụ (mọi công cụ test dùng được, lệnh sau `--` là lệnh test của repo):
+#   run-slow-test.sh --name sd06-full --out "$S" --notify "$HERDR_PANE_ID" \
 #     --env TEST_DATABASE_URL=postgresql://u:p@localhost:5433/app_test -- dotnet test tests/App.IntegrationTests
+#   run-slow-test.sh --name cat05-full --out "$S" --notify "$HERDR_PANE_ID" -- python -m pytest -q tests
+#   run-slow-test.sh --name ui-full --out "$S" --notify "$HERDR_PANE_ID" -- npx vitest run
+#   run-slow-test.sh --name api-full --out "$S" --notify "$HERDR_PANE_ID" -- go test ./...
+# --notify nhận pane id, không dùng tên pane: tên mất khi phiên của agent đổi.
 #
 # Script ghi các file sau vào thư mục trao đổi:
 #   <tên>-start.txt  giờ bắt đầu
