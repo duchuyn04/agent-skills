@@ -131,6 +131,54 @@ Script chỉ quét dòng mới thêm trong task, nên code cũ không bị báo 
 
 `bannedText` hợp với luật về chữ, ví dụ dấu gạch trong file `.md` hay tên hàm bị cấm. Luật về code (cấm import giữa hai thư mục, cấm một API) đặt trong lint của repo thì tốt hơn: editor báo ngay khi gõ, và lint hiểu cú pháp nên ít báo nhầm.
 
+### textCheck: chặn file test đặt sai thư mục
+
+Repo có quy ước thư mục test (ví dụ `tests/<chủ đề>/<black_box hoặc white_box>/<kỹ thuật>/`) thì viết một script nhỏ và gắn vào `textCheck`. Script nhận danh sách file đã đổi, in lý do cho từng file sai chỗ và thoát mã 1. Builder mới không nhớ quy ước, nên phép kiểm máy chắc hơn một dòng dặn trong file giao việc.
+
+```json
+"textCheck": { "run": "python .claude/builder-loop/check_test_layout.py", "files": ["tests/**/*.py"] }
+```
+
+Script mẫu (chép vào repo rồi sửa bảng `TECHNIQUES` theo `tests/README.md` của repo đó):
+
+```python
+import sys
+from pathlib import PurePosixPath
+
+# Sửa bảng này theo quy ước của repo
+TECHNIQUES = {
+    "black_box": {"boundary_value", "decision_table", "equivalence_partitioning",
+                  "functional", "state_transition"},
+    "white_box": {"integration", "unit"},
+}
+
+
+def layout_problem(path: str) -> str | None:
+    parts = PurePosixPath(path.replace("\\", "/")).parts
+    if len(parts) < 2 or parts[0] != "tests" or not parts[-1].startswith("test_"):
+        return None  # không phải file test: bỏ qua (helpers, conftest...)
+    if len(parts) != 5:
+        return "phải nằm đúng 3 tầng dưới tests/: tests/<chủ đề>/<black_box|white_box>/<kỹ thuật>/"
+    kind, technique = parts[2], parts[3]
+    if kind not in TECHNIQUES:
+        return f"tầng thứ hai là '{kind}', phải là black_box hoặc white_box"
+    if technique not in TECHNIQUES[kind]:
+        return f"kỹ thuật '{technique}' không có trong {kind} (chọn: {', '.join(sorted(TECHNIQUES[kind]))})"
+    return None
+
+
+if __name__ == "__main__":
+    sys.stdout.reconfigure(encoding="utf-8")  # console Windows mặc định không in được tiếng Việt
+    bad = [(p, r) for p in sys.argv[1:] if (r := layout_problem(p))]
+    for path, reason in bad:
+        print(f"{path}: {reason}")
+    if bad:
+        print("Chuyển file test vào đúng thư mục theo tests/README.md, không tạo kỹ thuật mới.")
+    sys.exit(1 if bad else 0)
+```
+
+Chạy thử trước khi dùng: đưa vào một đường dẫn sai và một đường dẫn đúng, kiểm mã thoát là 1 và 0. Phép kiểm chỉ thấy file đã đổi trong task, nên test cũ sai chỗ không bị báo lại.
+
 ## Bảng lỗi lặp lại
 
 Mục `## Lỗi lặp lại` trong hồ sơ là một bảng Markdown 4 cột. Reviewer cập nhật bảng sau mỗi task đạt.

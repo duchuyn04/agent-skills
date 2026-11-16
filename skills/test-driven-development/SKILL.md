@@ -28,7 +28,7 @@ The TDD cycle is universal; the commands are not. Before writing the first test,
 - **Language and build system**: `package.json`, `pom.xml`/`build.gradle`, `pyproject.toml`, `go.mod`, `Cargo.toml`, `Gemfile`, a `Makefile`
 - **Checked-in wrappers**: prefer `./gradlew`, `./mvnw`, `make test`, or a repo script over globally installed tools
 - **Test framework and configuration**: and how it runs a single focused test vs the full suite
-- **Existing conventions**: where tests live, how files are named, what patterns neighboring tests follow
+- **Existing conventions**: where tests live, how files are named, what patterns neighboring tests follow. If the repo documents a directory layout for tests (a `tests/README.md` or a rules file such as `CLAUDE.md`), put every new test file at the documented path; never invent a new folder
 - **Documented commands**: README, CONTRIBUTING, and CI workflows show the commands that actually gate merges
 
 Run the repository's focused-test command during the loop and its full-suite command before completion. Never assume a default like `npm test`: a Gradle, Cargo, or pytest project has its own equivalent.
