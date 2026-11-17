@@ -204,7 +204,11 @@ Tiêu chí người dùng nhìn thấy được (giao diện, luồng thao tác)
    - Chỉ quay video khi tiêu chí nói về chuyển động mà ảnh không thể hiện được, ví dụ hiệu ứng, kéo thả, trạng thái loading. Video luôn kèm ảnh của trạng thái cuối.
 4. Đặt tên file dạng `<số thứ tự 2 chữ số>-<tên ngắn của màn hình hoặc bước>.png`, viết thường, không dấu, nối bằng gạch nối. Ví dụ: `01-form-trong.png`, `02-bao-loi-email.png`.
 5. Lượt sửa sau chụp lại thì ghi đè file cùng tên, để thư mục chỉ còn bản mới nhất. Xóa ảnh không còn dùng.
-6. Báo cáo ghi đường dẫn đầy đủ của từng file, trong backtick, cạnh tiêu chí tương ứng.
+6. Sửa lỗi giao diện của màn hình đã có ảnh bằng chứng thì không tạo thư mục mới (ví dụ `FIX-xxx`).
+   - Tìm ảnh cũ của màn hình đó bằng `rg` trong gốc bằng chứng, rồi chụp lại đúng trạng thái của ảnh cũ, cùng tên file, trong thư mục của task đã làm màn hình đó. Ghi đè ảnh cũ.
+   - Trạng thái cần chụp chưa có ảnh thì thêm ảnh mới vào thư mục task đó, với số thứ tự kế tiếp.
+   - Chạy `check-task` với mã và module của task gốc để đường dẫn ảnh khớp. Báo cáo ghi rõ ảnh nào bị ghi đè.
+7. Báo cáo ghi đường dẫn đầy đủ của từng file, trong backtick, cạnh tiêu chí tương ứng.
 
 `check-task` báo lỗi khi báo cáo nhắc tới ảnh không tồn tại. Nó cảnh báo khi ảnh nằm ngoài thư mục của module và task, khi thư mục có file báo cáo không nhắc tới, và khi báo cáo chỉ có video.
 
