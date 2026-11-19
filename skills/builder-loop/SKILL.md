@@ -175,7 +175,7 @@ File `<task>-handoff.md` gồm các phần sau:
 - Mục "Agent skills" theo phần cùng tên bên dưới.
 - Yêu cầu TDD, và phép thử đột biến cho test xanh ngay lần đầu. Gợi ý đột biến cụ thể cho từng tiêu chí.
 - Lệnh kiểm tra theo mục "Luật chạy test", kèm yêu cầu ghi kết quả thật.
-- Bằng chứng chạy thật cho tiêu chí người dùng nhìn thấy được, theo mục "Bằng chứng chạy thật" bên dưới: đường dẫn đầy đủ của thư mục bằng chứng cùng hai thư mục con `picture/` và `video/`, luật ưu tiên ảnh và cách đặt tên file. Chép các luật đó vào file giao việc, vì builder không đọc skill này.
+- Bằng chứng chạy thật cho tiêu chí người dùng nhìn thấy được, theo mục "Bằng chứng chạy thật" bên dưới: đường dẫn đầy đủ của thư mục bằng chứng cùng hai thư mục con `picture/` và `video/`, luật ưu tiên ảnh và cách đặt tên file. Task có video thì ghi thêm đường dẫn đầy đủ của `references/video-cursor.ts` và các luật về `showActions`, vòng đỏ, tab mới. Chép các luật đó vào file giao việc, vì builder không đọc skill này.
 - Bước đánh dấu tiến độ, chạy sau khi lệnh kiểm tra xanh:
   - Tick `[x]` từng tiêu chí đã đạt, theo mục `Tiêu chí task`.
   - Giữ `[ ]` cho tiêu chí chưa kiểm được. Thêm một dòng thụt lề bên dưới, ghi lý do và task sẽ kiểm.
@@ -205,6 +205,8 @@ Tiêu chí người dùng nhìn thấy được (giao diện, luồng thao tác)
    - Chỉ quay video khi tiêu chí nói về chuyển động mà ảnh không thể hiện được, ví dụ hiệu ứng, kéo thả, trạng thái loading. Video luôn kèm ảnh của trạng thái cuối.
    - Video quay bằng Playwright thì bật con trỏ và nhãn thao tác, để người xem biết agent đang làm gì. Đặt `showActions: { cursor: 'pointer', position: 'top-right', duration: 800 }` trong `recordVideo` của `browser.newContext`. Con trỏ di chuyển từ thao tác này sang thao tác kế tiếp, phần tử vừa tác động được tô sáng và tên thao tác hiện ở góc.
    - Trước mỗi bước chính, gọi `page.screencast.showChapter('<tên bước>', { duration: 1500 })` để hiện thẻ tiêu đề giữa màn hình. Bản Playwright không có hai tùy chọn này thì ghi rõ trong báo cáo, và tự vẽ con trỏ bằng một phần tử gắn vào trang.
+   - Giữ `showActions` và gắn thêm vòng tròn đỏ quanh con trỏ cùng vòng gợn sóng khi bấm, giống phần mềm quay màn hình. Dùng helper có sẵn `<thư mục skill>/references/video-cursor.ts`: chép nguyên file vào thư mục helper E2E của repo (ví dụ `e2e/video-cursor.ts`), rồi gọi `await installClickHighlight(context)` ngay sau `browser.newContext` của context quay video. Chỉ gọi cho context quay video, vì lớp phủ là một phần tử `aria-hidden` trong trang và có thể làm sai assert đếm phần tử.
+   - Bấm liên kết `target="_blank"` mở tab mới thì video của context chỉ ghi tab chính, và cảnh bấm nút không có kết quả. Lưu thêm video của tab mới (`popup.video()`, đọc đường dẫn sau khi đóng context) thành file thứ hai trong `video/`, hoặc quay luồng trong một tab. Không dựng lại cảnh kết quả bằng `goto` rồi để người xem tưởng nút đã điều hướng.
 4. Lưu ảnh vào `<thư mục task>/picture/` và video vào `<thư mục task>/video/`. Không để file ở gốc thư mục task.
 5. Đặt tên file dạng `<số thứ tự 2 chữ số>-<tên ngắn của màn hình hoặc bước>.<đuôi>`, viết thường, không dấu, nối bằng gạch nối. Mỗi thư mục con đánh số riêng, bắt đầu từ `01`. Ví dụ: `picture/01-form-trong.png`, `picture/02-bao-loi-email.png`, `video/01-luong-dang-nhap.webm`.
 6. Lượt sửa sau chụp lại thì ghi đè file cùng tên, để mỗi thư mục con chỉ còn bản mới nhất. Xóa ảnh và video không còn dùng.
