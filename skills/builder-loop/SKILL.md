@@ -126,6 +126,7 @@ Ghi đường dẫn đầy đủ trong mọi tin nhắn gửi builder. Builder k
        - Mỗi dòng trong danh sách "Tiêu chí mới tick" của script có test hoặc bằng chứng chạy thật. Tick không có bằng chứng là lỗi `Bắt buộc`.
        - Builder đã tick đủ tiêu chí đạt theo mục `Tiêu chí task`. Thiếu tick là lỗi `Bắt buộc`.
        - Mở từng ảnh và video bằng chứng và xem bằng mắt. Script chỉ kiểm file có tồn tại, không kiểm nội dung.
+       - Agent không phát được video, nên trích khung hình bằng ffmpeg đi kèm Playwright: `ffmpeg -ss <giây> -i <video> -frames:v 1 <ảnh.png>`. Trích ít nhất một khung hình cho mỗi bước chính, rồi mở ảnh xem. Kiểm con trỏ hiện, nhãn thao tác hiện, và không có thanh thông báo che nội dung.
        - Comment và tài liệu theo `Luật bắt buộc` và mục `Kiểm comment`, ở phần chưa có kiểm tự động.
        - Tự chạy lại build và test sau lần sửa cuối có đổi code, theo mục "Luật chạy test".
 11. Task chưa đạt thì làm các bước sau:
@@ -202,6 +203,8 @@ Tiêu chí người dùng nhìn thấy được (giao diện, luồng thao tác)
 3. Ưu tiên ảnh:
    - Chụp ảnh cho từng tiêu chí, gồm trạng thái trước và sau thao tác chính. Luồng nhiều bước thì mỗi bước một ảnh.
    - Chỉ quay video khi tiêu chí nói về chuyển động mà ảnh không thể hiện được, ví dụ hiệu ứng, kéo thả, trạng thái loading. Video luôn kèm ảnh của trạng thái cuối.
+   - Video quay bằng Playwright thì bật con trỏ và nhãn thao tác, để người xem biết agent đang làm gì. Đặt `showActions: { cursor: 'pointer', position: 'top-right', duration: 800 }` trong `recordVideo` của `browser.newContext`. Con trỏ di chuyển từ thao tác này sang thao tác kế tiếp, phần tử vừa tác động được tô sáng và tên thao tác hiện ở góc.
+   - Trước mỗi bước chính, gọi `page.screencast.showChapter('<tên bước>', { duration: 1500 })` để hiện thẻ tiêu đề giữa màn hình. Bản Playwright không có hai tùy chọn này thì ghi rõ trong báo cáo, và tự vẽ con trỏ bằng một phần tử gắn vào trang.
 4. Lưu ảnh vào `<thư mục task>/picture/` và video vào `<thư mục task>/video/`. Không để file ở gốc thư mục task.
 5. Đặt tên file dạng `<số thứ tự 2 chữ số>-<tên ngắn của màn hình hoặc bước>.<đuôi>`, viết thường, không dấu, nối bằng gạch nối. Mỗi thư mục con đánh số riêng, bắt đầu từ `01`. Ví dụ: `picture/01-form-trong.png`, `picture/02-bao-loi-email.png`, `video/01-luong-dang-nhap.webm`.
 6. Lượt sửa sau chụp lại thì ghi đè file cùng tên, để mỗi thư mục con chỉ còn bản mới nhất. Xóa ảnh và video không còn dùng.
