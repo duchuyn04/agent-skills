@@ -46,7 +46,7 @@ Script không đổi file nào trong thư mục làm việc và không đổi da
 node "<thư mục skill>/scripts/check-task.mjs" evidence --task CAT-05 --module catalog
 ```
 
-Kết quả mong đợi: một dòng đường dẫn, ví dụ `C:\Users\<tên>\builder-loop-evidence\pickory\catalog\CAT-05`. Lệnh tạo thư mục nếu chưa có.
+Kết quả mong đợi: một dòng đường dẫn, ví dụ `C:\Users\<tên>\builder-loop-evidence\pickory\catalog\CAT-05`. Lệnh tạo thư mục nếu chưa có, cùng hai thư mục con `picture/` (ảnh) và `video/` (video).
 
 Đường dẫn có dạng `<gốc bằng chứng>/<module>/<task>/`. Gốc mặc định là `~/builder-loop-evidence/<tên repo>`. Chạy trong worktree thì `<tên repo>` vẫn là tên repo chính, nên ảnh của mọi nhánh nằm chung một chỗ.
 
@@ -67,6 +67,7 @@ Kết quả mong đợi: một dòng đường dẫn, ví dụ `C:\Users\<tên>\
 | Diff chạm giao diện mà báo cáo không có ảnh hoặc video | LỖI | `evidence.uiPaths` |
 | Báo cáo chỉ có video, không có ảnh | CẢNH BÁO | `--report` |
 | Ảnh hoặc video nằm ngoài thư mục `<module>/<task>/` | CẢNH BÁO | `--module`, `evidence.dir` |
+| Ảnh không ở `picture/` hoặc video không ở `video/` của thư mục task | CẢNH BÁO | `--module`, `evidence.dir` |
 | Thư mục bằng chứng có file mà báo cáo không nhắc tới | CẢNH BÁO | `--module`, `evidence.dir` |
 | Lỗi gặp ở từ 2 task trở lên mà chưa có cách chặn | CẢNH BÁO | bảng `## Lỗi lặp lại` |
 
@@ -205,6 +206,7 @@ Dòng có từ 2 task trở lên mà cột cuối là `chưa` (hoặc để tr�
 | `Khối JSON trong mục "Kiểm tự động" lỗi` | JSON sai cú pháp, hay gặp nhất là dấu phẩy thừa ở cuối danh sách | xóa dấu phẩy thừa, kiểm mọi chuỗi nằm trong dấu `"` |
 | `Khóa lạ trong khối "Kiểm tự động"` hoặc `Khóa lạ trong "evidence"` | gõ sai tên khóa | so với bảng khóa ở trên |
 | `Tên module viết thường, bắt đầu bằng chữ hoặc số` | tên module có chữ hoa, dấu tiếng Việt hoặc dấu cách | viết lại dạng `support-desk` |
+| `Ảnh phải nằm trong picture/ và video phải nằm trong video/` | builder để file ở gốc thư mục task, hoặc để ảnh trong `video/` | chuyển file vào đúng thư mục con và sửa đường dẫn trong báo cáo |
 | `Bằng chứng nằm ngoài thư mục của module và task` | builder lưu ảnh chỗ khác, hoặc truyền sai `--module` | chạy lệnh `evidence` để lấy đúng thư mục, chuyển ảnh vào đó và sửa đường dẫn trong báo cáo |
 | `không có file hồ sơ` | chạy trong worktree, mà `.claude/` bị Git bỏ qua nên worktree không có hồ sơ | thêm `--profile "<gốc repo chính>/.claude/builder-loop.md"` |
 | `Chưa có refs/review/<task>/start` | task bắt đầu trước khi có lệnh start | vẫn dùng được: script so với ảnh chụp 0. Thay đổi có sẵn ngoài phạm vi commit sẽ bị liệt kê, reviewer tự bỏ qua |

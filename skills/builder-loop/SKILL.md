@@ -174,7 +174,7 @@ File `<task>-handoff.md` gồm các phần sau:
 - Mục "Agent skills" theo phần cùng tên bên dưới.
 - Yêu cầu TDD, và phép thử đột biến cho test xanh ngay lần đầu. Gợi ý đột biến cụ thể cho từng tiêu chí.
 - Lệnh kiểm tra theo mục "Luật chạy test", kèm yêu cầu ghi kết quả thật.
-- Bằng chứng chạy thật cho tiêu chí người dùng nhìn thấy được, theo mục "Bằng chứng chạy thật" bên dưới: đường dẫn đầy đủ của thư mục bằng chứng, luật ưu tiên ảnh và cách đặt tên file. Chép các luật đó vào file giao việc, vì builder không đọc skill này.
+- Bằng chứng chạy thật cho tiêu chí người dùng nhìn thấy được, theo mục "Bằng chứng chạy thật" bên dưới: đường dẫn đầy đủ của thư mục bằng chứng cùng hai thư mục con `picture/` và `video/`, luật ưu tiên ảnh và cách đặt tên file. Chép các luật đó vào file giao việc, vì builder không đọc skill này.
 - Bước đánh dấu tiến độ, chạy sau khi lệnh kiểm tra xanh:
   - Tick `[x]` từng tiêu chí đã đạt, theo mục `Tiêu chí task`.
   - Giữ `[ ]` cho tiêu chí chưa kiểm được. Thêm một dòng thụt lề bên dưới, ghi lý do và task sẽ kiểm.
@@ -189,28 +189,29 @@ File `<task>-handoff.md` gồm các phần sau:
 
 ## Bằng chứng chạy thật
 
-Tiêu chí người dùng nhìn thấy được (giao diện, luồng thao tác) cần bằng chứng chạy thật. Bằng chứng được xếp theo module để dễ tìm lại, và ưu tiên ảnh.
+Tiêu chí người dùng nhìn thấy được (giao diện, luồng thao tác) cần bằng chứng chạy thật. Bằng chứng được xếp theo module để dễ tìm lại. Ảnh và video nằm ở hai thư mục con riêng, và ảnh được ưu tiên.
 
 1. Xác định module của task ở bước 4.
    - Hồ sơ ghi cách xác định ở mục `Bằng chứng chạy thật` thì làm theo hồ sơ.
    - Hồ sơ không ghi: lấy tên thư mục `tasks/<module>/` chứa tiêu chí, hoặc tên module trong spec của task. Không xác định được thì dùng `chung`.
    - Tên module viết thường, không dấu, nối bằng gạch nối, ví dụ `support-desk`, `calculator-ui`.
 2. Lấy thư mục bằng chứng bằng `node "<thư mục skill>/scripts/check-task.mjs" evidence --task <task> --module <module>`.
-   - Lệnh in đường dẫn `<gốc bằng chứng>/<module>/<task>/` và tạo thư mục nếu chưa có.
+   - Lệnh in đường dẫn `<gốc bằng chứng>/<module>/<task>/` và tạo thư mục nếu chưa có. Lệnh cũng tạo hai thư mục con `picture/` cho ảnh và `video/` cho video.
    - Gốc mặc định là `~/builder-loop-evidence/<tên repo>`. Thư mục này nằm ngoài repo nên ảnh không lẫn vào Git, và giữ lại được sau khi task xong. Hồ sơ đổi gốc bằng khóa `evidence.dir` trong mục `Kiểm tự động`.
-   - Ghi đường dẫn đầy đủ vào file giao việc.
+   - Ghi đường dẫn đầy đủ của thư mục task, của `picture/` và của `video/` vào file giao việc.
 3. Ưu tiên ảnh:
    - Chụp ảnh cho từng tiêu chí, gồm trạng thái trước và sau thao tác chính. Luồng nhiều bước thì mỗi bước một ảnh.
    - Chỉ quay video khi tiêu chí nói về chuyển động mà ảnh không thể hiện được, ví dụ hiệu ứng, kéo thả, trạng thái loading. Video luôn kèm ảnh của trạng thái cuối.
-4. Đặt tên file dạng `<số thứ tự 2 chữ số>-<tên ngắn của màn hình hoặc bước>.png`, viết thường, không dấu, nối bằng gạch nối. Ví dụ: `01-form-trong.png`, `02-bao-loi-email.png`.
-5. Lượt sửa sau chụp lại thì ghi đè file cùng tên, để thư mục chỉ còn bản mới nhất. Xóa ảnh không còn dùng.
-6. Sửa lỗi giao diện của màn hình đã có ảnh bằng chứng thì không tạo thư mục mới (ví dụ `FIX-xxx`).
-   - Tìm ảnh cũ của màn hình đó bằng `rg` trong gốc bằng chứng, rồi chụp lại đúng trạng thái của ảnh cũ, cùng tên file, trong thư mục của task đã làm màn hình đó. Ghi đè ảnh cũ.
-   - Trạng thái cần chụp chưa có ảnh thì thêm ảnh mới vào thư mục task đó, với số thứ tự kế tiếp.
+4. Lưu ảnh vào `<thư mục task>/picture/` và video vào `<thư mục task>/video/`. Không để file ở gốc thư mục task.
+5. Đặt tên file dạng `<số thứ tự 2 chữ số>-<tên ngắn của màn hình hoặc bước>.<đuôi>`, viết thường, không dấu, nối bằng gạch nối. Mỗi thư mục con đánh số riêng, bắt đầu từ `01`. Ví dụ: `picture/01-form-trong.png`, `picture/02-bao-loi-email.png`, `video/01-luong-dang-nhap.webm`.
+6. Lượt sửa sau chụp lại thì ghi đè file cùng tên, để mỗi thư mục con chỉ còn bản mới nhất. Xóa ảnh và video không còn dùng.
+7. Sửa lỗi giao diện của màn hình đã có ảnh bằng chứng thì không tạo thư mục mới (ví dụ `FIX-xxx`).
+   - Tìm ảnh cũ của màn hình đó bằng `rg` trong gốc bằng chứng, rồi chụp lại đúng trạng thái của ảnh cũ, cùng tên file, trong `picture/` của task đã làm màn hình đó. Ghi đè ảnh cũ. Video cũ của màn hình đó cũng quay lại và ghi đè trong `video/`.
+   - Trạng thái cần chụp chưa có ảnh thì thêm ảnh mới vào `picture/` của task đó, với số thứ tự kế tiếp.
    - Chạy `check-task` với mã và module của task gốc để đường dẫn ảnh khớp. Báo cáo ghi rõ ảnh nào bị ghi đè.
-7. Báo cáo ghi đường dẫn đầy đủ của từng file, trong backtick, cạnh tiêu chí tương ứng.
+8. Báo cáo ghi đường dẫn đầy đủ của từng file, trong backtick, cạnh tiêu chí tương ứng.
 
-`check-task` báo lỗi khi báo cáo nhắc tới ảnh không tồn tại. Nó cảnh báo khi ảnh nằm ngoài thư mục của module và task, khi thư mục có file báo cáo không nhắc tới, và khi báo cáo chỉ có video.
+`check-task` báo lỗi khi báo cáo nhắc tới ảnh không tồn tại. Nó cảnh báo khi ảnh nằm ngoài thư mục của module và task, khi ảnh không ở `picture/` hoặc video không ở `video/`, khi thư mục có file báo cáo không nhắc tới, và khi báo cáo chỉ có video.
 
 Builder có thể là agent khác bạn. Viết file giao việc để agent nào cũng làm theo được: dùng lệnh shell cụ thể, không dùng lệnh riêng của một agent.
 

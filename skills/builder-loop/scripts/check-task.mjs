@@ -14,6 +14,7 @@
 //   node check-task.mjs check --task <mã> [--report <file báo cáo>] [--module <module>]
 //   node check-task.mjs evidence --task <mã> --module <module>
 //       In đường dẫn thư mục bằng chứng <gốc>/<module>/<mã>/ và tạo thư mục nếu chưa có.
+//       Ảnh nằm trong thư mục con picture/, video nằm trong thư mục con video/. Lệnh tạo cả hai.
 //       Gốc mặc định là ~/builder-loop-evidence/<tên repo>, hồ sơ đổi bằng evidence.dir.
 //
 // Tùy chọn khác: --profile <file hồ sơ>, --base <ref thay cho mốc start>,
@@ -49,6 +50,9 @@ const IMAGE_EXT = /\.(png|jpe?g|webp|gif)$/i;
 const VIDEO_EXT = /\.(webm|mp4|mov)$/i;
 const EVIDENCE_KEYS = new Set(['uiPaths', 'dir']);
 const DEFAULT_EVIDENCE_DIR = '~/builder-loop-evidence/{repo}';
+// Trong thư mục của task, ảnh và video mỗi loại một thư mục con để reviewer tìm nhanh.
+const PICTURE_SUBDIR = 'picture';
+const VIDEO_SUBDIR = 'video';
 const MODULE_NAME = /^[a-z0-9][a-z0-9._-]*$/;
 const CHECKBOX = /^(\s*(?:[-*+]|\d+[.)]|#{1,6})\s+)\[[ xX]\]/;
 const CHECKED = /^\s*(?:[-*+]|\d+[.)]|#{1,6})\s+\[[xX]\]/;
@@ -427,6 +431,7 @@ function checkEvidence(f, cfg, repo, baseTime, changes, inScope, opts) {
   const missing = [];
   const stale = [];
   const outside = [];
+  const wrongSubdir = [];
   const found = [];
   for (const p of refs) {
     const hit = resolveEvidence(p, reportDir, repo).find((c) => fs.existsSync(c));
@@ -442,6 +447,13 @@ function checkEvidence(f, cfg, repo, baseTime, changes, inScope, opts) {
     found.push(path.resolve(hit));
     if (st.mtimeMs < baseTime) stale.push(p);
     if (expected && !isInside(expected, hit)) outside.push(p);
+    // Trong thư mục task, ảnh phải ở picture/ và video phải ở video/.
+    else if (expected) {
+      const wanted = IMAGE_EXT.test(hit) ? PICTURE_SUBDIR : VIDEO_EXT.test(hit) ? VIDEO_SUBDIR : null;
+      if (wanted && path.relative(expected, path.dirname(path.resolve(hit))).split(path.sep)[0] !== wanted) {
+        wrongSubdir.push(`${p} (cần nằm trong ${wanted}/)`);
+      }
+    }
   }
   if (missing.length) f.error(`Báo cáo nhắc tới bằng chứng không tồn tại:${listing(missing)}`);
   if (stale.length) f.warn(`Bằng chứng có từ trước khi task bắt đầu, có thể không phải của lượt này:${listing(stale)}`);
@@ -456,6 +468,7 @@ function checkEvidence(f, cfg, repo, baseTime, changes, inScope, opts) {
 
   if (expected) {
     if (outside.length) f.warn(`Bằng chứng nằm ngoài thư mục của module và task (${expected}):${listing(outside)}`);
+    if (wrongSubdir.length) f.warn(`Ảnh phải nằm trong ${PICTURE_SUBDIR}/ và video phải nằm trong ${VIDEO_SUBDIR}/ của thư mục task:${listing(wrongSubdir)}`);
     const norm = (p) => (process.platform === 'win32' ? p.toLowerCase() : p);
     const used = new Set(found.map(norm));
     const orphans = listMedia(expected).filter((p) => !used.has(norm(path.resolve(p))));
@@ -506,7 +519,9 @@ function cmdStart(repo, opts) {
 function cmdEvidence(repo, opts) {
   const profile = loadProfile(path.resolve(repo, opts.profile ?? '.claude/builder-loop.md'));
   const dir = evidenceDir(profile.config, repo, opts.module, opts.task);
-  fs.mkdirSync(dir, { recursive: true });
+  // Tạo sẵn hai thư mục con để builder không phải tự đoán tên.
+  fs.mkdirSync(path.join(dir, PICTURE_SUBDIR), { recursive: true });
+  fs.mkdirSync(path.join(dir, VIDEO_SUBDIR), { recursive: true });
   console.log(dir);
   return 0;
 }
