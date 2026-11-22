@@ -10,7 +10,7 @@ AI coding agent là trợ lý lập trình chạy trong terminal hoặc editor, 
 
 Skill là một file hướng dẫn quy trình mà agent đọc trước khi làm việc. Ví dụ: skill `test-driven-development` bắt agent viết test trước rồi mới viết code. Giống một bảng quy trình dán trên tường xưởng: thợ mới hay thợ cũ đều làm theo cùng các bước.
 
-Bộ này có 26 skill, 4 persona và 9 lệnh tắt như `/spec`, `/plan`, `/build`. Persona là vai chuyên gia, ví dụ người review code hay người kiểm bảo mật. Bạn cài một lần, sau đó agent tự chọn skill hợp với việc đang làm.
+Bộ này có 29 skill, 4 persona và 9 lệnh tắt như `/spec`, `/plan`, `/build`. Persona là vai chuyên gia, ví dụ người review code hay người kiểm bảo mật. Bạn cài một lần, sau đó agent tự chọn skill hợp với việc đang làm.
 
 ## Khác gì so với bản gốc
 
@@ -22,6 +22,7 @@ Bộ này có 26 skill, 4 persona và 9 lệnh tắt như `/spec`, `/plan`, `/bu
 | Không còn dấu gạch dài | Văn bản của mọi skill dùng dấu phẩy, dấu hai chấm hoặc ngoặc đơn | Toàn bộ repo |
 | Tên plugin và marketplace mới | Lệnh và skill mang tiền tố `duchuyn04-agent-skills:`, ví dụ `/duchuyn04-agent-skills:spec`. Không lẫn với bản gốc tên `agent-skills` | `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json` |
 | Skill `builder-loop` | Giao một task cho agent builder chạy ở pane Herdr khác, review từng lượt và yêu cầu sửa đến khi đạt. Script `check-task` tự kiểm đường dẫn cấm, tiêu chí bị viết lại, chữ cấm và ảnh bằng chứng ở mọi lượt | `skills/builder-loop/SKILL.md` |
+| Ba skill giữ code không rối | `codebase-design`, `domain-modeling` và `improve-codebase-architecture`: thiết kế module gọn, thống nhất tên gọi, rà soát kiến trúc code đang rối | `skills/codebase-design/SKILL.md` và hai skill cùng nhóm |
 
 Khi repo bạn làm việc có `AGENTS.md` hoặc `CLAUDE.md` ghi luật khác, luật của repo đó được ưu tiên.
 
@@ -193,7 +194,7 @@ Một số bản Antigravity báo đã chuyển các lệnh tắt nhưng không 
 
 2. Mở Gemini CLI và gõ `/skills list`.
 
-Kết quả mong đợi: danh sách có 26 skill như `spec-driven-development`, `test-driven-development`.
+Kết quả mong đợi: danh sách có 29 skill như `spec-driven-development`, `test-driven-development`.
 
 Lệnh này chỉ chép thư mục `skills/`. Làm thêm mục "Chép thêm thư mục references" với thư mục cài mà lệnh in ra.
 
@@ -382,6 +383,18 @@ Lỗi thường gặp:
 - Reviewer báo phiên không chạy trong Herdr: mở agent từ bên trong Herdr rồi gõ lại lệnh.
 - Script `check-task` thoát với mã 2: khối JSON trong mục `## Kiểm tự động` của hồ sơ sai cú pháp. Cách viết nằm ở `skills/builder-loop/references/kiem-tu-dong.md`.
 
+## Dùng ba skill kiến trúc
+
+Ba skill này giúp code không rối thành spaghetti, tức nhiều file nhỏ gọi chéo nhau nên sửa một chỗ phải đụng cả chục file.
+
+| Skill | Dùng khi |
+|---|---|
+| `improve-codebase-architecture` | Code đã rối, cần biết nên sửa chỗ nào trước. Agent xuất báo cáo HTML ở thư mục tạm |
+| `codebase-design` | Thiết kế module mới, hoặc kiểm tra một thiết kế trước khi code |
+| `domain-modeling` | Một khái niệm bị gọi bằng nhiều tên. Agent chốt tên và ghi vào `GLOSSARY.md` |
+
+Cách dùng: nhờ agent bằng lời, ví dụ "review kiến trúc thư mục `src/checkout`". Agent chưa đề xuất thiết kế cho tới khi bạn chọn một ứng viên trong báo cáo.
+
 ## Áp dụng luật chung ở mọi lượt chat
 
 Agent chỉ nạp một skill khi việc đang làm khớp với mô tả của skill đó. Câu hỏi ngắn có thể không khớp skill nào. Khi đó agent không đọc luật chung, ví dụ luật trả lời tiếng Việt.
@@ -421,7 +434,7 @@ Muốn áp dụng cho mọi dự án trên máy thì thêm dòng ở bước 2 v
 | `/constraints` | Ghi lại ngưỡng chất lượng của dự án |
 | `/webperf` | Kiểm hiệu năng web |
 
-Mô tả 25 skill gốc nằm ở [README.upstream.md](README.upstream.md). Skill thứ 26, `builder-loop`, chỉ có ở bản này: xem mục "Dùng builder-loop".
+Mô tả 25 skill gốc nằm ở [README.upstream.md](README.upstream.md). Bốn skill còn lại chỉ có ở bản này: `builder-loop` (xem mục "Dùng builder-loop") và ba skill kiến trúc (xem mục "Dùng ba skill kiến trúc").
 
 ## Lấy bản mới từ tác giả gốc
 
