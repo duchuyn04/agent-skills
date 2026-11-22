@@ -175,7 +175,7 @@ File `<task>-handoff.md` gồm các phần sau:
 - Mục "Agent skills" theo phần cùng tên bên dưới.
 - Yêu cầu TDD, và phép thử đột biến cho test xanh ngay lần đầu. Gợi ý đột biến cụ thể cho từng tiêu chí.
 - Lệnh kiểm tra theo mục "Luật chạy test", kèm yêu cầu ghi kết quả thật.
-- Bằng chứng chạy thật cho tiêu chí người dùng nhìn thấy được, theo mục "Bằng chứng chạy thật" bên dưới: đường dẫn đầy đủ của thư mục bằng chứng cùng hai thư mục con `picture/` và `video/`, luật ưu tiên ảnh và cách đặt tên file. Task có video thì ghi thêm đường dẫn đầy đủ của `references/video-cursor.ts` và các luật về `showActions`, vòng đỏ, tab mới. Chép các luật đó vào file giao việc, vì builder không đọc skill này.
+- Bằng chứng chạy thật cho tiêu chí người dùng nhìn thấy được, theo mục "Bằng chứng chạy thật" bên dưới: đường dẫn đầy đủ của thư mục bằng chứng cùng hai thư mục con `picture/` và `video/`, luật bắt buộc có cả ảnh và video, và cách đặt tên file. Ghi thêm đường dẫn đầy đủ của `references/video-cursor.ts` và các luật về `showActions`, vòng đỏ, tab mới. Chép các luật đó vào file giao việc, vì builder không đọc skill này.
 - Bước đánh dấu tiến độ, chạy sau khi lệnh kiểm tra xanh:
   - Tick `[x]` từng tiêu chí đã đạt, theo mục `Tiêu chí task`.
   - Giữ `[ ]` cho tiêu chí chưa kiểm được. Thêm một dòng thụt lề bên dưới, ghi lý do và task sẽ kiểm.
@@ -190,7 +190,7 @@ File `<task>-handoff.md` gồm các phần sau:
 
 ## Bằng chứng chạy thật
 
-Tiêu chí người dùng nhìn thấy được (giao diện, luồng thao tác) cần bằng chứng chạy thật. Bằng chứng được xếp theo module để dễ tìm lại. Ảnh và video nằm ở hai thư mục con riêng, và ảnh được ưu tiên.
+Tiêu chí người dùng nhìn thấy được (giao diện, luồng thao tác) cần bằng chứng chạy thật. Bằng chứng được xếp theo module để dễ tìm lại. Ảnh và video nằm ở hai thư mục con riêng, và task nào có tiêu chí như vậy đều phải có cả hai loại. Thiếu một loại thì task chưa đạt.
 
 1. Xác định module của task ở bước 4.
    - Hồ sơ ghi cách xác định ở mục `Bằng chứng chạy thật` thì làm theo hồ sơ.
@@ -200,9 +200,11 @@ Tiêu chí người dùng nhìn thấy được (giao diện, luồng thao tác)
    - Lệnh in đường dẫn `<gốc bằng chứng>/<module>/<task>/` và tạo thư mục nếu chưa có. Lệnh cũng tạo hai thư mục con `picture/` cho ảnh và `video/` cho video.
    - Gốc mặc định là `~/builder-loop-evidence/<tên repo>`. Thư mục này nằm ngoài repo nên ảnh không lẫn vào Git, và giữ lại được sau khi task xong. Hồ sơ đổi gốc bằng khóa `evidence.dir` trong mục `Kiểm tự động`.
    - Ghi đường dẫn đầy đủ của thư mục task, của `picture/` và của `video/` vào file giao việc.
-3. Ưu tiên ảnh:
-   - Chụp ảnh cho từng tiêu chí, gồm trạng thái trước và sau thao tác chính. Luồng nhiều bước thì mỗi bước một ảnh.
-   - Chỉ quay video khi tiêu chí nói về chuyển động mà ảnh không thể hiện được, ví dụ hiệu ứng, kéo thả, trạng thái loading. Video luôn kèm ảnh của trạng thái cuối.
+3. Bắt buộc có cả ảnh và video:
+   - Ảnh: chụp cho từng tiêu chí, gồm trạng thái trước và sau thao tác chính. Luồng nhiều bước thì mỗi bước một ảnh. Ảnh để reviewer xem nhanh và so giữa các lượt.
+   - Video: quay trọn luồng chính của task trên app chạy thật, từ trạng thái đầu tới trạng thái cuối. Task có nhiều luồng độc lập thì mỗi luồng một video. Video để thấy chuyển động, thứ tự thao tác và trạng thái loading mà ảnh không thể hiện.
+   - Chỉ có ảnh hoặc chỉ có video đều là lỗi `Bắt buộc`, kể cả khi tiêu chí không nói về chuyển động.
+   - Mọi tiêu chí nhìn thấy được phải xuất hiện trong ít nhất một ảnh và một video, và báo cáo ghi rõ ảnh và video nào chứng minh tiêu chí nào.
    - Video quay bằng Playwright thì bật con trỏ và nhãn thao tác, để người xem biết agent đang làm gì. Đặt `showActions: { cursor: 'pointer', position: 'top-right', duration: 800 }` trong `recordVideo` của `browser.newContext`. Con trỏ di chuyển từ thao tác này sang thao tác kế tiếp, phần tử vừa tác động được tô sáng và tên thao tác hiện ở góc.
    - Trước mỗi bước chính, gọi `page.screencast.showChapter('<tên bước>', { duration: 1500 })` để hiện thẻ tiêu đề giữa màn hình. Bản Playwright không có hai tùy chọn này thì ghi rõ trong báo cáo, và tự vẽ con trỏ bằng một phần tử gắn vào trang.
    - Giữ `showActions` và gắn thêm vòng tròn đỏ quanh con trỏ cùng vòng gợn sóng khi bấm, giống phần mềm quay màn hình. Dùng helper có sẵn `<thư mục skill>/references/video-cursor.ts`: chép nguyên file vào thư mục helper E2E của repo (ví dụ `e2e/video-cursor.ts`), rồi gọi `await installClickHighlight(context)` ngay sau `browser.newContext` của context quay video. Chỉ gọi cho context quay video, vì lớp phủ là một phần tử `aria-hidden` trong trang và có thể làm sai assert đếm phần tử.
@@ -212,11 +214,11 @@ Tiêu chí người dùng nhìn thấy được (giao diện, luồng thao tác)
 6. Lượt sửa sau chụp lại thì ghi đè file cùng tên, để mỗi thư mục con chỉ còn bản mới nhất. Xóa ảnh và video không còn dùng.
 7. Sửa lỗi giao diện của màn hình đã có ảnh bằng chứng thì không tạo thư mục mới (ví dụ `FIX-xxx`).
    - Tìm ảnh cũ của màn hình đó bằng `rg` trong gốc bằng chứng, rồi chụp lại đúng trạng thái của ảnh cũ, cùng tên file, trong `picture/` của task đã làm màn hình đó. Ghi đè ảnh cũ. Video cũ của màn hình đó cũng quay lại và ghi đè trong `video/`.
-   - Trạng thái cần chụp chưa có ảnh thì thêm ảnh mới vào `picture/` của task đó, với số thứ tự kế tiếp.
+   - Trạng thái cần chụp chưa có ảnh thì thêm ảnh mới vào `picture/` của task đó, với số thứ tự kế tiếp. Luôn quay lại cả video của luồng chứa màn hình đó, vì lỗi sửa xong cần cả ảnh và video mới.
    - Chạy `check-task` với mã và module của task gốc để đường dẫn ảnh khớp. Báo cáo ghi rõ ảnh nào bị ghi đè.
 8. Báo cáo ghi đường dẫn đầy đủ của từng file, trong backtick, cạnh tiêu chí tương ứng.
 
-`check-task` báo lỗi khi báo cáo nhắc tới ảnh không tồn tại. Nó cảnh báo khi ảnh nằm ngoài thư mục của module và task, khi ảnh không ở `picture/` hoặc video không ở `video/`, khi thư mục có file báo cáo không nhắc tới, và khi báo cáo chỉ có video.
+`check-task` báo lỗi khi báo cáo nhắc tới ảnh hoặc video không tồn tại, và khi diff chạm giao diện mà báo cáo thiếu ảnh hoặc thiếu video. Nó cảnh báo khi bằng chứng nằm ngoài thư mục của module và task, khi ảnh không ở `picture/` hoặc video không ở `video/`, khi thư mục có file báo cáo không nhắc tới, và khi báo cáo chỉ có một loại bằng chứng mà diff không chạm giao diện.
 
 Builder có thể là agent khác bạn. Viết file giao việc để agent nào cũng làm theo được: dùng lệnh shell cụ thể, không dùng lệnh riêng của một agent.
 
@@ -375,7 +377,8 @@ Trong lúc builder chạy, báo trạng thái ngắn sau mỗi lượt review.
 - File review lượt sau viết lại mô tả của lỗi cũ, hoặc mở lỗi mới ở code mà lần sửa không chạm tới.
 - Lượt review không có agent review độc lập, và file review không ghi lý do.
 - Một lỗi đã gặp ở hai task mà bảng `Lỗi lặp lại` của hồ sơ không đổi.
-- Diff chạm giao diện mà báo cáo không có ảnh hoặc video.
+- Diff chạm giao diện mà báo cáo thiếu ảnh hoặc thiếu video. Cần có cả hai.
+- Tiêu chí nhìn thấy được chỉ có ảnh mà không có video, hoặc ngược lại, vẫn được coi là đạt.
 
 ## Verification
 
@@ -383,6 +386,7 @@ Trước khi báo người dùng task đạt:
 
 - [ ] Lần chạy cuối của `check-task.mjs check` có `0 LỖI`, và kết quả được ghi trong file review.
 - [ ] Mỗi tiêu chí mới tick có test hoặc bằng chứng chạy thật mà reviewer đã đối chiếu.
+- [ ] Task có tiêu chí nhìn thấy được thì có cả ảnh và video bằng chứng, reviewer đã mở xem từng file.
 - [ ] Reviewer đã tự làm ít nhất một phép thử đột biến, và test bắt được đột biến đó.
 - [ ] Lệnh nhanh xanh sau lần sửa cuối. Lệnh chậm đã chạy theo luật chạy test 3, hoặc báo cáo ghi lý do bỏ.
 - [ ] Mọi lượt có agent review độc lập, hoặc file review ghi lý do thiếu.

@@ -457,14 +457,15 @@ function checkEvidence(f, cfg, repo, baseTime, changes, inScope, opts) {
   }
   if (missing.length) f.error(`Báo cáo nhắc tới bằng chứng không tồn tại:${listing(missing)}`);
   if (stale.length) f.warn(`Bằng chứng có từ trước khi task bắt đầu, có thể không phải của lượt này:${listing(stale)}`);
-  if (uiFiles.length && found.length === 0) {
-    f.error(`Diff chạm giao diện nhưng báo cáo không có ảnh hoặc video nào:${listing(uiFiles)}`);
-  }
-
-  // Ưu tiên ảnh: video khó xem nhanh và khó so giữa các lượt.
+  // Bằng chứng giao diện cần cả ảnh (từng bước, từng trạng thái) và video (cả luồng chạy thật).
   const images = found.filter((p) => IMAGE_EXT.test(p)).length;
   const videos = found.filter((p) => VIDEO_EXT.test(p)).length;
-  if (videos && !images) f.warn('Báo cáo chỉ có video. Ưu tiên ảnh: chụp thêm ảnh của từng bước chính và trạng thái cuối.');
+  if (uiFiles.length) {
+    if (!images) f.error(`Diff chạm giao diện nhưng báo cáo không có ảnh nào. Cần cả ảnh và video:${listing(uiFiles)}`);
+    if (!videos) f.error(`Diff chạm giao diện nhưng báo cáo không có video nào. Cần cả ảnh và video:${listing(uiFiles)}`);
+  } else if (found.length && (!images || !videos)) {
+    f.warn(`Báo cáo chỉ có ${images ? 'ảnh' : 'video'}. Bằng chứng chạy thật cần cả ảnh và video.`);
+  }
 
   if (expected) {
     if (outside.length) f.warn(`Bằng chứng nằm ngoài thư mục của module và task (${expected}):${listing(outside)}`);

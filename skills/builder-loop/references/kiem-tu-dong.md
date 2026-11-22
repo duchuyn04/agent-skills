@@ -64,8 +64,8 @@ Kết quả mong đợi: một dòng đường dẫn, ví dụ `C:\Users\<tên>\
 | Dòng mới khớp mẫu chữ cấm | LỖI | `bannedText` |
 | Lệnh kiểm chữ của repo báo lỗi | LỖI | `textCheck` |
 | Báo cáo nhắc tới ảnh hoặc video không tồn tại | LỖI | `--report` |
-| Diff chạm giao diện mà báo cáo không có ảnh hoặc video | LỖI | `evidence.uiPaths` |
-| Báo cáo chỉ có video, không có ảnh | CẢNH BÁO | `--report` |
+| Diff chạm giao diện mà báo cáo thiếu ảnh hoặc thiếu video (cần cả hai) | LỖI | `evidence.uiPaths` |
+| Báo cáo có bằng chứng nhưng chỉ có ảnh hoặc chỉ có video, diff không chạm giao diện | CẢNH BÁO | `--report` |
 | Ảnh hoặc video nằm ngoài thư mục `<module>/<task>/` | CẢNH BÁO | `--module`, `evidence.dir` |
 | Ảnh không ở `picture/` hoặc video không ở `video/` của thư mục task | CẢNH BÁO | `--module`, `evidence.dir` |
 | Thư mục bằng chứng có file mà báo cáo không nhắc tới | CẢNH BÁO | `--module`, `evidence.dir` |
@@ -107,7 +107,7 @@ Mọi khóa đều tùy chọn. Khóa lạ (gõ sai tên) làm script dừng v�
 | `maxLines` | số dòng tối đa trước khi cảnh báo nên tách file | `1000` |
 | `textCheck` | lệnh kiểm chữ của repo. Script nối danh sách file đã đổi vào cuối lệnh. Viết dạng `{ "run": "<lệnh>", "files": ["<mẫu>"] }` để chỉ quét một số file | không có |
 | `bannedText` | các mẫu chữ cấm trong dòng mới, xem mục dưới | `[]` |
-| `evidence.uiPaths` | code giao diện. Diff chạm các đường dẫn này thì báo cáo phải có ảnh hoặc video | không có |
+| `evidence.uiPaths` | code giao diện. Diff chạm các đường dẫn này thì báo cáo phải có cả ảnh và video | không có |
 | `evidence.dir` | gốc thư mục bằng chứng. `{repo}` được thay bằng tên repo, `~` là thư mục home. Đường dẫn tương đối tính từ gốc repo | `~/builder-loop-evidence/{repo}` |
 
 ### Cách viết mẫu đường dẫn
