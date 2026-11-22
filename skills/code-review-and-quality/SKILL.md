@@ -61,6 +61,8 @@ Does the change fit the system's design?
 - Is the abstraction level appropriate (not over-engineered, not too coupled)?
 - **Does this refactor reduce complexity or just relocate it?** Count the concepts a reader must hold to follow the change. If a "cleaner" version leaves that count unchanged, it isn't cleaner: prefer the restructuring that makes whole branches, modes, or layers disappear over one that re-centralizes the same logic. Prefer deleting an abstraction to polishing it.
 - **Is feature-specific logic leaking into a shared or general-purpose module?** Keep logic in its owning layer, reuse the existing canonical helper instead of a near-duplicate, and don't normalize architectural drift.
+- **Is the new module deep or shallow?** Run the deletion test from `codebase-design`: if deleting a new wrapper only moves its code into the callers, it is a pass-through. Flag a change that spreads one concept over several small files. Flag a seam with one adapter. When the problem spans many modules rather than this diff, point to `improve-codebase-architecture` instead of fixing it here.
+- **Do names match the domain?** New types and modules should use the terms in `GLOSSARY.md` (see `domain-modeling`). Flag a second name for an existing concept.
 - **Are type boundaries explicit?** Question gratuitous `any`/`unknown`/optional/casts and silent fallbacks that paper over an unclear invariant, making the boundary explicit often makes the surrounding control flow simpler.
 
 ### 4. Security

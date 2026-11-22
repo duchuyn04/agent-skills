@@ -27,6 +27,8 @@ Task arrives
     │   ├── API work? ────────────────→ api-and-interface-design
     │   ├── Need better context? ─────→ context-engineering
     │   ├── Need doc-verified code? ───→ source-driven-development
+    │   ├── Designing a module or seam? → codebase-design
+    │   ├── Terms unclear or inconsistent? → domain-modeling
     │   ├── Stakes high / unfamiliar code? ──→ doubt-driven-development
     │   └── Builder agent in another Herdr pane? → builder-loop
     ├── Writing/running tests? ────────→ test-driven-development
@@ -34,6 +36,7 @@ Task arrives
     ├── Something broke? ──────────────→ debugging-and-error-recovery
     ├── Reviewing code? ───────────────→ code-review-and-quality
     │   ├── Too complex? ─────────────→ code-simplification
+    │   ├── Tangled across modules? ──→ improve-codebase-architecture
     │   ├── Security concerns? ───────→ security-and-hardening
     │   └── Performance concerns? ────→ performance-optimization
     ├── Committing/branching? ─────────→ git-workflow-and-versioning
@@ -163,19 +166,22 @@ For a complete feature, the typical skill sequence is:
 1.  interview-me                → Extract what the user actually wants
 2.  idea-refine                 → Refine vague ideas
 3.  spec-driven-development     → Define what we're building
-4.  planning-and-task-breakdown → Break into verifiable chunks
-5.  context-engineering         → Load the right context
-6.  source-driven-development   → Verify against official docs
-7.  incremental-implementation  → Build slice by slice
-8.  observability-and-instrumentation → Instrument as you build (runs parallel with 7-9, not after)
-9.  doubt-driven-development    → Cross-examine non-trivial decisions in-flight
-10. test-driven-development     → Prove each slice works
-11. code-review-and-quality     → Review before merge
-12. code-simplification         → Reduce unnecessary complexity while preserving behavior
-13. git-workflow-and-versioning → Clean commit history
-14. documentation-and-adrs      → Document decisions
-15. deprecation-and-migration   → Retire old systems and move users safely when needed
-16. shipping-and-launch         → Deploy safely
+4.  domain-modeling             → Settle names, write GLOSSARY.md as terms are agreed
+5.  planning-and-task-breakdown → Break into verifiable chunks
+6.  context-engineering         → Load the right context
+7.  source-driven-development   → Verify against official docs
+8.  codebase-design             → Shape modules: small interface, clean seam
+9.  incremental-implementation  → Build slice by slice
+10. observability-and-instrumentation → Instrument as you build (runs parallel with 9-11, not after)
+11. doubt-driven-development    → Cross-examine non-trivial decisions in-flight
+12. test-driven-development     → Prove each slice works
+13. code-review-and-quality     → Review before merge
+14. code-simplification         → Reduce unnecessary complexity while preserving behavior
+15. improve-codebase-architecture → Find tangled module clusters, rank deepening candidates
+16. git-workflow-and-versioning → Clean commit history
+17. documentation-and-adrs      → Document decisions
+18. deprecation-and-migration   → Retire old systems and move users safely when needed
+19. shipping-and-launch         → Deploy safely
 ```
 
 Not every task needs every skill. A bug fix might only need: `debugging-and-error-recovery` → `test-driven-development` → `code-review-and-quality`.
@@ -195,11 +201,14 @@ Not every task needs every skill. A bug fix might only need: `debugging-and-erro
 | Build | context-engineering | Right context at the right time |
 | Build | frontend-ui-engineering | Production-quality UI with accessibility |
 | Build | api-and-interface-design | Stable interfaces with clear contracts |
+| Build | codebase-design | Deep modules: small interface, clean seam, tested through the interface |
+| Build | domain-modeling | One name per concept, GLOSSARY.md and decision records written as terms settle |
 | Verify | test-driven-development | Failing test first, then make it pass |
 | Verify | browser-testing-with-devtools | Chrome DevTools MCP for runtime verification |
 | Verify | debugging-and-error-recovery | Reproduce → localize → fix → guard |
 | Review | code-review-and-quality | Five-axis review with quality gates |
 | Review | code-simplification | Preserve behavior while reducing unnecessary complexity |
+| Review | improve-codebase-architecture | Find shallow-module clusters, rank deepening candidates in an HTML report |
 | Review | security-and-hardening | OWASP prevention, input validation, least privilege |
 | Review | performance-optimization | Measure first, optimize only what matters |
 | Ship | git-workflow-and-versioning | Atomic commits, clean history |

@@ -1,0 +1,56 @@
+{
+  "skill_name": "domain-modeling",
+  "trigger": {
+    "positive": [
+      {
+        "prompt": "Our code calls the same person a customer, a client and a buyer. Help us pick one word and write the glossary.",
+        "top_k": 3
+      },
+      {
+        "prompt": "Everyone means something different by account here. Sharpen the language and update GLOSSARY.md.",
+        "top_k": 3
+      },
+      {
+        "prompt": "Help me build a domain glossary for this project and record the terms we agree on",
+        "top_k": 3
+      },
+      {
+        "prompt": "We keep arguing about what cancellation means. Pin down the terms and write them into the glossary.",
+        "top_k": 3
+      }
+    ],
+    "negative": [
+      {
+        "prompt": "Document the REST API with OpenAPI and update the README quick start",
+        "owner": "documentation-and-adrs"
+      },
+      {
+        "prompt": "Design a small interface for the payment module",
+        "owner": "codebase-design"
+      },
+      {
+        "prompt": "I do not know what I want to build yet, ask me questions",
+        "owner": "interview-me"
+      }
+    ]
+  },
+  "evals": [
+    {
+      "id": 1,
+      "kind": "execution",
+      "prompt": "Read NOTES.md and the code in src. Settle the domain language for this shop. My decisions: a login identity is a User, a paying party is a Customer, the words client and buyer go away, and partial order cancellation is real. Write down the model. Do not rename code yet.",
+      "expected_output": "A GLOSSARY.md with User, Customer and Order terms and _Avoid_ lists, the conflict between partial cancellation and the code that cancels whole orders surfaced, and no ADR for the easy-to-reverse choices",
+      "files": [
+        "domain-modeling"
+      ],
+      "expectations": [
+        "A GLOSSARY.md is created at the project root with Customer, User and Order defined in one or two sentences each, and with client, buyer and account listed under _Avoid_ where they apply",
+        "The reply points out that cancelOrder cancels the whole order while the product owner says one line can be cancelled, and asks which is right or records the open question",
+        "GLOSSARY.md contains no implementation detail such as function names, table columns or file paths",
+        "No ADR is written for renaming terms, because that choice is easy to reverse",
+        "If the billing split into one or two databases is discussed, the reply says it is undecided and does not write an ADR for it, or it explains that all three conditions are needed first",
+        "No source file under src is renamed or edited"
+      ]
+    }
+  ]
+}

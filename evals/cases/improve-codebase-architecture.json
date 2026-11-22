@@ -1,0 +1,60 @@
+{
+  "skill_name": "improve-codebase-architecture",
+  "trigger": {
+    "positive": [
+      {
+        "prompt": "This codebase feels like spaghetti, one concept is spread over a dozen tiny files. Do an architecture review and tell me what to refactor first.",
+        "top_k": 3
+      },
+      {
+        "prompt": "Do an architecture review of this repo and rank the refactoring candidates in a report",
+        "top_k": 3
+      },
+      {
+        "prompt": "I cannot find where checkout logic lives, it bounces across many files. Review the architecture and rank the refactors.",
+        "top_k": 3
+      },
+      {
+        "prompt": "Find the architectural friction in this project and show me before and after diagrams for the best candidates",
+        "top_k": 3
+      }
+    ],
+    "negative": [
+      {
+        "prompt": "Review this diff before I merge it",
+        "owner": "code-review-and-quality"
+      },
+      {
+        "prompt": "Clean up this one function, it works but it is hard to follow",
+        "owner": "code-simplification"
+      },
+      {
+        "prompt": "Plan the migration from the old billing API to the new one",
+        "owner": "deprecation-and-migration"
+      }
+    ]
+  },
+  "evals": [
+    {
+      "id": 1,
+      "kind": "execution",
+      "prompt": "Do an architecture review of src/checkout. It feels over-split. Follow the improve-codebase-architecture process.",
+      "expected_output": "An HTML report written outside the repository with ranked deepening candidates that use the codebase-design vocabulary and the GLOSSARY.md terms, a deletion test result for each, no interfaces proposed, and a closing question asking which candidate to explore",
+      "files": [
+        "improve-codebase-architecture"
+      ],
+      "expectations": [
+        "A self-contained HTML file is written in the OS temp directory (or another path outside the project) and its absolute path is given to the user",
+        "No new file is added inside the project directory by the review itself",
+        "The report names the checkout files involved and gives at least one candidate that merges the small load, validate, stock, convert and save steps into a deeper Order placement module",
+        "Each candidate has a problem, a solution, benefits stated as locality or leverage, a before and after diagram, and a recommendation strength of Strong, Worth exploring or Speculative",
+        "The deletion test result is stated for the shallow modules under suspicion",
+        "The text uses the terms module, interface, seam, depth, leverage or locality, and avoids service, component, API and boundary as architecture words",
+        "The text uses the GLOSSARY.md terms (Order, Cart) and not the words purchase, transaction or basket",
+        "A candidate that would split the database is either absent or marked as contradicting ADR 0001 with a stated reason to reopen it",
+        "No new interface, signature or code for the deepened module is proposed in the report",
+        "The reply ends by asking which candidate the user wants to explore"
+      ]
+    }
+  ]
+}

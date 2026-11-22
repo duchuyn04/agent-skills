@@ -17,6 +17,8 @@ Design stable, well-documented interfaces that are hard to misuse. Good interfac
 - Establishing database schema that informs API shape
 - Changing existing public interfaces
 
+For internal module shape (depth, seam placement, where tests cross), use `codebase-design`. This skill covers contracts that other teams or clients depend on.
+
 ## Core Principles
 
 ### Hyrum's Law

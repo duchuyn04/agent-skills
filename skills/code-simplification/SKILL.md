@@ -26,6 +26,7 @@ Simplify code by reducing complexity while preserving exact behavior. The goal i
 - You don't understand what the code does yet: comprehend before you simplify
 - The code is performance-critical and the "simpler" version would be measurably slower
 - You're about to rewrite the module entirely, simplifying throwaway code wastes effort
+- The tangle spans many modules (one concept spread over many small files): use `improve-codebase-architecture`, then come back here for each module
 
 ## The Five Principles
 

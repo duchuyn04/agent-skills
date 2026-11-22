@@ -1,0 +1,57 @@
+{
+  "skill_name": "codebase-design",
+  "trigger": {
+    "positive": [
+      {
+        "prompt": "Where should the seam go between the checkout logic and the payment provider so I can test it without mocks of internals?",
+        "top_k": 3
+      },
+      {
+        "prompt": "I am sketching a new notifications module. Help me give it a small interface over a lot of behavior with a clean seam.",
+        "top_k": 3
+      },
+      {
+        "prompt": "Review my design sketch for this module: is the interface deep or shallow, and what does the deletion test say?",
+        "top_k": 3
+      },
+      {
+        "prompt": "How do I design this module so the code does not turn into spaghetti and tests cross one interface?",
+        "top_k": 3
+      }
+    ],
+    "negative": [
+      {
+        "prompt": "Design the REST endpoints and error format for our public orders API",
+        "owner": "api-and-interface-design"
+      },
+      {
+        "prompt": "Simplify this nested function, it works but is hard to read",
+        "owner": "code-simplification"
+      },
+      {
+        "prompt": "Write a failing test for this bug before we fix it",
+        "owner": "test-driven-development"
+      }
+    ]
+  },
+  "evals": [
+    {
+      "id": 1,
+      "kind": "execution",
+      "prompt": "Read BRIEF.md and README.md in the project, then redesign the pricing code in src/pricing as a deep module. Keep the behavior from the README. Make the change and run the tests.",
+      "expected_output": "One module with a single small entry point that owns subtotal, coupon, tax and rounding, tests that cross that entry point, the old per-helper unit tests deleted, and no seam with a single adapter",
+      "files": [
+        "codebase-design"
+      ],
+      "expectations": [
+        "The six helper files collapse into one module whose interface is priceOrder (or an equally small entry point), and the helpers that only forwarded calls are deleted or made private",
+        "The transcript or the final report applies the deletion test to the removed modules and says what it showed",
+        "The new tests call the module through its entry point and assert on totals, for example SAVE10 with region EU, an unknown coupon, and a region with no tax",
+        "The old unit tests of the removed helpers are deleted, not kept beside the new tests",
+        "No port, interface or injected adapter is added for a dependency that has only one implementation and no test substitute",
+        "The full test suite is run with the repository's own command after the change and passes",
+        "The explanation uses the terms module, interface, seam, depth, leverage or locality, and does not describe the result as a service or a component"
+      ]
+    }
+  ]
+}

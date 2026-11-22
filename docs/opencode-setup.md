@@ -119,6 +119,9 @@ Map the user's intent to the matching skill automatically:
 - Code review → `code-review-and-quality`
 - Refactoring / simplification → `code-simplification`
 - API or interface design → `api-and-interface-design`
+- Module shape, seams, testable design → `codebase-design`
+- Inconsistent names or domain terms, GLOSSARY.md → `domain-modeling`
+- Spaghetti code or tangled modules across files → `improve-codebase-architecture`
 - UI work → `frontend-ui-engineering`
 
 ## Execution Model

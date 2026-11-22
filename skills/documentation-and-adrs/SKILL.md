@@ -33,6 +33,8 @@ ADRs capture the reasoning behind significant technical decisions. They're the h
 - Choosing between build tools, hosting platforms, or infrastructure
 - Any decision that would be expensive to reverse
 
+When the decision is about domain language or the shape of the domain model, use the `domain-modeling` skill. It keeps `GLOSSARY.md` and the ADRs in step and applies the three-part test for when an ADR is worth writing.
+
 ### Match the existing convention first
 
 Before creating an ADR, inspect the available repository context for an established convention, existing ADRs, project instructions, and ADR-related configuration or tooling (e.g. an `.adr-dir` file). An established convention overrides the defaults below. Match:
