@@ -62,7 +62,7 @@ Hồ sơ là file Markdown, mỗi mục là một heading cấp 2. Các mục sa
 
 Hồ sơ chưa có thì làm như sau:
 
-1. Tự dò các giá trị mặc định ở bảng trên.
+1. Tự dò các giá trị mặc định ở bảng trên. Với mục `Lệnh kiểm tra`, luôn tách rõ lệnh nhanh (lint, typecheck, test theo module) và lệnh chậm (toàn bộ bộ test, integration, E2E) kèm cờ chạy song song phù hợp CPU/RAM của máy nếu công cụ test hỗ trợ, để mỗi lượt review không phải chạy lại toàn bộ bộ test chậm.
 2. Hỏi người dùng một lần về giá trị không dò được, gộp mọi câu hỏi trong một lượt.
 3. Đề nghị ghi kết quả thành `.claude/builder-loop.md` để lần sau không hỏi lại. Viết luật nào máy kiểm được vào khối JSON của mục `Kiểm tự động`, không chỉ viết thành văn xuôi.
 
@@ -84,9 +84,9 @@ Ghi đường dẫn đầy đủ trong mọi tin nhắn gửi builder. Builder k
 3. Tìm builder bằng `herdr agent list`.
    - Đối số hoặc hồ sơ chỉ định loại agent: chọn agent rảnh (`idle`) đúng loại đó.
    - Không chỉ định: chọn agent rảnh đầu tiên khác pane của bạn.
-   - Có agent phù hợp: đặt tên bằng `herdr agent rename <pane> builder`.
+   - Có agent phù hợp: ghi lại `pane_id` của nó (ví dụ `w1J:p1`) và gọi là `<pane_id builder>`. Mọi lệnh `herdr agent prompt`, `read`, `send-keys` dùng `pane_id`, không dùng tên.
    - Không có: tách pane bằng `herdr pane split --current --direction right --cwd "$PWD" --no-focus`. Sau đó mở builder bằng `herdr agent start builder --kind <kind> --pane <pane mới> -- <tham số>`. Lấy `<kind>` và `<tham số>` từ mục `Builder` của hồ sơ.
-   - Đặt tên pane của bạn bằng `herdr agent rename "$HERDR_PANE_ID" reviewer`. Builder dùng tên này để báo khi xong.
+   - Lấy `pane_id` của bạn từ `"$HERDR_PANE_ID"` (ví dụ `w19:p1`) và gọi là `<pane_id reviewer>`. Chép giá trị thật vào file giao việc để builder báo xong bằng id này. Không đặt tên pane và không gửi theo tên: Herdr gắn tên vào phiên agent, nên tên mất khi phiên đổi (ví dụ sau `/clear` hoặc khi agent như `agy` nghỉ giữa lượt), còn `pane_id` giữ nguyên.
 4. Tìm tiêu chí của task theo mục `Tiêu chí task`. Đọc spec và code liên quan. Ghi lại:
    - các điểm mơ hồ;
    - phần hạ tầng còn thiếu, ví dụ test chưa có;
@@ -100,20 +100,20 @@ Ghi đường dẫn đầy đủ trong mọi tin nhắn gửi builder. Builder k
 6. Viết file giao việc `<task>-handoff.md` theo mục "File giao việc".
 7. Xóa ngữ cảnh của builder trước mỗi task mới. Builder bắt đầu task mới với phiên sạch, không mang ngữ cảnh của task trước.
    1. Chạy `herdr agent list`. Chờ builder ở trạng thái `idle` hoặc `done`. Builder đang `working` thì lệnh xóa có thể bị xếp hàng sau việc đang chạy.
-   2. Gửi lệnh xóa ngữ cảnh bằng `MSYS_NO_PATHCONV=1 herdr agent prompt builder "/clear"`. Builder là Claude Code thì lệnh là `/clear`. Agent khác dùng lệnh mở phiên mới tương đương. Không biết lệnh đó thì hỏi người dùng.
+   2. Gửi lệnh xóa ngữ cảnh bằng `MSYS_NO_PATHCONV=1 herdr agent prompt <pane_id builder> "/clear"`. Builder là Claude Code thì lệnh là `/clear`. Agent khác dùng lệnh mở phiên mới tương đương. Không biết lệnh đó thì hỏi người dùng.
       - Giữ `MSYS_NO_PATHCONV=1` khi chạy trong Git Bash trên Windows. Thiếu biến này, Git Bash đổi `/clear` thành `C:/Program Files/Git/clear` và builder nhận một câu chat thường.
    3. Đọc màn hình bằng `herdr agent read <pane>`. Kiểm tra lịch sử chat đã trống, hoặc thanh trạng thái báo ngữ cảnh gần 0%.
       - Chữ mờ trong ô nhập có thể là gợi ý của Claude Code, không phải lệnh đang chờ. Không gửi Enter để chạy gợi ý đó.
-   4. Đặt lại tên bằng `herdr agent rename <pane> builder`. Herdr gắn tên vào phiên của agent, nên `/clear` làm mất tên `builder`.
+   4. Không cần đặt lại tên. Mọi lệnh dùng `pane_id`, nên `/clear` không làm mất đích gửi.
    - Bước này chỉ áp dụng khi giao task mới. Review lượt sau, lần dọn cuối và việc commit của cùng task không xóa ngữ cảnh. Builder cần ngữ cảnh đó để sửa đúng chỗ.
    - Builder mất mọi ngữ cảnh sau `/clear`. File giao việc phải tự đủ: ghi đường dẫn đầy đủ, quyết định đã chốt và commit của task trước, nếu task mới dựa trên đó.
-8. Gửi file giao việc bằng `herdr agent prompt builder "<câu ngắn trỏ tới đường dẫn đầy đủ của file giao việc>"`.
-   - Đọc màn hình một lần bằng `herdr agent read builder` để xác nhận builder đã bắt đầu.
-   - Prompt còn nằm ở ô nhập: gửi `herdr agent send-keys builder Enter`. Một số agent (ví dụ omp) cần bước này.
+8. Gửi file giao việc bằng `herdr agent prompt <pane_id builder> "<câu ngắn trỏ tới đường dẫn đầy đủ của file giao việc>"`.
+   - Đọc màn hình một lần bằng `herdr agent read <pane_id builder>` để xác nhận builder đã bắt đầu.
+   - Prompt còn nằm ở ô nhập: gửi `herdr agent send-keys <pane_id builder> Enter`. Một số agent (ví dụ omp) cần bước này.
 9. Kết thúc lượt và chờ tin nhắn `XONG, báo cáo ở <đường dẫn>` từ builder. Tin nhắn đến pane của bạn như một tin nhắn mới.
    - Không chạy vòng lặp nền để chờ. Agent có thể dừng tiến trình nền khi máy thiếu bộ nhớ.
    - Không dùng `herdr agent wait` ngay sau prompt. Lệnh có thể trả về trước khi builder bắt đầu làm.
-   - Người dùng báo builder bị kẹt: đọc màn hình bằng `herdr agent read builder`. Hỏi người dùng trước khi trả lời thay builder.
+   - Người dùng báo builder bị kẹt: đọc màn hình bằng `herdr agent read <pane_id builder>`. Hỏi người dùng trước khi trả lời thay builder.
 10. Review theo mục "Luật review". Không tin báo cáo của builder.
     1. Chạy `node "<thư mục skill>/scripts/check-task.mjs" check --task <task> --module <module> --report <file báo cáo>`. Cách đọc kết quả ở `references/kiem-tu-dong.md`.
        - Mỗi dòng `[LỖI]` là một lỗi `Bắt buộc` trong file review. Đường dẫn cấm nằm trong stage thì bỏ stage bằng lệnh script ghi trong thông báo.
@@ -123,8 +123,8 @@ Ghi đường dẫn đầy đủ trong mọi tin nhắn gửi builder. Builder k
        - Tự làm ít nhất 1 phép thử đột biến trên luật quan trọng nhất. Đột biến vẫn xanh là một lỗi: ghi test còn thiếu.
        - Code lặp, và file script báo vượt số dòng: xét có cần tách không.
        - Đối chiếu mọi khẳng định trong code, comment và tài liệu với file thật.
-       - Mỗi dòng trong danh sách "Tiêu chí mới tick" của script có test hoặc bằng chứng chạy thật. Tick không có bằng chứng là lỗi `Bắt buộc`.
-       - Builder đã tick đủ tiêu chí đạt theo mục `Tiêu chí task`. Thiếu tick là lỗi `Bắt buộc`.
+       - Builder không được tick tiêu chí. Danh sách "Tiêu chí mới tick" của script khác rỗng nghĩa là builder đã tự tick: đó là lỗi `Bắt buộc`, yêu cầu builder trả về `[ ]` (hoặc tự bỏ tick khi review lượt này, ghi vào file review).
+       - Mỗi tiêu chí trong bảng "Tiêu chí" của báo cáo builder có test hoặc bằng chứng chạy thật mà reviewer đã đối chiếu. Tiêu chí được báo đạt mà không có bằng chứng là lỗi `Bắt buộc`. Reviewer chỉ tick sau khi task đạt, theo bước 13.
        - Mở từng ảnh và video bằng chứng và xem bằng mắt. Script chỉ kiểm file có tồn tại, không kiểm nội dung.
        - Agent không phát được video, nên trích khung hình bằng ffmpeg đi kèm Playwright: `ffmpeg -ss <giây> -i <video> -frames:v 1 <ảnh.png>`. Trích ít nhất một khung hình cho mỗi bước chính, rồi mở ảnh xem. Kiểm con trỏ hiện, nhãn thao tác hiện, và không có thanh thông báo che nội dung.
        - Comment và tài liệu theo `Luật bắt buộc` và mục `Kiểm comment`, ở phần chưa có kiểm tự động.
@@ -133,7 +133,7 @@ Ghi đường dẫn đầy đủ trong mọi tin nhắn gửi builder. Builder k
     1. Viết `<task>-review-<N>.md` theo mục "Luật review". Gắn mức cho từng lỗi: `Critical`, `Bắt buộc`, `Optional` hoặc `Nit`.
     2. Đổi tên báo cáo cũ thành `<task>-builder-report-r<N>.md`.
     3. Ở lượt 1, tạo ảnh chụp lượt 1. Từ lượt 2, ảnh chụp đã có từ đầu lượt.
-    4. Ghi bước cuối `herdr agent prompt reviewer "XONG, báo cáo ở <đường dẫn>"` vào file review, kèm bước đọc màn hình reviewer và gửi Enter như bước cuối của mục "File giao việc".
+    4. Ghi bước cuối `herdr agent prompt <pane_id reviewer> "XONG, báo cáo ở <đường dẫn>"` (thay bằng giá trị thật của `"$HERDR_PANE_ID"`) vào file review, kèm bước đọc màn hình reviewer và gửi Enter như bước cuối của mục "File giao việc".
     5. Gửi review cho builder.
     6. Quay lại bước 9.
 12. Dừng vòng lặp và hỏi người dùng khi gặp một trong các trường hợp sau:
@@ -143,6 +143,7 @@ Ghi đường dẫn đầy đủ trong mọi tin nhắn gửi builder. Builder k
 13. Task đạt (kể cả theo luật review 7) thì báo người dùng và dừng. Không commit trước khi người dùng báo "ok".
     - Giữ thay đổi theo mục `Review của người dùng`.
     - Liệt kê file đã đổi trong `Phạm vi commit`, để người dùng biết cần xem file nào.
+    - Tick `[x]` từng tiêu chí đã đạt (reviewer đã đối chiếu bằng chứng) và dòng tiến độ của task, theo mục `Tiêu chí task`. Giữ `[ ]` cho tiêu chí chưa kiểm được và mục người dùng tự xác nhận, ví dụ "Review với người dùng". Không sửa nội dung tiêu chí. Bước này chỉ chạy khi task đã pass, nên tick luôn nằm cùng commit của task.
     - Cập nhật bảng `Lỗi lặp lại` của hồ sơ theo mục "Lỗi lặp lại" bên dưới.
     - Người dùng yêu cầu sửa thì giao lại cho builder, rồi review như một lượt bình thường.
 14. Người dùng báo "ok" thì làm đúng việc ghi trong đối số.
@@ -174,18 +175,16 @@ File `<task>-handoff.md` gồm các phần sau:
 - Các bước theo thứ tự. Mỗi bước có kết quả kiểm tra được.
 - Mục "Agent skills" theo phần cùng tên bên dưới.
 - Yêu cầu TDD, và phép thử đột biến cho test xanh ngay lần đầu. Gợi ý đột biến cụ thể cho từng tiêu chí.
-- Lệnh kiểm tra theo mục "Luật chạy test", kèm yêu cầu ghi kết quả thật.
-- Bằng chứng chạy thật cho tiêu chí người dùng nhìn thấy được, theo mục "Bằng chứng chạy thật" bên dưới: đường dẫn đầy đủ của thư mục bằng chứng cùng hai thư mục con `picture/` và `video/`, luật bắt buộc có cả ảnh và video, và cách đặt tên file. Ghi thêm đường dẫn đầy đủ của `references/video-cursor.ts` và các luật về `showActions`, vòng đỏ, tab mới. Chép các luật đó vào file giao việc, vì builder không đọc skill này.
-- Bước đánh dấu tiến độ, chạy sau khi lệnh kiểm tra xanh:
-  - Tick `[x]` từng tiêu chí đã đạt, theo mục `Tiêu chí task`.
-  - Giữ `[ ]` cho tiêu chí chưa kiểm được. Thêm một dòng thụt lề bên dưới, ghi lý do và task sẽ kiểm.
-  - Không tick mục người dùng tự xác nhận, ví dụ "Review với người dùng".
-  - Không sửa nội dung tiêu chí khi tick.
-  - Liệt kê tiêu chí đã tick và chưa tick trong báo cáo.
+- Lệnh kiểm tra theo mục "Luật chạy test", kèm yêu cầu ghi kết quả thật, chạy từ nhanh đến chậm, không chạy lại bộ lọc con ngay trước khi chạy toàn bộ bộ test, và không tự tách lệnh test ra nền bằng `&`, `nohup` hay `Start-Process` rồi kết thúc lượt.
+- Bằng chứng chạy thật cho tiêu chí người dùng nhìn thấy được, theo mục "Bằng chứng chạy thật" bên dưới: đường dẫn đầy đủ của thư mục bằng chứng cùng hai thư mục con `picture/` và `video/`, luật bắt buộc có cả ảnh và video, cách đặt tên file, luật chụp ảnh (cuộn về đầu trang trước `fullPage: true`, chụp viewport cho hộp thoại đang mở, không chụp thừa màn hình không đổi). Ghi thêm đường dẫn đầy đủ của `references/video-cursor.ts` và các luật về `showActions`, vòng đỏ, tab mới. Chép các luật đó vào file giao việc, vì builder không đọc skill này.
+- Bước báo tiến độ, chạy sau khi lệnh kiểm tra xanh:
+  - KHÔNG tick `[x]` bất kỳ tiêu chí hay dòng tiến độ nào, theo mục `Tiêu chí task`. Reviewer tick từng tiêu chí khi task đã pass review.
+  - Không sửa nội dung tiêu chí.
+  - Trong báo cáo, viết bảng "Tiêu chí": mỗi tiêu chí một dòng, ghi đạt hay chưa đạt, và bằng chứng (tên test, đường dẫn đầy đủ của ảnh hoặc video). Tiêu chí chưa kiểm được thì ghi lý do và task sẽ kiểm.
 - Đường dẫn đầy đủ của file báo cáo, và câu trả lời cố định `XONG, báo cáo ở <đường dẫn>`.
 - Kiểm tự động sau khi ghi báo cáo: chạy `node "<đường dẫn đầy đủ của thư mục skill>/scripts/check-task.mjs" check --task <task> --module <module> --report <file báo cáo>`. Sửa hết dòng `[LỖI]` rồi chạy lại đến khi không còn. Chép dòng `Kết quả:` của lần chạy cuối vào báo cáo.
-- Bước cuối: chạy `herdr agent prompt reviewer "XONG, báo cáo ở <đường dẫn>"`.
-  - Sau đó đọc màn hình reviewer bằng `herdr agent read reviewer`. Tin nhắn còn nằm ở ô nhập thì gửi `herdr agent send-keys reviewer Enter`. Một số agent, ví dụ omp, cần bước này. Thiếu nó, reviewer không nhận được tin và vòng lặp đứng yên.
+- Bước cuối: chạy `herdr agent prompt <pane_id reviewer> "XONG, báo cáo ở <đường dẫn>"` (ghi thẳng giá trị thật của `"$HERDR_PANE_ID"`, ví dụ `w19:p1`, không dùng tên `reviewer` vì tên có thể mất khi phiên agent nghỉ giữa lượt).
+  - Sau đó đọc màn hình reviewer bằng `herdr agent read <pane_id reviewer>`. Tin nhắn còn nằm ở ô nhập thì gửi `herdr agent send-keys <pane_id reviewer> Enter`. Một số agent, ví dụ omp, cần bước này. Thiếu nó, reviewer không nhận được tin và vòng lặp đứng yên.
   - Chữ mờ trong ô nhập có thể là gợi ý của agent, không phải tin đang chờ. Không gửi Enter cho gợi ý đó.
 
 ## Bằng chứng chạy thật
@@ -201,11 +200,13 @@ Tiêu chí người dùng nhìn thấy được (giao diện, luồng thao tác)
    - Gốc mặc định là `~/builder-loop-evidence/<tên repo>`. Thư mục này nằm ngoài repo nên ảnh không lẫn vào Git, và giữ lại được sau khi task xong. Hồ sơ đổi gốc bằng khóa `evidence.dir` trong mục `Kiểm tự động`.
    - Ghi đường dẫn đầy đủ của thư mục task, của `picture/` và của `video/` vào file giao việc.
 3. Bắt buộc có cả ảnh và video:
-   - Ảnh: chụp cho từng tiêu chí, gồm trạng thái trước và sau thao tác chính. Luồng nhiều bước thì mỗi bước một ảnh. Ảnh để reviewer xem nhanh và so giữa các lượt.
+   - Ảnh: chụp cho từng tiêu chí mới hoặc màn hình bị ảnh hưởng (không chụp lại thừa các màn hình không đổi đã có ở task trước, trừ khi task yêu cầu tổng hợp), gồm trạng thái trước và sau thao tác chính. Luồng nhiều bước thì mỗi bước một ảnh. Ảnh để reviewer xem nhanh và so giữa các lượt.
+     - Trước mọi ảnh `fullPage: true`, cuộn về đầu trang (`window.scrollTo(0, 0)`) và chờ font tải xong (`document.fonts.ready`) để thanh đầu trang cố định (`position: sticky` hoặc `fixed`) không cắt ngang giữa ảnh.
+     - Ảnh đang mở hộp thoại, modal hay bottom sheet (`position: fixed`) bắt buộc chụp khung nhìn hiện tại (`fullPage: false`), không chụp `fullPage: true`.
    - Video: quay trọn luồng chính của task trên app chạy thật, từ trạng thái đầu tới trạng thái cuối. Task có nhiều luồng độc lập thì mỗi luồng một video. Video để thấy chuyển động, thứ tự thao tác và trạng thái loading mà ảnh không thể hiện.
    - Chỉ có ảnh hoặc chỉ có video đều là lỗi `Bắt buộc`, kể cả khi tiêu chí không nói về chuyển động.
    - Mọi tiêu chí nhìn thấy được phải xuất hiện trong ít nhất một ảnh và một video, và báo cáo ghi rõ ảnh và video nào chứng minh tiêu chí nào.
-   - Video quay bằng Playwright thì bật con trỏ và nhãn thao tác, để người xem biết agent đang làm gì. Đặt `showActions: { cursor: 'pointer', position: 'top-right', duration: 800 }` trong `recordVideo` của `browser.newContext`. Con trỏ di chuyển từ thao tác này sang thao tác kế tiếp, phần tử vừa tác động được tô sáng và tên thao tác hiện ở góc.
+   - Video quay bằng Playwright thì bật con trỏ và nhãn thao tác, để người xem biết agent đang làm gì. Đặt `showActions: { cursor: 'pointer', position: 'top-right', duration: 800 }` trong `recordVideo` của `browser.newContext` (một số bản Playwright mới không nhận khóa `cursor` ở `recordVideo` mà bật qua `page.screencast.showActions({ cursor: 'pointer' })`; kiểm tra và ghi rõ bản đã dùng trong báo cáo). Con trỏ di chuyển từ thao tác này sang thao tác kế tiếp, phần tử vừa tác động được tô sáng và tên thao tác hiện ở góc.
    - Trước mỗi bước chính, gọi `page.screencast.showChapter('<tên bước>', { duration: 1500 })` để hiện thẻ tiêu đề giữa màn hình. Bản Playwright không có hai tùy chọn này thì ghi rõ trong báo cáo, và tự vẽ con trỏ bằng một phần tử gắn vào trang.
    - Giữ `showActions` và gắn thêm vòng tròn đỏ quanh con trỏ cùng vòng gợn sóng khi bấm, giống phần mềm quay màn hình. Dùng helper có sẵn `<thư mục skill>/references/video-cursor.ts`: chép nguyên file vào thư mục helper E2E của repo (ví dụ `e2e/video-cursor.ts`), rồi gọi `await installClickHighlight(context)` ngay sau `browser.newContext` của context quay video. Chỉ gọi cho context quay video, vì lớp phủ là một phần tử `aria-hidden` trong trang và có thể làm sai assert đếm phần tử.
    - Bấm liên kết `target="_blank"` mở tab mới thì video của context chỉ ghi tab chính, và cảnh bấm nút không có kết quả. Lưu thêm video của tab mới (`popup.video()`, đọc đường dẫn sau khi đóng context) thành file thứ hai trong `video/`, hoặc quay luồng trong một tab. Không dựng lại cảnh kết quả bằng `goto` rồi để người xem tưởng nút đã điều hướng.
@@ -242,7 +243,7 @@ Builder có thể là agent khác bạn. Viết file giao việc để agent nà
         - Tên skill tùy cách cài bộ `agent-skills`, ví dụ `agent-skills:review` hoặc `<tiền tố>:code-review-and-quality`. Lấy tên đúng từ danh sách skill của phiên.
         - Phiên không có skill review thì prompt yêu cầu agent review theo 5 trục.
      2. Reviewer là omp hay agent khác có công cụ mở subagent: dùng công cụ đó. Prompt yêu cầu agent dùng lệnh review của agent đó, hoặc review theo 5 trục.
-     3. Reviewer không mở được subagent: giao review cho một pane agent rảnh khác trong Herdr. Không dùng pane builder. Agent đó ghi kết quả vào `<task>-independent-review-<N>.md` trong thư mục trao đổi. Sau đó agent chạy `herdr agent prompt reviewer "XONG, review ở <đường dẫn>"`.
+     3. Reviewer không mở được subagent: giao review cho một pane agent rảnh khác trong Herdr. Không dùng pane builder. Agent đó ghi kết quả vào `<task>-independent-review-<N>.md` trong thư mục trao đổi. Sau đó agent chạy `herdr agent prompt <pane_id reviewer> "XONG, review ở <đường dẫn>"`.
      4. Không có cách nào ở trên: review diff bằng tay theo 5 trục. Ghi trong file review rằng lượt này thiếu review độc lập, kèm lý do.
    - Reviewer tự đối chiếu mọi lỗi agent báo với file thật trước khi ghi vào file review. Agent review không thay phần tự kiểm ở bước 10.
    - Từ lượt 2, đưa file review lượt trước vào ngữ cảnh review. Mục "Không yêu cầu sửa" và cách sửa đã yêu cầu là quyết định đã chốt, không báo lại.
@@ -291,8 +292,8 @@ Builder có thể là agent khác bạn. Viết file giao việc để agent nà
 
 Hồ sơ chia lệnh kiểm tra thành hai nhóm. Không có hồ sơ thì coi mọi lệnh là lệnh nhanh.
 
-1. Lệnh nhanh (lint, typecheck, unit test) chạy toàn bộ ở mọi lượt.
-2. Lệnh chậm (integration, E2E) chỉ chạy phần liên quan trong các lượt review.
+1. Lệnh nhanh (lint, typecheck, unit test, test lọc theo module) chạy ở mọi lượt. Chạy từ nhanh đến chậm để bắt lỗi sớm (lint và typecheck trước, rồi unit test, rồi test module). Ưu tiên bật cờ chạy song song của công cụ test trong hồ sơ repo (theo số nhân và RAM của máy).
+2. Lệnh chậm (integration, E2E, toàn bộ bộ test) chỉ chạy phần liên quan trong các lượt review. Đã chạy toàn bộ bộ test thì không chạy lại bộ lọc con ngay trước đó.
    - Phần liên quan gồm test của phần bị sửa và test của mọi file gọi tới code bị sửa.
    - Lấy bộ lọc theo module từ file luật của repo hoặc mục `Lệnh kiểm tra` của hồ sơ. Không có bộ lọc sẵn thì reviewer tự viết bộ lọc theo tên thư mục test.
    - Reviewer ghi bộ lọc trong file giao việc và file review. Builder chạy đúng bộ lọc đó.
@@ -308,7 +309,7 @@ Hồ sơ chia lệnh kiểm tra thành hai nhóm. Không có hồ sơ thì coi m
 5. Chạy lệnh chậm không có giới hạn thời gian. Agent ngắt lệnh giữa chừng thì không có kết quả, và tiến trình test còn sót lại làm hỏng lần chạy sau.
    - Đọc `references/chay-test-cham.md` trước khi chạy lệnh chậm. File này gồm cách dùng pane `test-runner` với script `run-slow-test.sh`, cách tắt hạn chót của từng loại agent và cách dọn tiến trình test sót lại.
    - Reviewer chạy lệnh chậm trong pane Herdr `test-runner`, không dùng lệnh nền của agent.
-   - Builder chạy lệnh chậm thì file giao việc chép các yêu cầu của file đó.
+   - Builder chạy lệnh chậm thì file giao việc chép các yêu cầu của file đó. Builder không tự tách lệnh test ra nền bằng `&`, `nohup` hay `Start-Process` rồi kết thúc lượt: hệ thống không nhận được thông báo xong và vòng lặp sẽ đứng yên.
 
 ## Agent skills
 
@@ -372,7 +373,8 @@ Trong lúc builder chạy, báo trạng thái ngắn sau mỗi lượt review.
 ## Red Flags
 
 - Reviewer sửa file code của task.
-- Tiêu chí được tick mà không có test hoặc bằng chứng chạy thật.
+- Builder tự tick tiêu chí trước khi task pass review.
+- Reviewer tick tiêu chí mà không có test hoặc bằng chứng chạy thật đã đối chiếu.
 - Có lệnh `git add -A`, `git add .`, hoặc commit trước khi người dùng báo "ok".
 - File review lượt sau viết lại mô tả của lỗi cũ, hoặc mở lỗi mới ở code mà lần sửa không chạm tới.
 - Lượt review không có agent review độc lập, và file review không ghi lý do.
@@ -385,7 +387,7 @@ Trong lúc builder chạy, báo trạng thái ngắn sau mỗi lượt review.
 Trước khi báo người dùng task đạt:
 
 - [ ] Lần chạy cuối của `check-task.mjs check` có `0 LỖI`, và kết quả được ghi trong file review.
-- [ ] Mỗi tiêu chí mới tick có test hoặc bằng chứng chạy thật mà reviewer đã đối chiếu.
+- [ ] Mỗi tiêu chí sắp tick có test hoặc bằng chứng chạy thật mà reviewer đã đối chiếu. Builder chưa tick tiêu chí nào, reviewer tick sau khi task đạt.
 - [ ] Task có tiêu chí nhìn thấy được thì có cả ảnh và video bằng chứng, reviewer đã mở xem từng file.
 - [ ] Reviewer đã tự làm ít nhất một phép thử đột biến, và test bắt được đột biến đó.
 - [ ] Lệnh nhanh xanh sau lần sửa cuối. Lệnh chậm đã chạy theo luật chạy test 3, hoặc báo cáo ghi lý do bỏ.
