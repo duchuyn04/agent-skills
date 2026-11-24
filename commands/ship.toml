@@ -35,6 +35,8 @@ Once all three reports are back, the main agent (not a sub-persona) synthesizes 
 5. **Infrastructure**: Env vars, migrations, monitoring, feature flags. Verify directly.
 6. **Documentation**: README, ADRs, changelog. Verify directly.
 
+Skills for these checks, loaded only when the item applies: `ci-cd-and-automation` for pipelines and env, `observability-and-instrumentation` for monitoring and logging, `deprecation-and-migration` for removals and migrations, `documentation-and-adrs` for docs and ADRs, `git-workflow-and-versioning` for the release commit and tag.
+
 ## Phase C: Decision and rollback
 
 Produce a single output:

@@ -15,3 +15,11 @@ Review the current changes (staged or recent commits) across all five axes:
 
 Categorize findings as Critical, Required, Optional, or Nit.
 Output a structured review with specific file:line references and fix recommendations.
+
+## Load these skills when they apply
+
+Only when the condition holds. Skip the rest.
+
+- A finding about behavior cannot be settled by reading: prove it with a run, per `duchuyn04-agent-skills:doubt-driven-development`.
+- The review finds avoidable complexity: invoke `duchuyn04-agent-skills:code-simplification` for the fix.
+- The problem spans many modules, not just this diff: invoke `duchuyn04-agent-skills:improve-codebase-architecture`.

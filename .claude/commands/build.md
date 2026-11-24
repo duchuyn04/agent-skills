@@ -43,3 +43,13 @@ Use this once a spec exists and you want to collapse plan + build into one run. 
 7. **Summarize at the end:** tasks completed, tests added, commits made, and anything skipped, flagged, or left for the user.
 
 If any step fails, follow the duchuyn04-agent-skills:debugging-and-error-recovery skill.
+
+## Load these skills when they apply
+
+Only when the condition holds. Skip the rest.
+
+- The task builds screens or components: invoke `duchuyn04-agent-skills:frontend-ui-engineering`.
+- The task adds or changes an API, a public type, or a module boundary: invoke `duchuyn04-agent-skills:api-and-interface-design`, and `duchuyn04-agent-skills:codebase-design` when it adds a new module.
+- The task calls a framework or library API you are not certain about: invoke `duchuyn04-agent-skills:source-driven-development`.
+- The task introduces new domain terms: invoke `duchuyn04-agent-skills:domain-modeling`.
+- At the commit step: follow `duchuyn04-agent-skills:git-workflow-and-versioning` for commit size and messages.

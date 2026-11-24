@@ -434,6 +434,8 @@ Muốn áp dụng cho mọi dự án trên máy thì thêm dòng ở bước 2 v
 | `/constraints` | Ghi lại ngưỡng chất lượng của dự án |
 | `/webperf` | Kiểm hiệu năng web |
 
+Skill nào tự nạp trong quy trình, skill nào phải gọi tay: xem [docs/skill-usage-guide.md](docs/skill-usage-guide.md).
+
 Mô tả 25 skill gốc nằm ở [README.upstream.md](README.upstream.md). Bốn skill còn lại chỉ có ở bản này: `builder-loop` (xem mục "Dùng builder-loop") và ba skill kiến trúc (xem mục "Dùng ba skill kiến trúc").
 
 ## Lấy bản mới từ tác giả gốc

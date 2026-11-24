@@ -313,7 +313,7 @@ Hồ sơ chia lệnh kiểm tra thành hai nhóm. Không có hồ sơ thì coi m
 
 ## Agent skills
 
-Builder có plugin này (`duchuyn04-agent-skills`), bộ `agent-skills` gốc hoặc bản cài cho omp: file giao việc yêu cầu builder dùng 3 skill sau.
+Builder có plugin này (`duchuyn04-agent-skills`), bộ `agent-skills` gốc hoặc bản cài cho omp: file giao việc yêu cầu builder dùng 5 skill sau.
 
 1. Build: `incremental-implementation` và `test-driven-development`. Làm từng lát nhỏ, mỗi lát đi qua đỏ, xanh, refactor.
 2. Verify: `test-driven-development`.
@@ -321,8 +321,10 @@ Builder có plugin này (`duchuyn04-agent-skills`), bộ `agent-skills` gốc ho
    - Logic thuần (không DB, không HTTP) có unit test.
    - Test phụ thuộc thời gian hoặc chạy đồng thời phải cho kết quả ổn định. Ghi cách đảm bảo vào báo cáo.
 3. Review: `code-review-and-quality`. Builder tự review 5 trục trước khi báo cáo. Báo cáo có mục "Tự review" liệt kê lỗi đã tự sửa.
+4. Khi build hỏng hoặc test đỏ mà chưa rõ nguyên nhân: `debugging-and-error-recovery`. Builder tìm nguyên nhân gốc trước khi sửa và ghi nguyên nhân vào báo cáo.
+5. Việc không hoàn tác được bằng `git revert` (đổi quyền hoặc đăng nhập, migration xóa dữ liệu, thanh toán, deploy, đụng tới secret): `doubt-driven-development`. Builder dừng lại, ghi rõ việc đó và lý do vào báo cáo, rồi chờ reviewer đồng ý trước khi làm tiếp. Mỗi lỗi mà builder hoặc reviewer cho là có thật phải kèm lệnh đã chạy và kết quả in ra.
 
-Builder không có bộ skill này: chép thẳng 3 yêu cầu trên vào file giao việc dưới dạng các bước.
+Builder không có bộ skill này: chép thẳng 5 yêu cầu trên vào file giao việc dưới dạng các bước.
 
 Luật của repo thắng luật của skill khi hai bên khác nhau:
 

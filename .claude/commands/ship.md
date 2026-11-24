@@ -37,6 +37,8 @@ Once all three reports are back, the main agent (not a sub-persona) synthesizes 
 5. **Infrastructure**: Env vars, migrations, monitoring, feature flags. Verify directly.
 6. **Documentation**: README, ADRs, changelog. Verify directly.
 
+Skills for these checks, loaded only when the item applies: `duchuyn04-agent-skills:ci-cd-and-automation` for pipelines and env, `duchuyn04-agent-skills:observability-and-instrumentation` for monitoring and logging, `duchuyn04-agent-skills:deprecation-and-migration` for removals and migrations, `duchuyn04-agent-skills:documentation-and-adrs` for docs and ADRs, `duchuyn04-agent-skills:git-workflow-and-versioning` for the release commit and tag.
+
 ## Phase C: Decision and rollback
 
 Produce a single output:
