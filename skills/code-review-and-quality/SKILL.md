@@ -63,6 +63,7 @@ Does the change fit the system's design?
 - **Is feature-specific logic leaking into a shared or general-purpose module?** Keep logic in its owning layer, reuse the existing canonical helper instead of a near-duplicate, and don't normalize architectural drift.
 - **Is the new module deep or shallow?** Run the deletion test from `codebase-design`: if deleting a new wrapper only moves its code into the callers, it is a pass-through. Flag a change that spreads one concept over several small files. Flag a seam with one adapter. When the problem spans many modules rather than this diff, point to `improve-codebase-architecture` instead of fixing it here.
 - **Do names match the domain?** New types and modules should use the terms in `GLOSSARY.md` (see `domain-modeling`). Flag a second name for an existing concept.
+- **Is independent work serialized, or are related updates non-atomic?** Flag sequential `await`s that don't depend on each other, and multi-step updates that can leave state half-applied when a step fails. Raise it only when the cleaner structure is obvious and it simplifies the flow; skip micro-optimizations.
 - **Are type boundaries explicit?** Question gratuitous `any`/`unknown`/optional/casts and silent fallbacks that paper over an unclear invariant, making the boundary explicit often makes the surrounding control flow simpler.
 
 ### 4. Security
@@ -99,6 +100,7 @@ When you flag a structural problem, propose the move, not just the problem. A re
 - **Move feature-specific logic** out of a shared module into the package that owns the concept.
 - **Reuse the canonical helper** instead of a bespoke near-duplicate.
 - **Make a type boundary explicit** so downstream branching disappears.
+- **Run independent work in parallel, and group related updates into one atomic step**, when that also simplifies the orchestration.
 - **Delete a pass-through wrapper** that adds indirection without clarifying the API.
 - **Extract a helper, or split a large file** into focused modules.
 
@@ -391,6 +393,7 @@ For triaging `npm audit` findings and supply-chain risk (typosquatting, compromi
 - A change that grows an already-large file instead of decomposing it
 - New conditionals scattered into unrelated code paths (a missing abstraction)
 - A bespoke helper that duplicates an existing canonical one, or feature logic placed in a shared module
+- Independent async work run one call after another, or related updates that can end up half-applied
 - A bulk "bump dependencies" PR with no changelog review and no per-package isolation
 - A lockfile change that's hand-edited, uncommitted, or merged without reviewing its diff
 

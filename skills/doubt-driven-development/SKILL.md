@@ -72,6 +72,8 @@ WHY THIS MATTERS: a race here corrupts user data and is
 
 If you can't write the claim that compactly, you have a vibe, not a decision. Surface it before scrutinizing it.
 
+When the claim is about behavior ("this fixes X", "this is faster", "this never does Y"), write it in falsifiable form: the condition, the metric, and the threshold. "Faster" is a vibe. "p95 under 200 ms on the 10k-row fixture" can be disproved.
+
 ### Step 2: EXTRACT: Smallest reviewable unit
 
 A fresh-context reviewer needs the **artifact** and the **contract**, not the journey.
@@ -100,6 +102,10 @@ Assume the author is overconfident. Look for:
 
 Do NOT validate. Do NOT summarize. Find issues, or state
 explicitly that you cannot find any after thorough examination.
+
+When you can run code, prove each finding: give the exact command,
+the output it printed, and the output the contract requires. Mark a
+finding you could not run as UNPROVEN.
 
 ARTIFACT: <paste artifact>
 CONTRACT: <paste contract>
@@ -180,6 +186,15 @@ For each finding, classify in this **precedence order** (first matching class wi
 
 A fresh reviewer can be wrong because it lacks context. Don't defer just because it's "fresh."
 
+**Prove a behavioral finding before you classify it as actionable.** Reasoning alone is how both the author and the reviewer got it wrong the first time.
+
+1. Rerun the reviewer's command yourself. A finding with no command, or whose output does not show the failure, is not valid-actionable yet.
+2. For a before/after claim, capture a baseline from the old state (merge base, parent commit, or the broken repro) and a treatment from the changed state, with the same command, data, and environment.
+3. Compare the raw artifacts (test output, numbers, transcripts, responses), not a recap of them.
+4. Reach one verdict: **confirmed** (the output differs in the predicted direction and meets the threshold), **not reproduced** (unchanged, wrong direction, or below the threshold), or **inconclusive** (no valid baseline, a noisy signal, or an environment difference). Treat "not reproduced" as noise (class 4) and say so. Report "inconclusive" as inconclusive.
+
+Do not soften a negative result: "not reproduced" is a useful answer. Findings about a design or a plan, where nothing runs yet, still get classified by reading the artifact text.
+
 ### Step 5: STOP: Bounded loop, not recursion
 
 Stop when:
@@ -221,6 +236,9 @@ If 3 cycles is "obviously insufficient" because the artifact is large: the artif
 - Falling back silently when an external CLI errors or is missing: surface the failure and let the user redirect
 - Stripping the contract from the reviewer's input
 - Passing the CLAIM to the reviewer (biases toward agreement)
+- Accepting a behavioral finding or fix as proven with no command output behind it
+- Comparing baseline and treatment with a different command, data, or environment, then reading the gap as a result
+- Softening a "not reproduced" or "inconclusive" outcome into a pass
 
 ## Interaction with Other Skills
 
@@ -239,6 +257,7 @@ After applying doubt-driven development:
 - [ ] The reviewer received ARTIFACT + CONTRACT: NOT the CLAIM, NOT your reasoning
 - [ ] The reviewer's prompt was adversarial ("find issues"), not validating ("is it good")
 - [ ] Findings were classified against the artifact text (not rubber-stamped) using the precedence: contract misread / actionable / trade-off / noise
+- [ ] Each behavioral finding or claim was settled by a run (command and output, baseline vs treatment where it is a before/after claim) and ended as confirmed, not reproduced, or inconclusive
 - [ ] A stop condition was met (trivial findings, 3 cycles, or user override)
 - [ ] In interactive mode, cross-model was **explicitly offered** to the user (regardless of artifact stakes) and the response was acknowledged in the output
 - [ ] In non-interactive mode, cross-model was skipped and the skip was announced
