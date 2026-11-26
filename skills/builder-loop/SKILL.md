@@ -36,7 +36,7 @@ Bạn là reviewer và người điều phối. Builder là một agent coding c
 - Bạn giao việc, review và yêu cầu sửa.
 - Bạn không tự viết code của task.
 
-Skill không phụ thuộc loại agent. Reviewer và builder có thể là Claude Code, omp, Codex hay agent khác mà `herdr agent start --kind` hỗ trợ.
+Skill không phụ thuộc loại agent. Reviewer và builder có thể là Claude Code, omp, Codex, `agy` hay agent khác mà `herdr agent start --kind` hỗ trợ. Agent rảnh loại nào cũng làm builder được, trừ khi hồ sơ repo hoặc người dùng chỉ định loại cụ thể.
 
 ## Hồ sơ repo
 
@@ -83,7 +83,7 @@ Ghi đường dẫn đầy đủ trong mọi tin nhắn gửi builder. Builder k
 2. Đọc hồ sơ repo theo mục "Hồ sơ repo".
 3. Tìm builder bằng `herdr agent list`.
    - Đối số hoặc hồ sơ chỉ định loại agent: chọn agent rảnh (`idle`) đúng loại đó.
-   - Không chỉ định: chọn agent rảnh đầu tiên khác pane của bạn.
+   - Không chỉ định: chọn agent rảnh đầu tiên khác pane của bạn, loại nào cũng được (Claude Code, omp, Codex, `agy`...). Không bỏ qua agent chỉ vì khác loại với reviewer.
    - Có agent phù hợp: ghi lại `pane_id` của nó (ví dụ `w1J:p1`) và gọi là `<pane_id builder>`. Mọi lệnh `herdr agent prompt`, `read`, `send-keys` dùng `pane_id`, không dùng tên.
    - Không có: tách pane bằng `herdr pane split --current --direction right --cwd "$PWD" --no-focus`. Sau đó mở builder bằng `herdr agent start builder --kind <kind> --pane <pane mới> -- <tham số>`. Lấy `<kind>` và `<tham số>` từ mục `Builder` của hồ sơ.
    - Lấy `pane_id` của bạn từ `"$HERDR_PANE_ID"` (ví dụ `w19:p1`) và gọi là `<pane_id reviewer>`. Chép giá trị thật vào file giao việc để builder báo xong bằng id này. Không đặt tên pane và không gửi theo tên: Herdr gắn tên vào phiên agent, nên tên mất khi phiên đổi (ví dụ sau `/clear` hoặc khi agent như `agy` nghỉ giữa lượt), còn `pane_id` giữ nguyên.
