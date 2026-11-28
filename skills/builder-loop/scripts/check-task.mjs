@@ -26,6 +26,7 @@ import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const USAGE = `Cách dùng:
   node check-task.mjs start --task <mã> [--repo <thư mục>] [--force]
@@ -614,4 +615,22 @@ function main() {
   }
 }
 
-process.exitCode = main();
+// Chỉ chạy main khi gọi thẳng script. loop.mjs import các hàm bên dưới mà không chạy kiểm.
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) process.exitCode = main();
+
+export {
+  UsageError,
+  git,
+  refExists,
+  workingTree,
+  changedFiles,
+  section,
+  loadProfile,
+  matcher,
+  toNativePath,
+  mainRepoName,
+  evidenceDir,
+  PICTURE_SUBDIR,
+  VIDEO_SUBDIR,
+  MODULE_NAME,
+};

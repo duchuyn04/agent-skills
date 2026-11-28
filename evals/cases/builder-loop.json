@@ -17,6 +17,10 @@
       {
         "prompt": "giao task T6 cho builder rồi review đến khi đạt",
         "top_k": 3
+      },
+      {
+        "prompt": "/builder-loop CAT-05 tiếp, phiên trước bị clear giữa chừng",
+        "top_k": 3
       }
     ],
     "negative": [

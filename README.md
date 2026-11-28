@@ -378,9 +378,16 @@ Skill `builder-loop` chia một task cho hai agent. Builder là agent viết cod
 
 Kết quả mong đợi: builder bắt đầu làm ở pane bên cạnh. Sau mỗi lượt, reviewer báo ngắn các lỗi tìm được. Khi task đạt, reviewer dừng và chờ bạn báo "ok". Thêm `commit` hoặc `commit và push` sau mã task để reviewer làm việc đó sau khi bạn báo "ok".
 
+Cách dùng khác:
+
+- Giao nhiều task một lần: `/duchuyn04-agent-skills:builder-loop CAT-05 CAT-06 CAT-07 commit`. Reviewer làm lần lượt từng task. Mỗi task vẫn dừng chờ bạn báo "ok" rồi mới sang task sau.
+- Làm tiếp task đang dở sau `/clear` hoặc khi mở phiên mới: `/duchuyn04-agent-skills:builder-loop CAT-05 tiếp`. Reviewer đọc file trạng thái và làm tiếp từ đúng bước đang dừng.
+- Xem thống kê các task đã chạy: `node skills/builder-loop/scripts/loop.mjs stats`. Kết quả là bảng số lượt review, số lỗi theo lượt và thời gian của từng task.
+
 Lỗi thường gặp:
 
 - Reviewer báo phiên không chạy trong Herdr: mở agent từ bên trong Herdr rồi gõ lại lệnh.
+- Reviewer dừng và báo cầu dao đã ngắt: builder sửa một lỗi qua 3 lượt vẫn chưa xong, hoặc số lỗi không giảm. Đọc lý do reviewer gửi rồi chọn cách đi tiếp. Muốn cho chạy tiếp mà không bị hỏi lại thì nói "chạy tiếp, tắt cầu dao".
 - Script `check-task` thoát với mã 2: khối JSON trong mục `## Kiểm tự động` của hồ sơ sai cú pháp. Cách viết nằm ở `skills/builder-loop/references/kiem-tu-dong.md`.
 
 ## Dùng ba skill kiến trúc

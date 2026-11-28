@@ -2,7 +2,7 @@
 name: builder-loop
 description: "Runs a reviewer and builder loop across Herdr panes. The current session hands one task to a coding agent in another pane (claude, codex, omp or another agent), reviews every round, and sends fixes until the task passes. Use when the user types /builder-loop with a task ID, asks to hand a task to a builder agent and review its work, or says 'giao task cho builder'. Not for implementing a task yourself or for reviewing a single diff."
 metadata:
-  argument-hint: "<mã task> [builder=<kind>] [chỉ báo cáo | commit | commit và push]"
+  argument-hint: "<mã task> [mã task khác...] [tiếp] [builder=<kind>] [chỉ báo cáo | commit | commit và push]"
 ---
 
 # Builder loop
@@ -12,6 +12,8 @@ metadata:
 Skill này chia việc cho hai agent. Builder viết code của task trong một pane Herdr khác. Phiên hiện tại làm reviewer: giao việc, review từng lượt, yêu cầu sửa đến khi task đạt, và chỉ commit khi người dùng báo "ok". Herdr là terminal multiplexer cho coding agent: nhiều agent chạy trong các pane cạnh nhau và nhắn tin cho nhau được.
 
 Lỗi được chặn bằng kiểm tra tự động trước (`scripts/check-task.mjs`, lint và test của repo), bằng phán đoán của reviewer sau. Lỗi lặp lại qua nhiều task được biến thành phép kiểm mới, để task sau không mắc lại.
+
+Phần việc lặp lại của reviewer do `scripts/loop.mjs` làm: ảnh chụp từng lượt, file trạng thái để làm tiếp sau khi mất phiên, cầu dao dừng vòng lặp sửa mãi không xong, khung file giao việc, nhắc khi builder bị treo, thống kê và hàng đợi nhiều task. Cách dùng ở `references/loop.md`. Trong skill này, `loop.mjs <lệnh>` nghĩa là `node "<thư mục skill>/scripts/loop.mjs" <lệnh>`.
 
 ## When to Use
 
@@ -24,7 +26,8 @@ Lỗi được chặn bằng kiểm tra tự động trước (`scripts/check-ta
 
 Đối số: `$ARGUMENTS`. Agent không thay `$ARGUMENTS` thì lấy đối số từ tin nhắn của người dùng.
 
-- Từ đầu tiên là mã task, ví dụ `CAT-05`.
+- Các từ đầu có dạng mã task là danh sách task, ví dụ `CAT-05` hoặc `CAT-05 CAT-06 CAT-07`. Nhiều mã thì chạy lần lượt theo mục "Hàng đợi nhiều task".
+- `tiếp` làm tiếp task đang dở sau `/clear`, sau khi mất phiên hoặc khi mở phiên mới, theo bước 0. `/builder-loop tiếp` không kèm mã task thì chọn task dở cập nhật gần nhất.
 - `builder=<kind>` chọn loại agent làm builder, ví dụ `builder=codex`. Câu thường như "dùng phiên claude rảnh làm builder" có cùng nghĩa.
 - Phần còn lại là việc làm sau khi task đạt: `chỉ báo cáo`, `commit` hoặc `commit và push`. Không có phần này thì mặc định là `chỉ báo cáo`.
 
@@ -79,25 +82,33 @@ Ghi đường dẫn đầy đủ trong mọi tin nhắn gửi builder. Builder k
 
 ## Quy trình
 
+0. Đối số có `tiếp` thì làm tiếp task dở thay cho việc bắt đầu lại.
+   - Chạy bước 1 và bước 2 trước, vì Herdr và hồ sơ repo không nằm trong file trạng thái.
+   - Chạy `loop.mjs state --list` (không có mã task) hoặc `loop.mjs state --task <task>` để đọc trạng thái.
+   - Cập nhật `state --set reviewerPane="$HERDR_PANE_ID"`. Builder trong file trạng thái không còn trong `herdr agent list` thì tìm builder mới theo bước 3 và cập nhật `builderPane`.
+   - Làm tiếp theo bảng "Trạng thái và cách làm tiếp" ở `references/loop.md`.
 1. Chạy `test "${HERDR_ENV:-}" = 1`. Lệnh lỗi thì báo người dùng rằng phiên không chạy trong Herdr, rồi dừng.
-2. Đọc hồ sơ repo theo mục "Hồ sơ repo".
+2. Đọc hồ sơ repo theo mục "Hồ sơ repo". Đối số có nhiều mã task thì ghi hàng đợi theo mục "Hàng đợi nhiều task".
 3. Tìm builder bằng `herdr agent list`.
    - Đối số hoặc hồ sơ chỉ định loại agent: chọn agent rảnh (`idle`) đúng loại đó.
    - Không chỉ định: chọn agent rảnh đầu tiên khác pane của bạn, loại nào cũng được (Claude Code, omp, Codex, `agy`...). Không bỏ qua agent chỉ vì khác loại với reviewer.
    - Có agent phù hợp: ghi lại `pane_id` của nó (ví dụ `w1J:p1`) và gọi là `<pane_id builder>`. Mọi lệnh `herdr agent prompt`, `read`, `send-keys` dùng `pane_id`, không dùng tên.
    - Không có: tách pane bằng `herdr pane split --current --direction right --cwd "$PWD" --no-focus`. Sau đó mở builder bằng `herdr agent start builder --kind <kind> --pane <pane mới> -- <tham số>`. Lấy `<kind>` và `<tham số>` từ mục `Builder` của hồ sơ.
-   - Lấy `pane_id` của bạn từ `"$HERDR_PANE_ID"` (ví dụ `w19:p1`) và gọi là `<pane_id reviewer>`. Chép giá trị thật vào file giao việc để builder báo xong bằng id này. Không đặt tên pane và không gửi theo tên: Herdr gắn tên vào phiên agent, nên tên mất khi phiên đổi (ví dụ sau `/clear` hoặc khi agent như `agy` nghỉ giữa lượt), còn `pane_id` giữ nguyên.
+   - Lấy `pane_id` của bạn từ `"$HERDR_PANE_ID"` (ví dụ `w19:p1`) và gọi là `<pane_id reviewer>`. Lệnh `handoff` ở bước 6 tự chép giá trị thật vào file giao việc để builder báo xong bằng id này. Không đặt tên pane và không gửi theo tên: Herdr gắn tên vào phiên agent, nên tên mất khi phiên đổi (ví dụ sau `/clear` hoặc khi agent như `agy` nghỉ giữa lượt), còn `pane_id` giữ nguyên.
+   - Ghi file trạng thái bằng `loop.mjs state --task <task> --set builderPane=<pane_id builder> --set reviewerPane="$HERDR_PANE_ID" --set after=<việc sau khi đạt>`. Từ đây, mỗi lần sang bước mới thì cập nhật `status` như các bước dưới, để làm tiếp được khi mất phiên.
 4. Tìm tiêu chí của task theo mục `Tiêu chí task`. Đọc spec và code liên quan. Ghi lại:
    - các điểm mơ hồ;
    - phần hạ tầng còn thiếu, ví dụ test chưa có;
    - chỗ tiêu chí lệch với code hiện tại, ví dụ tiêu chí viết cho stack cũ;
-   - module của task, theo mục "Bằng chứng chạy thật". Task có tiêu chí người dùng nhìn thấy được thì lấy luôn thư mục bằng chứng bằng lệnh `evidence` của mục đó;
+   - module của task, theo "Phần của reviewer" trong `references/bang-chung.md`;
    - pattern xấu trong vùng code task sẽ chạm: workaround, code deprecated, comment biện minh cho cách làm tắt, chỗ trái luật của repo. Builder đọc code xung quanh để bắt chước, nên dễ chép lại những chỗ này.
      - Với mỗi pattern, ghi vào file giao việc: file, số dòng, "không sao chép" và cách làm đúng.
      - Không giao builder dọn pattern trong task này, vì đó là việc ngoài phạm vi. Báo người dùng và đề xuất một task dọn riêng, hoặc một phép kiểm chặn pattern đó (lint rule, mẫu `bannedText`).
-5. Tạo ảnh chụp gốc `refs/review/<task>/0` theo luật review 6. Ảnh này giữ trạng thái trước khi builder bắt đầu. Nhờ đó diff lượt 1 không lẫn thay đổi chưa commit của task trước.
+5. Tạo ảnh chụp gốc (lượt 0) bằng `loop.mjs snapshot --task <task>`. Ảnh này giữ trạng thái trước khi builder bắt đầu. Nhờ đó diff lượt 1 không lẫn thay đổi chưa commit của task trước.
    - Sau đó ghi mốc toàn bộ thư mục làm việc bằng `node "<thư mục skill>/scripts/check-task.mjs" start --task <task>`. Lệnh check ở bước 10 so với mốc này, nên thay đổi có sẵn của người dùng ngoài phạm vi commit không bị tính cho builder.
-6. Viết file giao việc `<task>-handoff.md` theo mục "File giao việc".
+6. Tạo khung file giao việc bằng `loop.mjs handoff --task <task> --module <module> --out "<thư mục trao đổi>/<task>-handoff.md"`. Task không có tiêu chí người dùng nhìn thấy được thì thêm `--no-evidence`.
+   - Thay mọi dòng có chữ `ĐIỀN` theo mục "File giao việc".
+   - Chạy `rg -n ĐIỀN "<file giao việc>"` và thấy không còn dòng nào trước khi gửi.
 7. Xóa ngữ cảnh của builder trước mỗi task mới. Builder bắt đầu task mới với phiên sạch, không mang ngữ cảnh của task trước.
    1. Chạy `herdr agent list`. Chờ builder ở trạng thái `idle` hoặc `done`. Builder đang `working` thì lệnh xóa có thể bị xếp hàng sau việc đang chạy.
    2. Gửi lệnh xóa ngữ cảnh bằng `MSYS_NO_PATHCONV=1 herdr agent prompt <pane_id builder> "/clear"`. Builder là Claude Code thì lệnh là `/clear`. Agent khác dùng lệnh mở phiên mới tương đương. Không biết lệnh đó thì hỏi người dùng.
@@ -110,11 +121,17 @@ Ghi đường dẫn đầy đủ trong mọi tin nhắn gửi builder. Builder k
 8. Gửi file giao việc bằng `herdr agent prompt <pane_id builder> "<câu ngắn trỏ tới đường dẫn đầy đủ của file giao việc>"`.
    - Đọc màn hình một lần bằng `herdr agent read <pane_id builder>` để xác nhận builder đã bắt đầu.
    - Prompt còn nằm ở ô nhập: gửi `herdr agent send-keys <pane_id builder> Enter`. Một số agent (ví dụ omp) cần bước này.
+   - Chạy `loop.mjs state --task <task> --set status=cho-builder`.
+   - Bật theo dõi builder bị treo nếu chưa bật: chạy `loop.mjs watch --task <task>` trong pane Herdr `loop-watch`, theo mục "Theo dõi builder bị treo" ở `references/loop.md`. Một pane theo dõi dùng cho cả task, không bật lại mỗi lượt.
 9. Kết thúc lượt và chờ tin nhắn `XONG, báo cáo ở <đường dẫn>` từ builder. Tin nhắn đến pane của bạn như một tin nhắn mới.
    - Không chạy vòng lặp nền để chờ. Agent có thể dừng tiến trình nền khi máy thiếu bộ nhớ.
    - Không dùng `herdr agent wait` ngay sau prompt. Lệnh có thể trả về trước khi builder bắt đầu làm.
+   - Tin bắt đầu bằng `NHẮC <task>` đến từ pane `loop-watch`, không phải từ builder. Báo cáo đã cập nhật thì coi như XONG và sang bước 10. Builder `blocked` thì đọc màn hình và hỏi người dùng trước khi trả lời thay.
    - Người dùng báo builder bị kẹt: đọc màn hình bằng `herdr agent read <pane_id builder>`. Hỏi người dùng trước khi trả lời thay builder.
 10. Review theo mục "Luật review". Không tin báo cáo của builder.
+
+    Trước khi review, chạy `loop.mjs state --task <task> --set status=dang-review`, rồi `loop.mjs snapshot --task <task>` để tạo ảnh chụp lượt N. Xem phần builder vừa sửa bằng `loop.mjs diff --task <task>`.
+
     1. Chạy `node "<thư mục skill>/scripts/check-task.mjs" check --task <task> --module <module> --report <file báo cáo>`. Cách đọc kết quả ở `references/kiem-tu-dong.md`.
        - Mỗi dòng `[LỖI]` là một lỗi `Bắt buộc` trong file review. Đường dẫn cấm nằm trong stage thì bỏ stage bằng lệnh script ghi trong thông báo.
        - Dòng `[CẢNH BÁO]` thì reviewer tự xét và quyết định.
@@ -131,37 +148,51 @@ Ghi đường dẫn đầy đủ trong mọi tin nhắn gửi builder. Builder k
        - Tự chạy lại build và test sau lần sửa cuối có đổi code, theo mục "Luật chạy test".
 11. Task chưa đạt thì làm các bước sau:
     1. Viết `<task>-review-<N>.md` theo mục "Luật review". Gắn mức cho từng lỗi: `Critical`, `Bắt buộc`, `Optional` hoặc `Nit`.
-    2. Đổi tên báo cáo cũ thành `<task>-builder-report-r<N>.md`.
-    3. Ở lượt 1, tạo ảnh chụp lượt 1. Từ lượt 2, ảnh chụp đã có từ đầu lượt.
-    4. Ghi bước cuối `herdr agent prompt <pane_id reviewer> "XONG, báo cáo ở <đường dẫn>"` (thay bằng giá trị thật của `"$HERDR_PANE_ID"`) vào file review, kèm bước đọc màn hình reviewer và gửi Enter như bước cuối của mục "File giao việc".
-    5. Gửi review cho builder.
+    2. Ghi kết quả lượt bằng `loop.mjs round --task <task> --blocking <số lỗi Critical cộng Bắt buộc> --open <mã lỗi còn mở> --keys <khóa loại lỗi>`. Lệnh in `[DỪNG]` và thoát mã 1 nghĩa là cầu dao đã ngắt: dừng theo bước 12, không gửi review.
+    3. Đổi tên báo cáo cũ thành `<task>-builder-report-r<N>.md`.
+    4. Nối bước báo XONG vào cuối file review bằng `loop.mjs footer --task <task> >> "<file review>"`.
+    5. Gửi review cho builder, rồi chạy `loop.mjs state --task <task> --set status=cho-builder`.
     6. Quay lại bước 9.
 12. Dừng vòng lặp và hỏi người dùng khi gặp một trong các trường hợp sau:
     - builder cần đổi schema DB, thêm package hoặc đổi phạm vi;
     - tiêu chí mâu thuẫn với spec;
-    - việc tiếp theo không đảo ngược được, ví dụ push lên nhánh chính, deploy production, xóa dữ liệu.
+    - việc tiếp theo không đảo ngược được, ví dụ push lên nhánh chính, deploy production, xóa dữ liệu;
+    - cầu dao của `loop.mjs round` ngắt: cùng một mã lỗi còn mở 3 lượt liên tiếp, hoặc số lỗi chặn không giảm qua 3 lượt. Báo người dùng mã lỗi, lý do builder chưa sửa được và cách đi tiếp đề xuất, ví dụ đổi cách sửa, chia nhỏ task hoặc để người dùng tự quyết thiết kế.
+
+    Khi dừng, chạy `loop.mjs state --task <task> --set status=cho-nguoi-dung --set note="<câu hỏi>"` để phiên sau biết đang chờ gì.
 13. Task đạt (kể cả theo luật review 7) thì báo người dùng và dừng. Không commit trước khi người dùng báo "ok".
+    - Ghi lượt cuối bằng `loop.mjs round --task <task> --blocking 0`, rồi `loop.mjs state --task <task> --set status=cho-nguoi-dung`.
     - Giữ thay đổi theo mục `Review của người dùng`.
     - Liệt kê file đã đổi trong `Phạm vi commit`, để người dùng biết cần xem file nào.
     - Tick `[x]` từng tiêu chí đã đạt (reviewer đã đối chiếu bằng chứng) và dòng tiến độ của task, theo mục `Tiêu chí task`. Giữ `[ ]` cho tiêu chí chưa kiểm được và mục người dùng tự xác nhận, ví dụ "Review với người dùng". Không sửa nội dung tiêu chí. Bước này chỉ chạy khi task đã pass, nên tick luôn nằm cùng commit của task.
     - Cập nhật bảng `Lỗi lặp lại` của hồ sơ theo mục "Lỗi lặp lại" bên dưới.
     - Người dùng yêu cầu sửa thì giao lại cho builder, rồi review như một lượt bình thường.
-14. Người dùng báo "ok" thì làm đúng việc ghi trong đối số.
+14. Người dùng báo "ok" thì chạy `loop.mjs state --task <task> --set status=commit`, rồi làm đúng việc ghi trong đối số.
     - Giao commit và push cho builder bằng một file giao việc riêng.
     - Stage từng file trong `Phạm vi commit` bằng `git add -- <đường dẫn>`. Không stage file ngoài phạm vi.
     - Trước khi commit, chạy `git diff --cached --name-only`. Mọi dòng phải nằm trong `Phạm vi commit`.
     - Viết commit message theo mục `Commit` của hồ sơ.
     - Không dùng `--force`.
-    - Sau khi commit, xóa mọi ảnh chụp của task, kể cả lượt 0 và mốc `start`:
-
-      ```bash
-      git for-each-ref --format='%(refname)' "refs/review/<task>/" | while read -r ref; do git update-ref -d "$ref"; done
-      ```
+    - Sau khi commit, chạy `loop.mjs cleanup --task <task>`. Lệnh xóa mọi ảnh chụp của task, kể cả lượt 0 và mốc `start`, rồi chuyển trạng thái sang `xong`.
     - Tự kiểm tra hash commit, message và trạng thái remote.
+    - Hàng đợi còn task thì làm tiếp theo mục "Hàng đợi nhiều task".
+
+## Hàng đợi nhiều task
+
+Đối số có nhiều mã task thì chạy lần lượt, người dùng không phải gõ lại `/builder-loop` cho từng task.
+
+1. Ở bước 2, ghi hàng đợi bằng `loop.mjs queue --set <mã 2>,<mã 3> --after "<việc sau khi đạt>"`. Task đầu tiên chạy ngay nên không nằm trong hàng đợi.
+2. Mỗi task vẫn dừng ở bước 13 chờ người dùng báo "ok". Hàng đợi không bỏ qua bước này.
+3. Xong bước 14, chạy `loop.mjs queue --next`.
+   - Lệnh in mã task: bắt đầu task đó từ bước 4 với builder hiện tại. Bước 7 vẫn xóa ngữ cảnh builder.
+   - Lệnh in `Hàng đợi trống.`: báo người dùng đã xong cả hàng đợi, kèm bảng `loop.mjs stats`.
+4. Việc sau khi đạt là `chỉ báo cáo` thì thay đổi chưa commit của task trước còn trong thư mục làm việc khi task sau bắt đầu. Mốc `start` và ảnh chụp 0 của task sau đã tính phần này, nên diff của task sau không lẫn. Báo người dùng rằng thay đổi của nhiều task đang dồn lại chưa commit.
+5. Gặp trường hợp ở bước 12, kể cả cầu dao ngắt, thì dừng cả hàng đợi, không tự sang task sau.
 
 ## File giao việc
 
-File `<task>-handoff.md` gồm các phần sau:
+File `<task>-handoff.md` gồm các phần dưới đây. Lệnh `loop.mjs handoff` ở bước 6 viết sẵn mọi phần cố định. Reviewer chỉ viết các phần riêng của task: luật riêng chưa có kiểm tự động, bối cảnh, pattern xấu, các bước, gợi ý đột biến và lệnh kiểm tra. Không chạy được script thì viết tay đủ các phần dưới đây.
+
 
 - Luật bắt buộc:
   - đường dẫn đầy đủ của file luật của repo, kèm yêu cầu builder đọc toàn bộ file;
@@ -176,7 +207,7 @@ File `<task>-handoff.md` gồm các phần sau:
 - Mục "Agent skills" theo phần cùng tên bên dưới.
 - Yêu cầu TDD, và phép thử đột biến cho test xanh ngay lần đầu. Gợi ý đột biến cụ thể cho từng tiêu chí.
 - Lệnh kiểm tra theo mục "Luật chạy test", kèm yêu cầu ghi kết quả thật, chạy từ nhanh đến chậm, không chạy lại bộ lọc con ngay trước khi chạy toàn bộ bộ test, và không tự tách lệnh test ra nền bằng `&`, `nohup` hay `Start-Process` rồi kết thúc lượt.
-- Bằng chứng chạy thật cho tiêu chí người dùng nhìn thấy được, theo mục "Bằng chứng chạy thật" bên dưới: đường dẫn đầy đủ của thư mục bằng chứng cùng hai thư mục con `picture/` và `video/`, luật bắt buộc có cả ảnh và video, cách đặt tên file, luật chụp ảnh (cuộn về đầu trang trước `fullPage: true`, chụp viewport cho hộp thoại đang mở, không chụp thừa màn hình không đổi). Ghi thêm đường dẫn đầy đủ của `references/video-cursor.ts` và các luật về `showActions`, vòng đỏ, tab mới. Chép các luật đó vào file giao việc, vì builder không đọc skill này.
+- Bằng chứng chạy thật cho tiêu chí người dùng nhìn thấy được: đường dẫn đầy đủ của thư mục bằng chứng, `picture/` và `video/`, cùng đường dẫn đầy đủ của `references/bang-chung.md` để builder đọc mục "Phần của builder". Builder không đọc skill này, nên đường dẫn phải đầy đủ.
 - Bước báo tiến độ, chạy sau khi lệnh kiểm tra xanh:
   - KHÔNG tick `[x]` bất kỳ tiêu chí hay dòng tiến độ nào, theo mục `Tiêu chí task`. Reviewer tick từng tiêu chí khi task đã pass review.
   - Không sửa nội dung tiêu chí.
@@ -189,37 +220,9 @@ File `<task>-handoff.md` gồm các phần sau:
 
 ## Bằng chứng chạy thật
 
-Tiêu chí người dùng nhìn thấy được (giao diện, luồng thao tác) cần bằng chứng chạy thật. Bằng chứng được xếp theo module để dễ tìm lại. Ảnh và video nằm ở hai thư mục con riêng, và task nào có tiêu chí như vậy đều phải có cả hai loại. Thiếu một loại thì task chưa đạt.
+Tiêu chí người dùng nhìn thấy được (giao diện, luồng thao tác) cần cả ảnh và video quay app chạy thật, lưu trong `<gốc bằng chứng>/<module>/<task>/picture/` và `video/`. Thiếu một loại thì task chưa đạt.
 
-1. Xác định module của task ở bước 4.
-   - Hồ sơ ghi cách xác định ở mục `Bằng chứng chạy thật` thì làm theo hồ sơ.
-   - Hồ sơ không ghi: lấy tên thư mục `tasks/<module>/` chứa tiêu chí, hoặc tên module trong spec của task. Không xác định được thì dùng `chung`.
-   - Tên module viết thường, không dấu, nối bằng gạch nối, ví dụ `support-desk`, `calculator-ui`.
-2. Lấy thư mục bằng chứng bằng `node "<thư mục skill>/scripts/check-task.mjs" evidence --task <task> --module <module>`.
-   - Lệnh in đường dẫn `<gốc bằng chứng>/<module>/<task>/` và tạo thư mục nếu chưa có. Lệnh cũng tạo hai thư mục con `picture/` cho ảnh và `video/` cho video.
-   - Gốc mặc định là `~/builder-loop-evidence/<tên repo>`. Thư mục này nằm ngoài repo nên ảnh không lẫn vào Git, và giữ lại được sau khi task xong. Hồ sơ đổi gốc bằng khóa `evidence.dir` trong mục `Kiểm tự động`.
-   - Ghi đường dẫn đầy đủ của thư mục task, của `picture/` và của `video/` vào file giao việc.
-3. Bắt buộc có cả ảnh và video:
-   - Ảnh: chụp cho từng tiêu chí mới hoặc màn hình bị ảnh hưởng (không chụp lại thừa các màn hình không đổi đã có ở task trước, trừ khi task yêu cầu tổng hợp), gồm trạng thái trước và sau thao tác chính. Luồng nhiều bước thì mỗi bước một ảnh. Ảnh để reviewer xem nhanh và so giữa các lượt.
-     - Trước mọi ảnh `fullPage: true`, cuộn về đầu trang (`window.scrollTo(0, 0)`) và chờ font tải xong (`document.fonts.ready`) để thanh đầu trang cố định (`position: sticky` hoặc `fixed`) không cắt ngang giữa ảnh.
-     - Ảnh đang mở hộp thoại, modal hay bottom sheet (`position: fixed`) bắt buộc chụp khung nhìn hiện tại (`fullPage: false`), không chụp `fullPage: true`.
-   - Video: quay trọn luồng chính của task trên app chạy thật, từ trạng thái đầu tới trạng thái cuối. Task có nhiều luồng độc lập thì mỗi luồng một video. Video để thấy chuyển động, thứ tự thao tác và trạng thái loading mà ảnh không thể hiện.
-   - Chỉ có ảnh hoặc chỉ có video đều là lỗi `Bắt buộc`, kể cả khi tiêu chí không nói về chuyển động.
-   - Mọi tiêu chí nhìn thấy được phải xuất hiện trong ít nhất một ảnh và một video, và báo cáo ghi rõ ảnh và video nào chứng minh tiêu chí nào.
-   - Video quay bằng Playwright thì bật con trỏ và nhãn thao tác, để người xem biết agent đang làm gì. Đặt `showActions: { cursor: 'pointer', position: 'top-right', duration: 800 }` trong `recordVideo` của `browser.newContext` (một số bản Playwright mới không nhận khóa `cursor` ở `recordVideo` mà bật qua `page.screencast.showActions({ cursor: 'pointer' })`; kiểm tra và ghi rõ bản đã dùng trong báo cáo). Con trỏ di chuyển từ thao tác này sang thao tác kế tiếp, phần tử vừa tác động được tô sáng và tên thao tác hiện ở góc.
-   - Trước mỗi bước chính, gọi `page.screencast.showChapter('<tên bước>', { duration: 1500 })` để hiện thẻ tiêu đề giữa màn hình. Bản Playwright không có hai tùy chọn này thì ghi rõ trong báo cáo, và tự vẽ con trỏ bằng một phần tử gắn vào trang.
-   - Giữ `showActions` và gắn thêm vòng tròn đỏ quanh con trỏ cùng vòng gợn sóng khi bấm, giống phần mềm quay màn hình. Dùng helper có sẵn `<thư mục skill>/references/video-cursor.ts`: chép nguyên file vào thư mục helper E2E của repo (ví dụ `e2e/video-cursor.ts`), rồi gọi `await installClickHighlight(context)` ngay sau `browser.newContext` của context quay video. Chỉ gọi cho context quay video, vì lớp phủ là một phần tử `aria-hidden` trong trang và có thể làm sai assert đếm phần tử.
-   - Bấm liên kết `target="_blank"` mở tab mới thì video của context chỉ ghi tab chính, và cảnh bấm nút không có kết quả. Lưu thêm video của tab mới (`popup.video()`, đọc đường dẫn sau khi đóng context) thành file thứ hai trong `video/`, hoặc quay luồng trong một tab. Không dựng lại cảnh kết quả bằng `goto` rồi để người xem tưởng nút đã điều hướng.
-4. Lưu ảnh vào `<thư mục task>/picture/` và video vào `<thư mục task>/video/`. Không để file ở gốc thư mục task.
-5. Đặt tên file dạng `<số thứ tự 2 chữ số>-<tên ngắn của màn hình hoặc bước>.<đuôi>`, viết thường, không dấu, nối bằng gạch nối. Mỗi thư mục con đánh số riêng, bắt đầu từ `01`. Ví dụ: `picture/01-form-trong.png`, `picture/02-bao-loi-email.png`, `video/01-luong-dang-nhap.webm`.
-6. Lượt sửa sau chụp lại thì ghi đè file cùng tên, để mỗi thư mục con chỉ còn bản mới nhất. Xóa ảnh và video không còn dùng.
-7. Sửa lỗi giao diện của màn hình đã có ảnh bằng chứng thì không tạo thư mục mới (ví dụ `FIX-xxx`).
-   - Tìm ảnh cũ của màn hình đó bằng `rg` trong gốc bằng chứng, rồi chụp lại đúng trạng thái của ảnh cũ, cùng tên file, trong `picture/` của task đã làm màn hình đó. Ghi đè ảnh cũ. Video cũ của màn hình đó cũng quay lại và ghi đè trong `video/`.
-   - Trạng thái cần chụp chưa có ảnh thì thêm ảnh mới vào `picture/` của task đó, với số thứ tự kế tiếp. Luôn quay lại cả video của luồng chứa màn hình đó, vì lỗi sửa xong cần cả ảnh và video mới.
-   - Chạy `check-task` với mã và module của task gốc để đường dẫn ảnh khớp. Báo cáo ghi rõ ảnh nào bị ghi đè.
-8. Báo cáo ghi đường dẫn đầy đủ của từng file, trong backtick, cạnh tiêu chí tương ứng.
-
-`check-task` báo lỗi khi báo cáo nhắc tới ảnh hoặc video không tồn tại, và khi diff chạm giao diện mà báo cáo thiếu ảnh hoặc thiếu video. Nó cảnh báo khi bằng chứng nằm ngoài thư mục của module và task, khi ảnh không ở `picture/` hoặc video không ở `video/`, khi thư mục có file báo cáo không nhắc tới, và khi báo cáo chỉ có một loại bằng chứng mà diff không chạm giao diện.
+Luật chi tiết ở `references/bang-chung.md`. "Phần của reviewer" gồm cách xác định module, cách lấy thư mục và những gì `check-task` kiểm. "Phần của builder" gồm cách đặt tên file, luật chụp ảnh, luật quay video có con trỏ và cách sửa lỗi giao diện của màn hình đã có ảnh. File giao việc trỏ builder tới phần của builder bằng đường dẫn đầy đủ.
 
 Builder có thể là agent khác bạn. Viết file giao việc để agent nào cũng làm theo được: dùng lệnh shell cụ thể, không dùng lệnh riêng của một agent.
 
@@ -230,8 +233,7 @@ Builder có thể là agent khác bạn. Viết file giao việc để agent nà
    - Chỉ dừng vòng lặp ở các trường hợp của bước 12 trong mục "Quy trình".
    - Đánh số lượt tăng dần (`<task>-review-<N>.md`, `refs/review/<task>/<N>`) không có trần.
 2. Chỉ review diff mới.
-   - Lượt 1: review diff từ ảnh chụp 0 tới trạng thái hiện tại, kể cả file mới chưa track.
-   - Lượt 2 trở đi: tạo ảnh chụp cho lần sửa của builder. Chỉ review `git diff refs/review/<task>/<N-1> refs/review/<task>/<N>`.
+   - Mỗi lượt chỉ review diff giữa ảnh chụp lượt trước và lượt này, lấy bằng `loop.mjs diff --task <task>` (tương đương `git diff refs/review/<task>/<N-1> refs/review/<task>/<N>`). Lượt 1 so với ảnh chụp 0, gồm cả file mới chưa track.
    - Mọi lượt review đều có một agent review độc lập, với mọi loại reviewer. Reviewer vừa điều phối vừa tự kiểm thì dễ tin báo cáo của builder và bỏ sót lỗi.
      - Agent review là agent mới, không mang ngữ cảnh của reviewer.
      - Prompt của agent ghi lệnh diff của lượt, đường dẫn file giao việc và file review lượt trước, nếu có.
@@ -259,28 +261,11 @@ Builder có thể là agent khác bạn. Viết file giao việc để agent nà
    - Reviewer liệt kê các chỗ tương tự đã thấy, mỗi chỗ có file và số dòng.
    - Reviewer ghi lệnh tìm, ví dụ `rg "<mẫu>" src`, để builder tự quét hết.
    - Builder ghi trong báo cáo danh sách chỗ đã sửa cho từng mã lỗi.
-6. Tạo ảnh chụp để mỗi lượt có hash và diff riêng.
-   - Ảnh chụp là commit nằm ngoài nhánh, lưu ở `refs/review/<task>/<N>`. Ảnh chụp không đổi nhánh, danh sách stage hay file trong thư mục làm việc.
-   - Lượt 0: tạo trước khi giao việc. Cha là `HEAD`.
-   - Lượt 1: tạo sau khi viết xong review lượt 1. Cha là ảnh chụp 0.
-   - Lượt 2 trở đi: tạo khi builder báo xong, trước khi review. Cha là ảnh chụp lượt trước.
-   - Chỉ đưa file trong `Phạm vi commit` vào ảnh chụp. Dùng danh sách stage tạm trong thư mục trao đổi, không dùng danh sách stage của repo.
+6. Mỗi lượt có ảnh chụp riêng, để có hash và diff riêng.
+   - Ảnh chụp là commit nằm ngoài nhánh, lưu ở `refs/review/<task>/<N>`. Ảnh chụp không đổi nhánh, danh sách stage hay file trong thư mục làm việc, và chỉ lấy file trong `Phạm vi commit`.
+   - Lượt 0 tạo ở bước 5, trước khi giao việc. Lượt N tạo ở đầu bước 10, ngay khi builder báo xong lượt N, kể cả lần dọn cuối.
+   - Tạo bằng `loop.mjs snapshot --task <task>`. Script tự đánh số lượt và tự chọn cha.
    - Không push ảnh chụp. Bước 14 xóa chúng sau khi commit.
-
-   Lệnh tạo ảnh chụp, chạy bằng bash ở gốc repo. Thay `<phạm vi>` bằng `Phạm vi commit`, hoặc `.` khi phạm vi là cả repo:
-
-   ```bash
-   INDEX="<thư mục trao đổi>/review-index"
-   PARENT=HEAD   # Từ lượt 1: PARENT=refs/review/<task>/<N-1>
-   GIT_INDEX_FILE="$INDEX" git read-tree HEAD
-   GIT_INDEX_FILE="$INDEX" git add -A -- <phạm vi>
-   TREE=$(GIT_INDEX_FILE="$INDEX" git write-tree)
-   SNAP=$(git commit-tree "$TREE" -p "$PARENT" -m "review snapshot <task> <N>")
-   git update-ref "refs/review/<task>/<N>" "$SNAP"
-   rm -f "$INDEX"
-   ```
-
-   Lệnh `git add -A` ở đây chỉ ghi vào danh sách stage tạm `$INDEX`. Danh sách stage của repo không đổi.
 
 7. Lượt chỉ còn lỗi `Optional` hoặc `Nit` thì task đạt.
    - Gửi các lỗi đó cho builder trong một lần dọn cuối.
@@ -357,7 +342,8 @@ Viết bằng ngôn ngữ người dùng đang dùng, ngắn gọn:
 - số liệu kiểm tra do bạn tự chạy lại;
 - lỗi lặp lại cần chặn, kèm cách chặn đề xuất;
 - pattern xấu thấy ở bước 4, kèm đề xuất dọn;
-- câu hỏi còn chờ người dùng quyết.
+- câu hỏi còn chờ người dùng quyết;
+- bảng `loop.mjs stats --task <task>`: số lượt, số lỗi chặn theo lượt, thời gian builder làm và thời gian review. Chạy hàng đợi thì gửi thêm bảng `loop.mjs stats` của cả hàng đợi khi xong.
 
 Trong lúc builder chạy, báo trạng thái ngắn sau mỗi lượt review.
 
@@ -370,11 +356,15 @@ Trong lúc builder chạy, báo trạng thái ngắn sau mỗi lượt review.
 | `check-task` báo 0 LỖI nên task đạt | Script chỉ kiểm những gì máy kiểm được. Phép thử đột biến, đối chiếu bằng chứng và xem ảnh vẫn do reviewer làm |
 | Thêm một dòng luật vào file giao việc là đủ chặn lỗi này | Builder sau `/clear` không nhớ lần sửa trước. Lỗi lặp lại cần phép kiểm tự động, theo mục "Lỗi lặp lại" |
 | Hỏi người dùng giữa các lượt cho chắc | Luật review 1: reviewer tự gửi lượt tiếp. Chỉ dừng ở các trường hợp của bước 12 |
+| Thêm một lượt nữa chắc builder sửa được | Cùng một lỗi còn mở 3 lượt là cách sửa đang sai hướng. Cầu dao của `loop.mjs round` ngắt thì dừng và hỏi người dùng |
+| Mình nhớ đang ở bước nào, không cần cập nhật `status` | Sau `/clear` hay khi ngữ cảnh bị nén, phiên mới chỉ biết những gì nằm trong file trạng thái |
 | Chạy lệnh chậm bằng lệnh nền cho tiện | Agent có thể dừng lệnh nền khi thiếu RAM, và tiến trình sót lại làm hỏng lần chạy sau. Chạy trong pane `test-runner` |
 
 ## Red Flags
 
 - Reviewer sửa file code của task.
+- Gửi file giao việc còn dòng có chữ `ĐIỀN`.
+- Cùng một mã lỗi còn mở từ 3 lượt trở lên mà vòng lặp vẫn chạy, và người dùng chưa đặt `breaker=off`.
 - Builder tự tick tiêu chí trước khi task pass review.
 - Reviewer tick tiêu chí mà không có test hoặc bằng chứng chạy thật đã đối chiếu.
 - Có lệnh `git add -A`, `git add .`, hoặc commit trước khi người dùng báo "ok".
@@ -395,4 +385,5 @@ Trước khi báo người dùng task đạt:
 - [ ] Lệnh nhanh xanh sau lần sửa cuối. Lệnh chậm đã chạy theo luật chạy test 3, hoặc báo cáo ghi lý do bỏ.
 - [ ] Mọi lượt có agent review độc lập, hoặc file review ghi lý do thiếu.
 - [ ] Bảng `Lỗi lặp lại` của hồ sơ đã cập nhật.
+- [ ] Lượt cuối đã ghi bằng `loop.mjs round --blocking 0`, và file trạng thái ở `cho-nguoi-dung`.
 - [ ] Chưa có commit nào. Thay đổi được giữ theo mục `Review của người dùng`.
